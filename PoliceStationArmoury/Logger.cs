@@ -1,4 +1,4 @@
-﻿namespace PoliceStationArmoury
+﻿namespace PoliceStationArmory
 {
     using Rage;
     using System;

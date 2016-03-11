@@ -1,4 +1,4 @@
-﻿namespace PoliceStationArmoury
+﻿namespace PoliceStationArmory
 {
     // System
     using System.Drawing;
@@ -8,7 +8,7 @@
     using Rage.Native;
 
     // PSArmoury
-    using PoliceStationArmoury.Types;
+    using PoliceStationArmory.Types;
 
     internal static class Extensions
     {

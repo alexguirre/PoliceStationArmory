@@ -1,4 +1,4 @@
-﻿namespace PoliceStationArmoury
+﻿namespace PoliceStationArmory
 {
     // RPH
     using Rage;
@@ -9,7 +9,7 @@
         {
             Logger.LogWelcome();
 
-            Globals.MainArmoury = new Armoury();
+            Globals.MainArmoury = new Armory();
 
             while (true)
             {

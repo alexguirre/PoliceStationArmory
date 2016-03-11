@@ -67,7 +67,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Armoury.cs" />
+    <Compile Include="Armory.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="EntryPoint.cs" />
     <Compile Include="Extensions.cs" />
@@ -91,82 +91,82 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <None Include="Police Station Armoury Resources\UI\Advanced_Rifle.png">
+    <None Include="Police Station Armory Resources\UI\Advanced_Rifle.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Police Station Armoury Resources\UI\AP_Pistol.png">
+    <None Include="Police Station Armory Resources\UI\AP_Pistol.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Police Station Armoury Resources\UI\Assault_Rifle.png">
+    <None Include="Police Station Armory Resources\UI\Assault_Rifle.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Police Station Armoury Resources\UI\Assault_Shotgun.png">
+    <None Include="Police Station Armory Resources\UI\Assault_Shotgun.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Police Station Armoury Resources\UI\Assault_SMG.png">
+    <None Include="Police Station Armory Resources\UI\Assault_SMG.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Police Station Armoury Resources\UI\Bullpup_Rifle.png">
+    <None Include="Police Station Armory Resources\UI\Bullpup_Rifle.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Police Station Armoury Resources\UI\Bullpup_Shotgun.png">
+    <None Include="Police Station Armory Resources\UI\Bullpup_Shotgun.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Police Station Armoury Resources\UI\Carbine_Rifle.png">
+    <None Include="Police Station Armory Resources\UI\Carbine_Rifle.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Police Station Armoury Resources\UI\Combat_MG.png">
+    <None Include="Police Station Armory Resources\UI\Combat_MG.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Police Station Armoury Resources\UI\Combat_Pistol.png">
+    <None Include="Police Station Armory Resources\UI\Combat_Pistol.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Police Station Armoury Resources\UI\Fire_Extinguisher.png">
+    <None Include="Police Station Armory Resources\UI\Fire_Extinguisher.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Police Station Armoury Resources\UI\Grenade.png">
+    <None Include="Police Station Armory Resources\UI\Grenade.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Police Station Armoury Resources\UI\Heavy_Pistol.png">
+    <None Include="Police Station Armory Resources\UI\Heavy_Pistol.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Police Station Armoury Resources\UI\Heavy_Sniper.png">
+    <None Include="Police Station Armory Resources\UI\Heavy_Sniper.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Police Station Armoury Resources\UI\MG.png">
+    <None Include="Police Station Armory Resources\UI\MG.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Police Station Armoury Resources\UI\Micro_SMG.png">
+    <None Include="Police Station Armory Resources\UI\Micro_SMG.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Police Station Armoury Resources\UI\Nightstick.png">
+    <None Include="Police Station Armory Resources\UI\Nightstick.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Police Station Armoury Resources\UI\Pistol.png">
+    <None Include="Police Station Armory Resources\UI\Pistol.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Police Station Armoury Resources\UI\Pistol_50.png">
+    <None Include="Police Station Armory Resources\UI\Pistol_50.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Police Station Armoury Resources\UI\Pump_Shotgun.png">
+    <None Include="Police Station Armory Resources\UI\Pump_Shotgun.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Police Station Armoury Resources\UI\Sawn_Off_Shotgun.png">
+    <None Include="Police Station Armory Resources\UI\Sawn_Off_Shotgun.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Police Station Armoury Resources\UI\SMG.png">
+    <None Include="Police Station Armory Resources\UI\SMG.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Police Station Armoury Resources\UI\Smoke_Grenade.png">
+    <None Include="Police Station Armory Resources\UI\Smoke_Grenade.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Police Station Armoury Resources\UI\Sniper_Rifle.png">
+    <None Include="Police Station Armory Resources\UI\Sniper_Rifle.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Police Station Armoury Resources\UI\Sticky_Bomb.png">
+    <None Include="Police Station Armory Resources\UI\Sticky_Bomb.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Police Station Armoury Resources\UI\Stun_Gun.png">
+    <None Include="Police Station Armory Resources\UI\Stun_Gun.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -1,4 +1,4 @@
-﻿namespace PoliceStationArmoury
+﻿namespace PoliceStationArmory
 {
     // System
     using System;
@@ -8,7 +8,7 @@
 
     internal static class Globals
     {
-        public static Armoury MainArmoury { get; set; }
+        public static Armory MainArmoury { get; set; }
 
         public static Random Random { get; } = new Random();
 

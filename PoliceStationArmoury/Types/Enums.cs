@@ -1,4 +1,4 @@
-﻿namespace PoliceStationArmoury.Types
+﻿namespace PoliceStationArmory.Types
 {
     internal enum EWeaponHash : uint
     {

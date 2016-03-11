@@ -1,4 +1,4 @@
-﻿//namespace NOOSE_Tactical_Response_Unit.UI
+﻿//namespace PoliceStationArmory.UI
 //{
 //    using Rage;
 

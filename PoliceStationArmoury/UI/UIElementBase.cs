@@ -1,4 +1,4 @@
-﻿namespace PoliceStationArmoury.UI
+﻿namespace PoliceStationArmory.UI
 {
     using Rage;
 

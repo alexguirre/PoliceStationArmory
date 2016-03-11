@@ -1,11 +1,11 @@
-﻿namespace PoliceStationArmoury
+﻿namespace PoliceStationArmory
 {
     // RPH
     using Rage;
     using Rage.Native;
 
     // PSArmoury
-    using PoliceStationArmoury.Types;
+    using PoliceStationArmory.Types;
 
     internal static class Common
     {
