@@ -3,6 +3,7 @@
     // System
     using System.Drawing;
     using System.Windows.Forms;
+    using System.Collections.Generic;
 
     // RPH
     using Rage;
@@ -14,9 +15,15 @@
     internal class Armoury
     {
         public Ped Cop { get; private set; }
+        public Camera Cam { get; private set; }
+        public bool IsPlayerUsingTheArmoury { get; private set; }
+        public bool IsCopGivingAWeapon { get; private set; }
 
         public Armoury()
         {
+            userInterface = new UserInterface();
+            userInterface.ItemSelected += OnItemSelected;
+
             Game.FrameRender += UIFrameRender;
             Game.RawFrameRender += UIRawFrameRender;
         }
@@ -30,6 +37,46 @@
                 {
                     Game.DisplayNotification("activated");
                     Cop.PlayAnimation(GiveHandgunAnimation, -1, 0.5f, 0.5f, 0.0f);
+                }
+                
+
+                if(Game.LocalPlayer.Character.IsInRangeOf2D(playerGetStuffPos.Position, 5.1f))
+                {
+                    Game.DisplayHelp("Press E", 10);
+                    if (Game.IsKeyDown(Keys.E))
+                    {
+                        if (!IsPlayerUsingTheArmoury)
+                        {
+                            Common.DisplayHud(false);
+                            Common.DisplayRadar(false);
+                            if (!Cam.Exists())
+                                Cam = new Camera(false);
+                            Cam.Position = camPos;
+                            Cam.PointAtEntity(Cop, new Vector3(0f, 0.2f, -0.115f), true);
+
+                            Camera tempCam = new Camera(true);
+                            tempCam.Position = Common.GetGameplayCameraPosition();
+                            tempCam.Rotation = Common.GetGameplayCameraRotation();
+                            tempCam.Active = true;
+                            Task playerTask = Game.LocalPlayer.Character.Tasks.GoStraightToPosition(playerGetStuffPos.Position, 1.0f, playerGetStuffPos.Heading, 0.0f, -1);
+                            tempCam.Interpolate(Cam, 1500, true, true, true);
+                            Cam.Active = true;
+                            playerTask.WaitForCompletion();
+                            Game.LocalPlayer.Character.IsPositionFrozen = true;
+                            IsPlayerUsingTheArmoury = true;
+                        }
+                        else
+                        {
+                            Cam.PointAtEntity(Game.LocalPlayer.Character, Vector3.Zero, true);
+                            Game.LocalPlayer.Character.IsPositionFrozen = false;
+                            Game.LocalPlayer.Character.Tasks.GoStraightToPosition(playerLeavesPos.Position, 1.0f, playerLeavesPos.Heading, 0.0f, -1).WaitForCompletion();
+
+                            Cam.Active = false;
+                            Common.DisplayHud(true);
+                            Common.DisplayRadar(true);
+                            IsPlayerUsingTheArmoury = false;
+                        }
+                    }
                 }
 
                 if (!Game.LocalPlayer.Character.IsInRangeOf2D(copSpawnPos.Position, 50f))
@@ -74,14 +121,68 @@
             }
         }
 
+        private void OnItemSelected(UserInterface.WeaponItem selectedItem)
+        {
+            GameFiber.StartNew(delegate
+            {
+                IsCopGivingAWeapon = true;
+                Task copAnimTask    = Cop.PlayAnimation(GiveHandgunAnimation, -1, 1f, 0.5f, 0.0f);
+                Task playerAnimTask = Game.LocalPlayer.Character.PlayAnimation(ReceiveHandgunAnimation, -1, 1f, 0.5f, 0.0f);
+
+                Cop.Inventory.GiveNewWeapon((WeaponHash)selectedItem.WeaponHash, 999, true);
+                copAnimTask.WaitForCompletion();
+                Cop.Inventory.Weapons.Remove((WeaponHash)selectedItem.WeaponHash);
+                Game.LocalPlayer.Character.Inventory.GiveNewWeapon((WeaponHash)selectedItem.WeaponHash, 999, true);
+
+                IsCopGivingAWeapon = false;
+            });
+        }
+
         public void UIFrameRender(object sender, GraphicsEventArgs e)
         {
+            if (IsPlayerUsingTheArmoury)
+            {
+                if (userInterface.State == UIState.Hidden ||
+                   userInterface.State == UIState.Hiding)
+                    userInterface.State = UIState.ComingIntoView;
+
+                Common.DisableAllGameControls(GameControlGroup.MAX_INPUTGROUPS);
+
+                UICommon.ProcessCursor();
+            }
+            else
+            {
+                if (userInterface.State == UIState.Showing ||
+                   userInterface.State == UIState.ComingIntoView)
+                    userInterface.State = UIState.Hiding;
+            }
+
             userInterface.Process();
         }
 
         public void UIRawFrameRender(object sender, GraphicsEventArgs e)
         {
             userInterface.Draw(e);
+
+            if (IsPlayerUsingTheArmoury)
+                UICommon.DrawCursor(e);
+        }
+
+        public void CleanUp()
+        {
+            Game.FrameRender -= UIFrameRender;
+            Game.RawFrameRender -= UIRawFrameRender;
+            if (Cop.Exists())
+            {
+                Cop.Invincible = true;
+                Cop.Dismiss();
+            }
+            if (Cam.Exists())
+                Cam.Delete();
+            Common.DisplayHud(true);
+            Common.DisplayRadar(true);
+            Game.LocalPlayer.Character.IsPositionFrozen = false;
+            Game.LocalPlayer.Character.Tasks.ClearImmediately();
         }
 
         private UserInterface userInterface;
@@ -91,8 +192,16 @@
         private readonly Animation GiveRifleAnimation = new Animation("mp_cop_armoury", "rifle_on_counter_cop");
         private readonly Animation GivePackageAnimation = new Animation("mp_cop_armoury", "package_from_counter_cop");
 
-        private readonly SpawnPoint copSpawnPos = new SpawnPoint(new Vector3(454.11f, -979.99f, 30.69f), 90f);
+        private readonly Animation ReceiveAmmoAnimation = new Animation("mp_cop_armoury", "ammo_on_counter");
+        private readonly Animation ReceiveHandgunAnimation = new Animation("mp_cop_armoury", "pistol_on_counter");
+        private readonly Animation ReceiveRifleAnimation = new Animation("mp_cop_armoury", "rifle_on_counter");
+        private readonly Animation ReceivePackageAnimation = new Animation("mp_cop_armoury", "package_from_counter");
 
+        private readonly SpawnPoint copSpawnPos = new SpawnPoint(new Vector3(454.11f, -979.99f, 30.69f), 90f);
+        private readonly SpawnPoint playerGetStuffPos = new SpawnPoint(new Vector3(452.38f, -980.0f, 30.69f), 263.19f);
+        private readonly SpawnPoint playerLeavesPos = new SpawnPoint(new Vector3(449.24f, -982.84f, 30.69f), 90f);
+
+        private readonly Vector3 camPos = new Vector3(452.53f, -981.61f, 31f);
 
         protected class UserInterface
         {
@@ -101,23 +210,55 @@
 
             public event WeaponItemSelected ItemSelected = delegate { };
 
-            public UILabel label = new UILabel("Some text", "Times New Roman", 20f, new PointF(50f, 50f), Color.Red, UIScreenBorder.Left, 3f, 4.375f);
+            public List<WeaponItem> Items { get; }
+
+            private UIState _state;
+            public UIState State
+            {
+                get
+                {
+                    return _state;
+                }
+                set
+                {
+                    if (_state == value)
+                        return;
+
+                    foreach (WeaponItem item in Items)
+                    {
+                        item.State = value;
+                    }
+                    _state = value;
+                }
+            }
 
             public UserInterface()
             {
-
+                Items = new List<WeaponItem>();
+                foreach (EWeaponHash hash in WeaponItem.GetAvalaibleWeapons())
+                {
+                    WeaponItem item = WeaponItem.GetWeaponItemForWeapon(hash);
+                    item.BackgroundRectangle.Clicked += (s) => { invokeItemSelected(item); };
+                    Items.Add(item);
+                }
+                updateItemsPosition();
             }
 
             public void Process()
             {
-                
+                foreach (WeaponItem item in Items)
+                {
+                    item.Process();
+                }
             }
 
             public void Draw(GraphicsEventArgs e)
             {
-
+                foreach (WeaponItem item in Items)
+                {
+                    item.Draw(e);
+                }
             }
-
 
             private void invokeItemSelected(WeaponItem item)
             {
@@ -125,21 +266,75 @@
                     ItemSelected(item);
             }
 
+            private void updateItemsPosition()
+            {
+                float x = Game.Resolution.Width - 600f;
+                float y = 0f;
+
+                foreach (WeaponItem item in Items)
+                {
+                    Logger.LogTrivial("Hash: " + item.WeaponHash);
+                    item.Texture.RectangleF = new RectangleF(x, y, item.Texture.Texture.Size.Width * 0.375f, item.Texture.Texture.Size.Height * 0.375f);
+                    item.BackgroundRectangle.RectangleF = new RectangleF(x, y, 1280, item.Texture.Texture.Size.Height * 0.375f);
+                    y += item.Texture.Texture.Size.Height * 0.375f;
+                }
+            }
 
             public class WeaponItem
             {
                 public EWeaponHash WeaponHash { get; }
                 public UITexture Texture { get; }
+                public UIRectangle BackgroundRectangle { get; }
+
+                private UIState _state;
+                public UIState State
+                {
+                    get
+                    {
+                        return _state;
+                    }
+                    set
+                    {
+                        if (_state == value)
+                            return;
+
+                        Texture.State = value;
+                        BackgroundRectangle.State = value;
+                        _state = value;
+                    }
+                }
 
                 public WeaponItem(EWeaponHash hash, Rage.Texture texture)
                 {
                     WeaponHash = hash;
                     Texture = new UITexture(texture, new RectangleF(), UIScreenBorder.Right, 2.85f, 3.825f);
+                    BackgroundRectangle = new UIRectangle(new RectangleF(), Color.FromArgb(150, Color.DarkGray), Color.Black, UIRectangleType.FilledWithBorders, UIScreenBorder.Right, 2.85f, 3.825f);
+                    BackgroundRectangle.Hovered += backRectHoveredEvent;
+                }
+
+                public void Process()
+                {
+                    BackgroundRectangle.Color = defaultBackRectColor;
+                    BackgroundRectangle.Process();
+                    Texture.Process();
+                }
+
+                public void Draw(GraphicsEventArgs e)
+                {
+                    BackgroundRectangle.Draw(e);
+                    Texture.Draw(e);
+                }
+
+                private Color defaultBackRectColor = Color.FromArgb(150, Color.DarkGray);
+                private Color hoveredBackRectColor = ControlPaint.Light(Color.FromArgb(150, Color.DarkGray), 1.0f);
+                private void backRectHoveredEvent(UIElementBase sender)
+                {
+                    BackgroundRectangle.Color = hoveredBackRectColor;
                 }
 
                 public static WeaponItem GetWeaponItemForWeapon(EWeaponHash hash)
                 {
-                    Rage.Texture texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\" + hash);
+                    Rage.Texture texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\" + hash + ".png");
                     return new WeaponItem(hash, texture);
                     //Rage.Texture texture = null;
                     //switch (hash)                           // TODO: complete textures switch statement and create the textures
