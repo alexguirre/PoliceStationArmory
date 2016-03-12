@@ -137,8 +137,15 @@
                 GameFiber.Sleep(375);
                 Cop.Inventory.GiveNewWeapon((WeaponHash)selectedItem.WeaponHash, 999, true);
                 Cop.PlayAmbientSpeech(Speech.CHAT_STATE, false);
+                if (Cop.IsAnySpeechPlaying)
+                {
+                    GameFiber.StartNew(delegate
+                    {
+                        GameFiber.Sleep(900);
+                        Game.LocalPlayer.Character.PlayAmbientSpeech(Speech.CHAT_RESP, false);
+                    });
+                }
                 copAnimTask.WaitForCompletion();
-                Game.LocalPlayer.Character.PlayAmbientSpeech(Speech.CHAT_RESP, false);
                 Cop.Inventory.Weapons.Remove((WeaponHash)selectedItem.WeaponHash);
                 Game.LocalPlayer.Character.Inventory.GiveNewWeapon((WeaponHash)selectedItem.WeaponHash, 999, true);
 
@@ -193,8 +200,8 @@
 
         private WeaponType GetTypeForWeapon(EWeaponHash hash)
         {
-            switch (hash)                           // TODO: complete textures switch statement and create the textures
-            {
+            switch (hash)                           // TODO: add flashlight
+            {                                                   
                 // melee     
                 case EWeaponHash.Nightstick:        
                 case EWeaponHash.Flashlight:
@@ -213,6 +220,7 @@
                 case EWeaponHash.Smoke_Grenade:
                 case EWeaponHash.BZ_Gas:
                 case EWeaponHash.Fire_Extinguisher:
+                case EWeaponHash.Flare:
                     return WeaponType.Handgun;
                              
 
@@ -821,7 +829,8 @@
                         // throwables
                         EWeaponHash.Grenade,
                         EWeaponHash.Sticky_Bomb,
-                        EWeaponHash.Smoke_Grenade,         
+                        EWeaponHash.Smoke_Grenade,     
+                        EWeaponHash.Flare,
                         //EWeaponHash.BZ_Gas,                // doesn't have texture        
                         //case EWeaponHash.Molotov,               
                         EWeaponHash.Fire_Extinguisher,
@@ -891,6 +900,7 @@
                         EWeaponHash.Grenade,
                         EWeaponHash.Sticky_Bomb,
                         EWeaponHash.Smoke_Grenade,
+                        EWeaponHash.Flare,
                     };
                 }
             }

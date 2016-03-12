@@ -32,3 +32,4 @@ C:\Users\PcCom1\Documents\Visual Studio 2015\Projects\PoliceStationArmoury\Polic
 E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Handguns_Icon.png
 E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Throwables_Icon.png
 E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Long_Guns_Icon.png
+E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Flare.png

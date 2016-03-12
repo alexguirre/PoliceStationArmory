@@ -14,4 +14,4 @@ using Rage.Attributes;
 [assembly: Guid("56a58063-b386-4616-8dbe-02d1e74f6e46")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
-[assembly: Plugin("PoliceStationArmoury", Author ="alexguirre")]
+[assembly: Plugin("Police Station Armory", Author = "alexguirre", PrefersSingleInstance = true)]
