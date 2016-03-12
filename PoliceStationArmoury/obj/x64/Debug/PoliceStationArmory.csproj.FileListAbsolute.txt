@@ -24,8 +24,11 @@ E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\
 E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Sniper_Rifle.png
 E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Sticky_Bomb.png
 E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Stun_Gun.png
-E:\Rockstar Games\Grand Theft Auto V\Plugins\PoliceStationArmoury.dll
-E:\Rockstar Games\Grand Theft Auto V\Plugins\PoliceStationArmoury.pdb
 C:\Users\PcCom1\Documents\Visual Studio 2015\Projects\PoliceStationArmoury\PoliceStationArmoury\obj\x64\Debug\PoliceStationArmory.csprojResolveAssemblyReference.cache
-C:\Users\PcCom1\Documents\Visual Studio 2015\Projects\PoliceStationArmoury\PoliceStationArmoury\obj\x64\Debug\PoliceStationArmoury.dll
-C:\Users\PcCom1\Documents\Visual Studio 2015\Projects\PoliceStationArmoury\PoliceStationArmoury\obj\x64\Debug\PoliceStationArmoury.pdb
+E:\Rockstar Games\Grand Theft Auto V\Plugins\PoliceStationArmory.dll
+E:\Rockstar Games\Grand Theft Auto V\Plugins\PoliceStationArmory.pdb
+C:\Users\PcCom1\Documents\Visual Studio 2015\Projects\PoliceStationArmoury\PoliceStationArmoury\obj\x64\Debug\PoliceStationArmory.dll
+C:\Users\PcCom1\Documents\Visual Studio 2015\Projects\PoliceStationArmoury\PoliceStationArmoury\obj\x64\Debug\PoliceStationArmory.pdb
+E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Handguns_Icon.png
+E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Rifles_Icon.png
+E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Throwables_Icon.png

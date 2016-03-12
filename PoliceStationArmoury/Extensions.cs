@@ -1,7 +1,9 @@
 ﻿namespace PoliceStationArmory
 {
     // System
+    using System.Linq;
     using System.Drawing;
+    using System.Collections.Generic;
 
     // RPH
     using Rage;
@@ -131,6 +133,36 @@
             if (waitForCompletion)
                 GameFiber.Sleep(time);
             return toCam;
+        }
+
+        public static void Shuffle<T>(this IList<T> list)
+        {
+            int n = list.Count;
+            while (n > 1)
+            {
+                int k = Globals.Random.Next(n--);
+                T temp = list[n];
+                list[n] = list[k];
+                list[k] = temp;
+            }
+        }
+
+        public static T GetRandomElement<T>(this IList<T> list, bool shuffle = false)
+        {
+            if (list == null || list.Count <= 0)
+                return default(T);
+
+            if (shuffle) list.Shuffle();
+            return list[Globals.Random.Next(list.Count)];
+        }
+
+        public static T GetRandomElement<T>(this IEnumerable<T> enumarable, bool shuffle = false)
+        {
+            if (enumarable == null || enumarable.Count() <= 0)
+                return default(T);
+
+            T[] array = enumarable.ToArray();
+            return GetRandomElement(array, shuffle);
         }
     }
 }

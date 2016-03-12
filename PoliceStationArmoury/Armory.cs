@@ -35,17 +35,14 @@
         {
             if (Cop.Exists())
             {
-                if (Game.IsKeyDown(Keys.Y))
-                {
-                    Game.DisplayNotification("activated");
-                    Cop.PlayAnimation(GiveHandgunAnimation, -1, 0.5f, 0.5f, 0.0f);
-                }
-                
-
                 if(Game.LocalPlayer.Character.IsInRangeOf2D(playerGetStuffPos.Position, 5.1f))
                 {
-                    Game.DisplayHelp("Press E", 10);
-                    if (Game.IsKeyDown(Keys.E) && !IsCopGivingAWeapon)
+                    if(!IsPlayerUsingTheArmoury)
+                        Game.DisplayHelp("Press ~INPUT_CONTEXT~ to enter the armory", 10);
+                    else
+                        Game.DisplayHelp("Press ~INPUT_CONTEXT~ to exit the armory", 10);
+
+                    if ((Game.IsControlJustPressed(0, GameControl.Context) || Common.IsDisabledControlJustPressed(0, GameControl.Context)) && !IsCopGivingAWeapon)
                     {
                         if (!IsPlayerUsingTheArmoury)
                         {
@@ -56,7 +53,7 @@
                             Cam.Position = camPos;
                             Cam.PointAtEntity(Cop, new Vector3(0f, 0.2f, -0.115f), true);
 
-                            Camera tempCam = new Camera(true);
+                            Camera tempCam = new Camera(false);
                             tempCam.Position = Common.GetGameplayCameraPosition();
                             tempCam.Rotation = Common.GetGameplayCameraRotation();
                             tempCam.Active = true;
@@ -65,11 +62,16 @@
                             Cam.Active = true;
                             playerTask.WaitForCompletion();
                             Game.LocalPlayer.Character.IsPositionFrozen = true;
+                            Cop.PlayAmbientSpeech(new string[] { Speech.GENERIC_HI, Speech.GENERIC_HOWS_IT_GOING }.GetRandomElement(), false);
+                            Game.LocalPlayer.Character.PlayAmbientSpeech(new string[] { Speech.GENERIC_HI }.GetRandomElement(), false);
+                            userInterface.CurrentMenu = UserInterface.ECurrentMenu.MainMenu;
                             IsPlayerUsingTheArmoury = true;
                         }
                         else
                         {
                             IsPlayerUsingTheArmoury = false;
+                            Cop.PlayAmbientSpeech(Speech.GENERIC_BYE, false);
+                            Game.LocalPlayer.Character.PlayAmbientSpeech(new string[] { Speech.GENERIC_BYE, Speech.GENERIC_THANKS }.GetRandomElement(), false);
                             Cam.PointAtEntity(Game.LocalPlayer.Character, Vector3.Zero, true);
                             Game.LocalPlayer.Character.IsPositionFrozen = false;
                             Game.LocalPlayer.Character.Tasks.GoStraightToPosition(playerLeavesPos.Position, 1.0f, playerLeavesPos.Heading, 0.0f, -1).WaitForCompletion();
@@ -132,9 +134,11 @@
                 WeaponType type = GetTypeForWeapon(selectedItem.WeaponHash);
                 Task copAnimTask    = Cop.PlayAnimation(type == WeaponType.Handgun ? GiveHandgunAnimation : GiveRifleAnimation, -1, 1f, 0.5f, 0.0f);
                 Task playerAnimTask = Game.LocalPlayer.Character.PlayAnimation(type == WeaponType.Handgun ? ReceiveHandgunAnimation : ReceiveRifleAnimation, -1, 1f, 0.5f, 0.0f);
-                GameFiber.Sleep(100);
+                GameFiber.Sleep(375);
                 Cop.Inventory.GiveNewWeapon((WeaponHash)selectedItem.WeaponHash, 999, true);
+                Cop.PlayAmbientSpeech(Speech.CHAT_STATE, false);
                 copAnimTask.WaitForCompletion();
+                Game.LocalPlayer.Character.PlayAmbientSpeech(Speech.CHAT_RESP, false);
                 Cop.Inventory.Weapons.Remove((WeaponHash)selectedItem.WeaponHash);
                 Game.LocalPlayer.Character.Inventory.GiveNewWeapon((WeaponHash)selectedItem.WeaponHash, 999, true);
 
@@ -146,9 +150,8 @@
         {
             if (IsPlayerUsingTheArmoury)
             {
-                if (userInterface.State == UIState.Hidden ||
-                   userInterface.State == UIState.Hiding)
-                    userInterface.State = UIState.ComingIntoView;
+                if (!userInterface.Visible)
+                    userInterface.Visible = true;
 
                 Common.DisableAllGameControls(GameControlGroup.MAX_INPUTGROUPS);
 
@@ -156,9 +159,8 @@
             }
             else
             {
-                if (userInterface.State == UIState.Showing ||
-                   userInterface.State == UIState.ComingIntoView)
-                    userInterface.State = UIState.Hiding;
+                if (userInterface.Visible)
+                    userInterface.Visible = false;
             }
 
             userInterface.Process();
@@ -252,8 +254,8 @@
         private readonly Animation ReceiveRifleAnimation = new Animation("mp_cop_armoury", "rifle_on_counter");
         private readonly Animation ReceivePackageAnimation = new Animation("mp_cop_armoury", "package_from_counter");
 
-        private readonly SpawnPoint copSpawnPos = new SpawnPoint(new Vector3(454.11f, -980.17f, 30.69f), 90f);
-        private readonly SpawnPoint playerGetStuffPos = new SpawnPoint(new Vector3(452.38f, -980.0f, 30.69f), 263.19f);
+        private readonly SpawnPoint copSpawnPos = new SpawnPoint(new Vector3(454.11f, -980.26f, 30.69f), 90f);
+        private readonly SpawnPoint playerGetStuffPos = new SpawnPoint(new Vector3(452.26f, -980.0f, 30.69f), 263.19f);
         private readonly SpawnPoint playerLeavesPos = new SpawnPoint(new Vector3(449.24f, -982.84f, 30.69f), 90f);
 
         private readonly Vector3 camPos = new Vector3(452.53f, -981.61f, 31f);
@@ -265,43 +267,227 @@
 
             public event WeaponItemSelected ItemSelected = delegate { };
             
-            public List<WeaponItem> Items { get; }
+            public MenuItem HandgunsItem { get; }
+            public MenuItem RifleItem { get; }
+            public MenuItem ThrowableItem { get; }
 
-            private UIState _state;
-            public UIState State
+            public List<WeaponItem> HandgunWeaponItems { get; }
+            public List<WeaponItem> RifleWeaponItems { get; }
+            public List<WeaponItem> ThrowableWeaponItems { get; }
+
+            //private UIState _state;
+            //public UIState State
+            //{
+            //    get
+            //    {
+            //        return _state;
+            //    }
+            //    set
+            //    {
+            //        if (_state == value)
+            //            return;
+
+            //        HandgunsItem.State = value;
+            //        RifleItem.State = value;
+            //        ThrowableItem.State = value;
+
+            //        //foreach (WeaponItem item in HandgunWeaponItems)
+            //        //{
+            //        //    item.State = value;
+            //        //}
+            //        //foreach (WeaponItem item in RifleWeaponItems)
+            //        //{
+            //        //    item.State = value;
+            //        //}
+            //        //foreach (WeaponItem item in ThrowableWeaponItems)
+            //        //{
+            //        //    item.State = value;
+            //        //}
+
+            //        _state = value;
+            //    }
+            //}
+            public bool Visible { get; set; }
+
+            private ECurrentMenu _currentMenu = ECurrentMenu.MainMenu;
+            public ECurrentMenu CurrentMenu
             {
                 get
                 {
-                    return _state;
+                    return _currentMenu;
                 }
                 set
                 {
-                    if (_state == value)
-                        return;
-
-                    foreach (WeaponItem item in Items)
+                    switch (value)
                     {
-                        item.State = value;
+                        case ECurrentMenu.MainMenu:
+                            if(HandgunsItem.State != UIState.ComingIntoView || HandgunsItem.State != UIState.Showing)
+                                HandgunsItem.State = UIState.ComingIntoView;
+
+                            if (RifleItem.State != UIState.ComingIntoView || RifleItem.State != UIState.Showing)
+                                RifleItem.State = UIState.ComingIntoView;
+
+                            if (ThrowableItem.State != UIState.ComingIntoView || ThrowableItem.State != UIState.Showing)
+                                ThrowableItem.State = UIState.ComingIntoView;
+
+                            foreach (WeaponItem item in HandgunWeaponItems)
+                            {
+                                if (item.State != UIState.Hiding || item.State != UIState.Hidden)
+                                    item.State = UIState.Hiding;
+                            }
+                            foreach (WeaponItem item in RifleWeaponItems)
+                            {
+                                if (item.State != UIState.Hiding || item.State != UIState.Hidden)
+                                    item.State = UIState.Hiding;
+                            }
+                            foreach (WeaponItem item in ThrowableWeaponItems)
+                            {
+                                if (item.State != UIState.Hiding || item.State != UIState.Hidden)
+                                    item.State = UIState.Hiding;
+                            }
+                            break;
+                        case ECurrentMenu.HandgunsMenu:
+                            if (HandgunsItem.State != UIState.Hiding || HandgunsItem.State != UIState.Hidden)
+                                HandgunsItem.State = UIState.Hiding;
+
+                            if (RifleItem.State != UIState.Hiding || RifleItem.State != UIState.Hidden)
+                                RifleItem.State = UIState.Hiding;
+
+                            if (ThrowableItem.State != UIState.Hiding || ThrowableItem.State != UIState.Hidden)
+                                ThrowableItem.State = UIState.Hiding;
+
+                            foreach (WeaponItem item in HandgunWeaponItems)
+                            {
+                                if (item.State != UIState.ComingIntoView || item.State != UIState.Showing)
+                                    item.State = UIState.ComingIntoView;
+                            }
+                            foreach (WeaponItem item in RifleWeaponItems)
+                            {
+                                if (item.State != UIState.Hiding || item.State != UIState.Hidden)
+                                    item.State = UIState.Hiding;
+                            }
+                            foreach (WeaponItem item in ThrowableWeaponItems)
+                            {
+                                if (item.State != UIState.Hiding || item.State != UIState.Hidden)
+                                    item.State = UIState.Hiding;
+                            }
+                            break;
+                        case ECurrentMenu.RiflesMenu:
+                            if (HandgunsItem.State != UIState.Hiding || HandgunsItem.State != UIState.Hidden)
+                                HandgunsItem.State = UIState.Hiding;
+
+                            if (RifleItem.State != UIState.Hiding || RifleItem.State != UIState.Hidden)
+                                RifleItem.State = UIState.Hiding;
+
+                            if (ThrowableItem.State != UIState.Hiding || ThrowableItem.State != UIState.Hidden)
+                                ThrowableItem.State = UIState.Hiding;
+
+                            foreach (WeaponItem item in HandgunWeaponItems)
+                            {
+                                if (item.State != UIState.Hiding || item.State != UIState.Hidden)
+                                    item.State = UIState.Hiding;
+                            }
+                            foreach (WeaponItem item in RifleWeaponItems)
+                            {
+                                if (item.State != UIState.ComingIntoView || item.State != UIState.Showing)
+                                    item.State = UIState.ComingIntoView;
+                            }
+                            foreach (WeaponItem item in ThrowableWeaponItems)
+                            {
+                                if (item.State != UIState.Hiding || item.State != UIState.Hidden)
+                                    item.State = UIState.Hiding;
+                            }
+                            break;
+                        case ECurrentMenu.ThrowablesMenu:
+                            if (HandgunsItem.State != UIState.Hiding || HandgunsItem.State != UIState.Hidden)
+                                HandgunsItem.State = UIState.Hiding;
+
+                            if (RifleItem.State != UIState.Hiding || RifleItem.State != UIState.Hidden)
+                                RifleItem.State = UIState.Hiding;
+
+                            if (ThrowableItem.State != UIState.Hiding || ThrowableItem.State != UIState.Hidden)
+                                ThrowableItem.State = UIState.Hiding;
+
+                            foreach (WeaponItem item in HandgunWeaponItems)
+                            {
+                                if (item.State != UIState.Hiding || item.State != UIState.Hidden)
+                                    item.State = UIState.Hiding;
+                            }
+                            foreach (WeaponItem item in RifleWeaponItems)
+                            {
+                                if (item.State != UIState.Hiding || item.State != UIState.Hidden)
+                                    item.State = UIState.Hiding;
+                            }
+                            foreach (WeaponItem item in ThrowableWeaponItems)
+                            {
+                                if (item.State != UIState.ComingIntoView || item.State != UIState.Showing)
+                                    item.State = UIState.ComingIntoView;
+                            }
+                            break;
                     }
-                    _state = value;
+                    _currentMenu = value;
                 }
             }
 
             public UserInterface()
             {
-                Items = new List<WeaponItem>();
-                foreach (EWeaponHash hash in WeaponItem.GetAvalaibleWeapons())
+                HandgunsItem = new MenuItem("Handguns", Game.CreateTextureFromFile(@"Plugins\Police Station Armory Resources\UI\Handguns_Icon.png"));
+                HandgunsItem.BackgroundRectangle.Clicked += (s) => { CurrentMenu = ECurrentMenu.HandgunsMenu; };
+                RifleItem = new MenuItem("Two hands guns", Game.CreateTextureFromFile(@"Plugins\Police Station Armory Resources\UI\Rifles_Icon.png"));
+                RifleItem.BackgroundRectangle.Clicked += (s) => { CurrentMenu = ECurrentMenu.RiflesMenu; };
+                ThrowableItem = new MenuItem("Throwables", Game.CreateTextureFromFile(@"Plugins\Police Station Armory Resources\UI\Throwables_Icon.png"));
+                ThrowableItem.BackgroundRectangle.Clicked += (s) => { CurrentMenu = ECurrentMenu.ThrowablesMenu; };
+
+                HandgunWeaponItems = new List<WeaponItem>();
+                RifleWeaponItems = new List<WeaponItem>();
+                ThrowableWeaponItems = new List<WeaponItem>();
+
+                foreach (EWeaponHash hash in WeaponItem.GetAvalaibleHandgunWeapons())
                 {
                     WeaponItem item = WeaponItem.GetWeaponItemForWeapon(hash);
                     item.BackgroundRectangle.Clicked += (s) => { invokeItemSelected(item); };
-                    Items.Add(item);
+                    HandgunWeaponItems.Add(item);
+                }
+
+                foreach (EWeaponHash hash in WeaponItem.GetAvalaibleRifleWeapons())
+                {
+                    WeaponItem item = WeaponItem.GetWeaponItemForWeapon(hash);
+                    item.BackgroundRectangle.Clicked += (s) => { invokeItemSelected(item); };
+                    RifleWeaponItems.Add(item);
+                }
+
+                foreach (EWeaponHash hash in WeaponItem.GetAvalaibleThrowableWeapons())
+                {
+                    WeaponItem item = WeaponItem.GetWeaponItemForWeapon(hash);
+                    item.BackgroundRectangle.Clicked += (s) => { invokeItemSelected(item); };
+                    ThrowableWeaponItems.Add(item);
                 }
                 updateItemsPosition();
             }
 
             public void Process()
             {
-                foreach (WeaponItem item in Items)
+                if (!Visible)
+                    return;
+
+                if(CurrentMenu != ECurrentMenu.MainMenu && Game.GetMouseState().IsRightButtonDown)
+                {
+                    CurrentMenu = ECurrentMenu.MainMenu;
+                }
+
+                HandgunsItem.Process();
+                RifleItem.Process();
+                ThrowableItem.Process();
+
+                foreach (WeaponItem item in HandgunWeaponItems)
+                {
+                    item.Process();
+                }
+                foreach (WeaponItem item in RifleWeaponItems)
+                {
+                    item.Process();
+                }
+                foreach (WeaponItem item in ThrowableWeaponItems)
                 {
                     item.Process();
                 }
@@ -309,7 +495,22 @@
 
             public void Draw(GraphicsEventArgs e)
             {
-                foreach (WeaponItem item in Items)
+                if (!Visible)
+                    return;
+
+                HandgunsItem.Draw(e);
+                RifleItem.Draw(e);
+                ThrowableItem.Draw(e);
+
+                foreach (WeaponItem item in HandgunWeaponItems)
+                {
+                    item.Draw(e);
+                }
+                foreach (WeaponItem item in RifleWeaponItems)
+                {
+                    item.Draw(e);
+                }
+                foreach (WeaponItem item in ThrowableWeaponItems)
                 {
                     item.Draw(e);
                 }
@@ -325,20 +526,73 @@
             {
                 float x = Game.Resolution.Width - 600f;
                 float y = 0f;
+                float height = Game.Resolution.Height / 3;
 
-                foreach (WeaponItem item in Items)
+                HandgunsItem.Texture.RectangleF = new RectangleF(x, y, HandgunsItem.Texture.Texture.Size.Width * 0.375f, HandgunsItem.Texture.Texture.Size.Height * 0.375f);
+                HandgunsItem.BackgroundRectangle.RectangleF = new RectangleF(x, y, 1280, HandgunsItem.Texture.Texture.Size.Height * 0.375f);
+                HandgunsItem.Label.Position = new PointF(x + HandgunsItem.Texture.Texture.Size.Width * 0.4f, y + (HandgunsItem.Texture.Texture.Size.Height * 0.1125f));
+                y += height;
+                RifleItem.Texture.RectangleF = new RectangleF(x, y, RifleItem.Texture.Texture.Size.Width * 0.375f, RifleItem.Texture.Texture.Size.Height * 0.375f);
+                RifleItem.BackgroundRectangle.RectangleF = new RectangleF(x, y, 1280, RifleItem.Texture.Texture.Size.Height * 0.375f);
+                RifleItem.Label.Position = new PointF(x + RifleItem.Texture.Texture.Size.Width * 0.4f, y + (RifleItem.Texture.Texture.Size.Height * 0.1125f));
+                y += height;
+                ThrowableItem.Texture.RectangleF = new RectangleF(x, y, ThrowableItem.Texture.Texture.Size.Width * 0.375f, ThrowableItem.Texture.Texture.Size.Height * 0.375f);
+                ThrowableItem.BackgroundRectangle.RectangleF = new RectangleF(x, y, 1280, ThrowableItem.Texture.Texture.Size.Height * 0.375f);
+                ThrowableItem.Label.Position = new PointF(x + ThrowableItem.Texture.Texture.Size.Width * 0.4f, y + (ThrowableItem.Texture.Texture.Size.Height * 0.1125f));
+                y += height;
+
+
+                x = Game.Resolution.Width - 600f;
+                y = 0f;
+
+                foreach (WeaponItem item in HandgunWeaponItems)
                 {
                     Logger.LogTrivial("Hash: " + item.WeaponHash);
                     item.Texture.RectangleF = new RectangleF(x, y, item.Texture.Texture.Size.Width * 0.375f, item.Texture.Texture.Size.Height * 0.375f);
                     item.BackgroundRectangle.RectangleF = new RectangleF(x, y, 1280, item.Texture.Texture.Size.Height * 0.375f);
+                    item.Label.Position = new PointF(x + item.Texture.Texture.Size.Width * 0.4f, y + (item.Texture.Texture.Size.Height * 0.1125f));
+                    y += item.Texture.Texture.Size.Height * 0.375f;
+                }
+
+
+                x = Game.Resolution.Width - 600f;
+                y = 0f;
+
+                foreach (WeaponItem item in RifleWeaponItems)
+                {
+                    Logger.LogTrivial("Hash: " + item.WeaponHash);
+                    item.Texture.RectangleF = new RectangleF(x, y, item.Texture.Texture.Size.Width * 0.28125f, item.Texture.Texture.Size.Height * 0.28125f);
+                    item.BackgroundRectangle.RectangleF = new RectangleF(x, y, 1280, item.Texture.Texture.Size.Height * 0.28125f);
+                    item.Label.Position = new PointF(x + item.Texture.Texture.Size.Width * 0.4f, y + (item.Texture.Texture.Size.Height * 0.1125f));
+                    y += item.Texture.Texture.Size.Height * 0.28125f;
+                }
+
+
+                x = Game.Resolution.Width - 600f;
+                y = 0f;
+
+                foreach (WeaponItem item in ThrowableWeaponItems)
+                {
+                    Logger.LogTrivial("Hash: " + item.WeaponHash);
+                    item.Texture.RectangleF = new RectangleF(x, y, item.Texture.Texture.Size.Width * 0.375f, item.Texture.Texture.Size.Height * 0.375f);
+                    item.BackgroundRectangle.RectangleF = new RectangleF(x, y, 1280, item.Texture.Texture.Size.Height * 0.375f);
+                    item.Label.Position = new PointF(x + item.Texture.Texture.Size.Width * 0.4f, y + (item.Texture.Texture.Size.Height * 0.095f));
                     y += item.Texture.Texture.Size.Height * 0.375f;
                 }
             }
 
-            public class WeaponItem
+            public enum ECurrentMenu
             {
-                public EWeaponHash WeaponHash { get; }
+                MainMenu,
+                HandgunsMenu,
+                RiflesMenu,
+                ThrowablesMenu,
+            }
+
+            public class MenuItem
+            {
                 public UITexture Texture { get; }
+                public UILabel Label { get; }
                 public UIRectangle BackgroundRectangle { get; }
 
                 private UIState _state;
@@ -354,6 +608,64 @@
                             return;
 
                         Texture.State = value;
+                        Label.State = value;
+                        BackgroundRectangle.State = value;
+                        _state = value;
+                    }
+                }
+
+                public MenuItem(string label, Rage.Texture texture)
+                {
+                    Texture = new UITexture(texture, new RectangleF(), UIScreenBorder.Right, 0.0225f, 0.04725f);
+                    Label = new UILabel(label, "Arial", 22.5f, new PointF(), Color.White, UIScreenBorder.Right, 0.0225f, 0.04725f);
+                    BackgroundRectangle = new UIRectangle(new RectangleF(), Color.FromArgb(150, Color.DarkGray), Color.Black, UIRectangleType.FilledWithBorders, UIScreenBorder.Right, 0.0225f, 0.04725f);
+                    BackgroundRectangle.Hovered += backRectHoveredEvent;
+                }
+
+                public void Process()
+                {
+                    BackgroundRectangle.Color = defaultBackRectColor;
+                    BackgroundRectangle.Process();
+                    Label.Process();
+                    Texture.Process();
+                }
+
+                public void Draw(GraphicsEventArgs e)
+                {
+                    BackgroundRectangle.Draw(e);
+                    Label.Draw(e);
+                    Texture.Draw(e);
+                }
+
+                private Color defaultBackRectColor = Color.FromArgb(150, Color.DarkGray);
+                private Color hoveredBackRectColor = ControlPaint.Light(Color.FromArgb(150, Color.DarkGray), 1.0f);
+                private void backRectHoveredEvent(UIElementBase sender)
+                {
+                    BackgroundRectangle.Color = hoveredBackRectColor;
+                }
+            }
+
+            public class WeaponItem
+            {
+                public EWeaponHash WeaponHash { get; }
+                public UITexture Texture { get; }
+                public UILabel Label { get; }
+                public UIRectangle BackgroundRectangle { get; }
+
+                private UIState _state;
+                public UIState State
+                {
+                    get
+                    {
+                        return _state;
+                    }
+                    set
+                    {
+                        if (_state == value)
+                            return;
+
+                        Texture.State = value;
+                        Label.State = value;
                         BackgroundRectangle.State = value;
                         _state = value;
                     }
@@ -362,8 +674,9 @@
                 public WeaponItem(EWeaponHash hash, Rage.Texture texture)
                 {
                     WeaponHash = hash;
-                    Texture = new UITexture(texture, new RectangleF(), UIScreenBorder.Right, 1.5f, 2.65f);
-                    BackgroundRectangle = new UIRectangle(new RectangleF(), Color.FromArgb(150, Color.DarkGray), Color.Black, UIRectangleType.FilledWithBorders, UIScreenBorder.Right, 1.5f, 2.65f);
+                    Texture = new UITexture(texture, new RectangleF(), UIScreenBorder.Right, 0.0225f, 0.04725f);
+                    Label = new UILabel(hash.ToString().Replace('_', ' '), "Arial", 22.5f, new PointF(), Color.White, UIScreenBorder.Right, 0.0225f, 0.04725f);
+                    BackgroundRectangle = new UIRectangle(new RectangleF(), Color.FromArgb(150, Color.DarkGray), Color.Black, UIRectangleType.FilledWithBorders, UIScreenBorder.Right, 0.0225f, 0.04725f);
                     BackgroundRectangle.Hovered += backRectHoveredEvent;
                 }
 
@@ -371,12 +684,14 @@
                 {
                     BackgroundRectangle.Color = defaultBackRectColor;
                     BackgroundRectangle.Process();
+                    Label.Process();
                     Texture.Process();
                 }
 
                 public void Draw(GraphicsEventArgs e)
                 {
                     BackgroundRectangle.Draw(e);
+                    Label.Draw(e);
                     Texture.Draw(e);
                 }
 
@@ -512,6 +827,72 @@
                         EWeaponHash.Fire_Extinguisher,
                     };
                 }
+
+                public static EWeaponHash[] GetAvalaibleHandgunWeapons()
+                {
+                    return new EWeaponHash[]
+{
+                        // melee     
+                        EWeaponHash.Nightstick,
+                        //EWeaponHash.Flashlight,   // doesn't have texture     
+
+                        // pistols  
+                        EWeaponHash.Pistol,
+                        EWeaponHash.Combat_Pistol,
+                        EWeaponHash.AP_Pistol,
+                        EWeaponHash.Pistol_50,
+                        EWeaponHash.Heavy_Pistol,
+                        EWeaponHash.Stun_Gun,              
+
+                        // submachines  
+                        EWeaponHash.Micro_SMG,
+
+                        EWeaponHash.Fire_Extinguisher,
+                    };
+                }
+
+                public static EWeaponHash[] GetAvalaibleRifleWeapons()
+                {
+                    return new EWeaponHash[]
+                    {
+                        // submachines
+                        EWeaponHash.SMG,
+                        EWeaponHash.Assault_SMG,
+
+                        // rifles
+                        EWeaponHash.Assault_Rifle,
+                        EWeaponHash.Carbine_Rifle,
+                        EWeaponHash.Advanced_Rifle,
+                        EWeaponHash.Bullpup_Rifle,         
+
+                        //mgs
+                        EWeaponHash.MG,
+                        EWeaponHash.Combat_MG,             
+
+                        // shotguns  
+                        EWeaponHash.Pump_Shotgun,
+                        EWeaponHash.Sawn_Off_Shotgun,
+                        EWeaponHash.Assault_Shotgun,
+                        EWeaponHash.Bullpup_Shotgun,       
+                        //EWeaponHash.Heavy_Shotgun,       // doesn't have texture          
+
+                        // snipers  
+                        EWeaponHash.Sniper_Rifle,
+                        EWeaponHash.Heavy_Sniper,          
+                        //EWeaponHash.Marksman_Rifle,     // doesn't have texture   
+                    };
+                }
+
+                public static EWeaponHash[] GetAvalaibleThrowableWeapons()
+                {
+                    return new EWeaponHash[]
+                    {
+                        // throwables
+                        EWeaponHash.Grenade,
+                        EWeaponHash.Sticky_Bomb,
+                        EWeaponHash.Smoke_Grenade,
+                    };
+                }
             }
         }
 
@@ -520,6 +901,7 @@
         {
             Handgun,
             Rifle,
+            Throwable,
         }
     }
 }
