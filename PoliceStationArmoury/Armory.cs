@@ -2,6 +2,7 @@
 {
     // System
     using System;
+    using System.Linq;
     using System.Drawing;
     using System.Windows.Forms;
     using System.Collections.Generic;
@@ -162,24 +163,52 @@
             {
                 IsCopGivingAWeapon = true;
                 NativeFunction.CallByName<uint>("SET_CURRENT_PED_WEAPON", Game.LocalPlayer.Character, (uint)EWeaponHash.Unarmed, true);
-                WeaponType type = GetTypeForWeapon(selectedItem.WeaponHash);
-                Task copAnimTask    = Cop.PlayAnimation(type == WeaponType.Handgun ? GiveHandgunAnimation : GiveRifleAnimation, -1, 1f, 0.5f, 0.0f);
-                Task playerAnimTask = Game.LocalPlayer.Character.PlayAnimation(type == WeaponType.Handgun ? ReceiveHandgunAnimation : ReceiveRifleAnimation, -1, 1f, 0.5f, 0.0f);
-                GameFiber.Sleep(410);
-                Cop.Inventory.GiveNewWeapon((WeaponHash)selectedItem.WeaponHash, 999, true);
-                Cop.PlayAmbientSpeech(Speech.CHAT_STATE, false);
-                if (Cop.IsAnySpeechPlaying)
+                ItemType type = GetTypeForWeapon(selectedItem.WeaponHash);
+                if (type != ItemType.Misc)
                 {
-                    GameFiber.StartNew(delegate
+                    Task copAnimTask = Cop.PlayAnimation(type == ItemType.Handgun ? GiveHandgunAnimation : GiveRifleAnimation, -1, 1f, 0.5f, 0.0f);
+                    Task playerAnimTask = Game.LocalPlayer.Character.PlayAnimation(type == ItemType.Handgun ? ReceiveHandgunAnimation : ReceiveRifleAnimation, -1, 1f, 0.5f, 0.0f);
+                    GameFiber.Sleep(410);
+                    Cop.Inventory.GiveNewWeapon((WeaponHash)selectedItem.WeaponHash, 999, true);
+                    Cop.PlayAmbientSpeech(Speech.CHAT_STATE, false);
+                    if (Cop.IsAnySpeechPlaying)
                     {
-                        GameFiber.Sleep(900);
-                        Game.LocalPlayer.Character.PlayAmbientSpeech(Speech.CHAT_RESP, false);
-                    });
+                        GameFiber.StartNew(delegate
+                        {
+                            GameFiber.Sleep(900);
+                            Game.LocalPlayer.Character.PlayAmbientSpeech(Speech.CHAT_RESP, false);
+                        });
+                    }
+                    copAnimTask.WaitForCompletion();
+                    Cop.Inventory.Weapons.Remove((WeaponHash)selectedItem.WeaponHash);
+                    Game.LocalPlayer.Character.Inventory.GiveNewWeapon((WeaponHash)selectedItem.WeaponHash, 999, true);
                 }
-                copAnimTask.WaitForCompletion();
-                Cop.Inventory.Weapons.Remove((WeaponHash)selectedItem.WeaponHash);
-                Game.LocalPlayer.Character.Inventory.GiveNewWeapon((WeaponHash)selectedItem.WeaponHash, 999, true);
-
+                else
+                {
+                    if(selectedItem.MiscItem == MiscItems.Fire_Extinguisher || selectedItem.MiscItem == MiscItems.Nightstick)
+                    {
+                        Task copAnimTask = Cop.PlayAnimation(GiveHandgunAnimation, -1, 1f, 0.5f, 0.0f);
+                        Task playerAnimTask = Game.LocalPlayer.Character.PlayAnimation(ReceiveHandgunAnimation, -1, 1f, 0.5f, 0.0f);
+                        GameFiber.Sleep(410);
+                        Cop.Inventory.GiveNewWeapon((WeaponHash)selectedItem.MiscItem, 999, true);
+                        Cop.PlayAmbientSpeech(Speech.CHAT_STATE, false);
+                        if (Cop.IsAnySpeechPlaying)
+                        {
+                            GameFiber.StartNew(delegate
+                            {
+                                GameFiber.Sleep(900);
+                                Game.LocalPlayer.Character.PlayAmbientSpeech(Speech.CHAT_RESP, false);
+                            });
+                        }
+                        copAnimTask.WaitForCompletion();
+                        Cop.Inventory.Weapons.Remove((WeaponHash)selectedItem.MiscItem);
+                        Game.LocalPlayer.Character.Inventory.GiveNewWeapon((WeaponHash)selectedItem.MiscItem, 999, true);
+                    }
+                    else if(selectedItem.MiscItem == MiscItems.Bulletproof_Vest)
+                    {
+                        Logger.LogTrivial("Bulletproof_Vest - NOT IMPLEMENTED");
+                    }
+                }
                 IsCopGivingAWeapon = false;
             });
         }
@@ -229,13 +258,10 @@
             Game.LocalPlayer.Character.Tasks.ClearImmediately();
         }
 
-        private WeaponType GetTypeForWeapon(EWeaponHash hash)
+        private ItemType GetTypeForWeapon(EWeaponHash hash)
         {
             switch (hash)                           // TODO: add flashlight
-            {                                                   
-                // melee     
-                case EWeaponHash.Nightstick:        
-                case EWeaponHash.Flashlight:
+            {                
                 // pistols    
                 case EWeaponHash.Pistol:  
                 case EWeaponHash.Combat_Pistol:         
@@ -250,9 +276,8 @@
                 case EWeaponHash.Sticky_Bomb:
                 case EWeaponHash.Smoke_Grenade:
                 case EWeaponHash.BZ_Gas:
-                case EWeaponHash.Fire_Extinguisher:
                 case EWeaponHash.Flare:
-                    return WeaponType.Handgun;
+                    return ItemType.Handgun;
                              
 
 
@@ -276,9 +301,15 @@
                 case EWeaponHash.Sniper_Rifle:          
                 case EWeaponHash.Heavy_Sniper:          
                 case EWeaponHash.Marksman_Rifle:
-                    return WeaponType.LongGun;      
+                    return ItemType.LongGun;
+
+                case EWeaponHash.Fire_Extinguisher:
+                // melee    
+                case EWeaponHash.Nightstick:
+                case EWeaponHash.Flashlight:
+                    return ItemType.Misc;
             }
-            return WeaponType.Handgun;
+            return ItemType.Handgun;
         }
 
         private UserInterface userInterface;
@@ -309,10 +340,12 @@
             public MenuItem HandgunsItem { get; }
             public MenuItem RifleItem { get; }
             public MenuItem ThrowableItem { get; }
+            public MenuItem MiscItem { get; }
 
             public List<WeaponItem> HandgunWeaponItems { get; }
-            public List<WeaponItem> RifleWeaponItems { get; }
+            public List<WeaponItem> LongGunsWeaponItems { get; }
             public List<WeaponItem> ThrowableWeaponItems { get; }
+            public List<WeaponItem> MiscWeaponItems { get; }
 
             //private UIState _state;
             //public UIState State
@@ -365,12 +398,17 @@
                                 if (item.State != UIState.Hiding || item.State != UIState.Hidden)
                                     item.State = UIState.Hiding;
                             }
-                            foreach (WeaponItem item in RifleWeaponItems)
+                            foreach (WeaponItem item in LongGunsWeaponItems)
                             {
                                 if (item.State != UIState.Hiding || item.State != UIState.Hidden)
                                     item.State = UIState.Hiding;
                             }
                             foreach (WeaponItem item in ThrowableWeaponItems)
+                            {
+                                if (item.State != UIState.Hiding || item.State != UIState.Hidden)
+                                    item.State = UIState.Hiding;
+                            }
+                            foreach (WeaponItem item in MiscWeaponItems)
                             {
                                 if (item.State != UIState.Hiding || item.State != UIState.Hidden)
                                     item.State = UIState.Hiding;
@@ -384,14 +422,22 @@
 
                             if (ThrowableItem.State != UIState.ComingIntoView || ThrowableItem.State != UIState.Showing)
                                 ThrowableItem.State = UIState.ComingIntoView;
+
+                            if (MiscItem.State != UIState.ComingIntoView || MiscItem.State != UIState.Showing)
+                                MiscItem.State = UIState.ComingIntoView;
                             break;
                         case ECurrentMenu.HandgunsMenu:
-                            foreach (WeaponItem item in RifleWeaponItems)
+                            foreach (WeaponItem item in LongGunsWeaponItems)
                             {
                                 if (item.State != UIState.Hiding || item.State != UIState.Hidden)
                                     item.State = UIState.Hiding;
                             }
                             foreach (WeaponItem item in ThrowableWeaponItems)
+                            {
+                                if (item.State != UIState.Hiding || item.State != UIState.Hidden)
+                                    item.State = UIState.Hiding;
+                            }
+                            foreach (WeaponItem item in MiscWeaponItems)
                             {
                                 if (item.State != UIState.Hiding || item.State != UIState.Hidden)
                                     item.State = UIState.Hiding;
@@ -405,6 +451,9 @@
 
                             if (ThrowableItem.State != UIState.Hiding || ThrowableItem.State != UIState.Hidden)
                                 ThrowableItem.State = UIState.Hiding;
+
+                            if (MiscItem.State != UIState.Hiding || MiscItem.State != UIState.Hidden)
+                                MiscItem.State = UIState.Hiding;
 
                             foreach (WeaponItem item in HandgunWeaponItems)
                             {
@@ -423,6 +472,11 @@
                                 if (item.State != UIState.Hiding || item.State != UIState.Hidden)
                                     item.State = UIState.Hiding;
                             }
+                            foreach (WeaponItem item in MiscWeaponItems)
+                            {
+                                if (item.State != UIState.Hiding || item.State != UIState.Hidden)
+                                    item.State = UIState.Hiding;
+                            }
                             if (HandgunsItem.State != UIState.Hiding || HandgunsItem.State != UIState.Hidden)
                                 HandgunsItem.State = UIState.Hiding;
 
@@ -432,7 +486,10 @@
                             if (ThrowableItem.State != UIState.Hiding || ThrowableItem.State != UIState.Hidden)
                                 ThrowableItem.State = UIState.Hiding;
 
-                            foreach (WeaponItem item in RifleWeaponItems)
+                            if (MiscItem.State != UIState.Hiding || MiscItem.State != UIState.Hidden)
+                                MiscItem.State = UIState.Hiding;
+
+                            foreach (WeaponItem item in LongGunsWeaponItems)
                             {
                                 if (item.State != UIState.ComingIntoView || item.State != UIState.Showing)
                                     item.State = UIState.ComingIntoView;
@@ -444,7 +501,12 @@
                                 if (item.State != UIState.Hiding || item.State != UIState.Hidden)
                                     item.State = UIState.Hiding;
                             }
-                            foreach (WeaponItem item in RifleWeaponItems)
+                            foreach (WeaponItem item in LongGunsWeaponItems)
+                            {
+                                if (item.State != UIState.Hiding || item.State != UIState.Hidden)
+                                    item.State = UIState.Hiding;
+                            }
+                            foreach (WeaponItem item in MiscWeaponItems)
                             {
                                 if (item.State != UIState.Hiding || item.State != UIState.Hidden)
                                     item.State = UIState.Hiding;
@@ -458,7 +520,46 @@
 
                             if (ThrowableItem.State != UIState.Hiding || ThrowableItem.State != UIState.Hidden)
                                 ThrowableItem.State = UIState.Hiding;
+
+                            if (MiscItem.State != UIState.Hiding || MiscItem.State != UIState.Hidden)
+                                MiscItem.State = UIState.Hiding;
+
                             foreach (WeaponItem item in ThrowableWeaponItems)
+                            {
+                                if (item.State != UIState.ComingIntoView || item.State != UIState.Showing)
+                                    item.State = UIState.ComingIntoView;
+                            }
+                            break;
+                        case ECurrentMenu.MiscMenu:
+                            foreach (WeaponItem item in HandgunWeaponItems)
+                            {
+                                if (item.State != UIState.Hiding || item.State != UIState.Hidden)
+                                    item.State = UIState.Hiding;
+                            }
+                            foreach (WeaponItem item in LongGunsWeaponItems)
+                            {
+                                if (item.State != UIState.Hiding || item.State != UIState.Hidden)
+                                    item.State = UIState.Hiding;
+                            }
+                            foreach (WeaponItem item in ThrowableWeaponItems)
+                            {
+                                if (item.State != UIState.Hiding || item.State != UIState.Hidden)
+                                    item.State = UIState.Hiding;
+                            }
+
+                            if (HandgunsItem.State != UIState.Hiding || HandgunsItem.State != UIState.Hidden)
+                                HandgunsItem.State = UIState.Hiding;
+
+                            if (RifleItem.State != UIState.Hiding || RifleItem.State != UIState.Hidden)
+                                RifleItem.State = UIState.Hiding;
+
+                            if (ThrowableItem.State != UIState.Hiding || ThrowableItem.State != UIState.Hidden)
+                                ThrowableItem.State = UIState.Hiding;
+
+                            if (MiscItem.State != UIState.Hiding || MiscItem.State != UIState.Hidden)
+                                MiscItem.State = UIState.Hiding;
+
+                            foreach (WeaponItem item in MiscWeaponItems)
                             {
                                 if (item.State != UIState.ComingIntoView || item.State != UIState.Showing)
                                     item.State = UIState.ComingIntoView;
@@ -477,30 +578,40 @@
                 RifleItem.BackgroundRectangle.Clicked += (s) => { CurrentMenu = ECurrentMenu.LongGunsMenu; };
                 ThrowableItem = new MenuItem("Throwables", Game.CreateTextureFromFile(@"Plugins\Police Station Armory Resources\UI\Throwables_Icon.png"));
                 ThrowableItem.BackgroundRectangle.Clicked += (s) => { CurrentMenu = ECurrentMenu.ThrowablesMenu; };
+                MiscItem = new MenuItem("Misc", Game.CreateTextureFromFile(@"Plugins\Police Station Armory Resources\UI\Not_Added.png"));
+                MiscItem.BackgroundRectangle.Clicked += (s) => { CurrentMenu = ECurrentMenu.ThrowablesMenu; };
 
                 HandgunWeaponItems = new List<WeaponItem>();
-                RifleWeaponItems = new List<WeaponItem>();
+                LongGunsWeaponItems = new List<WeaponItem>();
                 ThrowableWeaponItems = new List<WeaponItem>();
+                MiscWeaponItems = new List<WeaponItem>();
 
                 foreach (EWeaponHash hash in WeaponItem.GetAvalaibleHandgunWeapons())
                 {
-                    WeaponItem item = WeaponItem.GetWeaponItemForWeapon(hash);
+                    WeaponItem item = WeaponItem.GetWeaponItemForWeapon(hash, ItemType.Handgun);
                     item.BackgroundRectangle.Clicked += (s) => { invokeItemSelected(item); };
                     HandgunWeaponItems.Add(item);
                 }
 
                 foreach (EWeaponHash hash in WeaponItem.GetAvalaibleRifleWeapons())
                 {
-                    WeaponItem item = WeaponItem.GetWeaponItemForWeapon(hash);
+                    WeaponItem item = WeaponItem.GetWeaponItemForWeapon(hash, ItemType.LongGun);
                     item.BackgroundRectangle.Clicked += (s) => { invokeItemSelected(item); };
-                    RifleWeaponItems.Add(item);
+                    LongGunsWeaponItems.Add(item);
                 }
 
                 foreach (EWeaponHash hash in WeaponItem.GetAvalaibleThrowableWeapons())
                 {
-                    WeaponItem item = WeaponItem.GetWeaponItemForWeapon(hash);
+                    WeaponItem item = WeaponItem.GetWeaponItemForWeapon(hash, ItemType.Throwable);
                     item.BackgroundRectangle.Clicked += (s) => { invokeItemSelected(item); };
                     ThrowableWeaponItems.Add(item);
+                }
+
+                foreach (MiscItems mItem in WeaponItem.GetAvalaibleMiscItems())
+                {
+                    WeaponItem item = WeaponItem.GetWeaponItemForMiscItem(mItem);
+                    item.BackgroundRectangle.Clicked += (s) => { invokeItemSelected(item); };
+                    MiscWeaponItems.Add(item);
                 }
                 updateItemsPosition();
             }
@@ -518,16 +629,21 @@
                 HandgunsItem.Process();
                 RifleItem.Process();
                 ThrowableItem.Process();
+                MiscItem.Process();
 
                 foreach (WeaponItem item in HandgunWeaponItems)
                 {
                     item.Process();
                 }
-                foreach (WeaponItem item in RifleWeaponItems)
+                foreach (WeaponItem item in LongGunsWeaponItems)
                 {
                     item.Process();
                 }
                 foreach (WeaponItem item in ThrowableWeaponItems)
+                {
+                    item.Process();
+                }
+                foreach (WeaponItem item in MiscWeaponItems)
                 {
                     item.Process();
                 }
@@ -541,16 +657,21 @@
                 HandgunsItem.Draw(e);
                 RifleItem.Draw(e);
                 ThrowableItem.Draw(e);
+                MiscItem.Draw(e);
 
                 foreach (WeaponItem item in HandgunWeaponItems)
                 {
                     item.Draw(e);
                 }
-                foreach (WeaponItem item in RifleWeaponItems)
+                foreach (WeaponItem item in LongGunsWeaponItems)
                 {
                     item.Draw(e);
                 }
                 foreach (WeaponItem item in ThrowableWeaponItems)
+                {
+                    item.Draw(e);
+                }
+                foreach (WeaponItem item in MiscWeaponItems)
                 {
                     item.Draw(e);
                 }
@@ -566,7 +687,7 @@
             {
                 float x = Game.Resolution.Width - 600f;
                 float y = 0f;
-                float height = Game.Resolution.Height / 3;
+                float height = Game.Resolution.Height / 4;
 
                 HandgunsItem.Texture.RectangleF = new RectangleF(x, y, HandgunsItem.Texture.Texture.Size.Width * 0.375f, HandgunsItem.Texture.Texture.Size.Height * 0.375f);
                 HandgunsItem.BackgroundRectangle.RectangleF = new RectangleF(x, y, 1280, HandgunsItem.Texture.Texture.Size.Height * 0.375f);
@@ -579,6 +700,10 @@
                 ThrowableItem.Texture.RectangleF = new RectangleF(x, y, ThrowableItem.Texture.Texture.Size.Width * 0.375f, ThrowableItem.Texture.Texture.Size.Height * 0.375f);
                 ThrowableItem.BackgroundRectangle.RectangleF = new RectangleF(x, y, 1280, ThrowableItem.Texture.Texture.Size.Height * 0.375f);
                 ThrowableItem.Label.Position = new PointF(x + ThrowableItem.Texture.Texture.Size.Width * 0.4f, y + (ThrowableItem.Texture.Texture.Size.Height * 0.1125f));
+                y += height;
+                MiscItem.Texture.RectangleF = new RectangleF(x, y, MiscItem.Texture.Texture.Size.Width * 0.375f, MiscItem.Texture.Texture.Size.Height * 0.375f);
+                MiscItem.BackgroundRectangle.RectangleF = new RectangleF(x, y, 1280, MiscItem.Texture.Texture.Size.Height * 0.375f);
+                MiscItem.Label.Position = new PointF(x + MiscItem.Texture.Texture.Size.Width * 0.4f, y + (MiscItem.Texture.Texture.Size.Height * 0.1125f));
                 y += height;
 
 
@@ -598,7 +723,7 @@
                 x = Game.Resolution.Width - 600f;
                 y = 0f;
 
-                foreach (WeaponItem item in RifleWeaponItems)
+                foreach (WeaponItem item in LongGunsWeaponItems)
                 {
                     //Logger.LogTrivial("Hash: " + item.WeaponHash);
                     item.Texture.RectangleF = new RectangleF(x, y, item.Texture.Texture.Size.Width * 0.28125f, item.Texture.Texture.Size.Height * 0.28125f);
@@ -619,6 +744,19 @@
                     item.Label.Position = new PointF(x + item.Texture.Texture.Size.Width * 0.4f, y + (item.Texture.Texture.Size.Height * 0.095f));
                     y += item.Texture.Texture.Size.Height * 0.375f;
                 }
+
+
+                x = Game.Resolution.Width - 600f;
+                y = 0f;
+
+                foreach (WeaponItem item in MiscWeaponItems)
+                {
+                    //Logger.LogTrivial("Hash: " + item.WeaponHash);
+                    item.Texture.RectangleF = new RectangleF(x, y, item.Texture.Texture.Size.Width * 0.375f, item.Texture.Texture.Size.Height * 0.375f);
+                    item.BackgroundRectangle.RectangleF = new RectangleF(x, y, 1280, item.Texture.Texture.Size.Height * 0.375f);
+                    item.Label.Position = new PointF(x + item.Texture.Texture.Size.Width * 0.4f, y + (item.Texture.Texture.Size.Height * 0.095f));
+                    y += item.Texture.Texture.Size.Height * 0.375f;
+                }
             }
 
             public enum ECurrentMenu
@@ -627,6 +765,7 @@
                 HandgunsMenu,
                 LongGunsMenu,
                 ThrowablesMenu,
+                MiscMenu,
             }
 
             public class MenuItem
@@ -687,7 +826,9 @@
 
             public class WeaponItem
             {
+                public ItemType Type { get; }
                 public EWeaponHash WeaponHash { get; }
+                public MiscItems MiscItem { get; }
                 public UITexture Texture { get; }
                 public UILabel Label { get; }
                 public UIRectangle BackgroundRectangle { get; }
@@ -711,11 +852,23 @@
                     }
                 }
 
-                public WeaponItem(EWeaponHash hash, Rage.Texture texture)
+                public WeaponItem(EWeaponHash hash, ItemType type, Rage.Texture texture)
                 {
+                    Type = type;
                     WeaponHash = hash;
                     Texture = new UITexture(texture, new RectangleF(), UIScreenBorder.Right, 0.0225f, 0.04725f);
                     Label = new UILabel(hash.ToString().Replace('_', ' '), "Arial", 22.5f, new PointF(), Color.White, UIScreenBorder.Right, 0.0225f, 0.04725f);
+                    BackgroundRectangle = new UIRectangle(new RectangleF(), Color.FromArgb(150, Color.DarkGray), Color.Black, UIRectangleType.FilledWithBorders, UIScreenBorder.Right, 0.0225f, 0.04725f);
+                    BackgroundRectangle.Hovered += backRectHoveredEvent;
+                }
+
+                public WeaponItem(MiscItems item, Rage.Texture texture)
+                {
+                    Type = ItemType.Misc;
+                    WeaponHash = 0;
+                    MiscItem = item;
+                    Texture = new UITexture(texture, new RectangleF(), UIScreenBorder.Right, 0.0225f, 0.04725f);
+                    Label = new UILabel(item.ToString().Replace('_', ' '), "Arial", 22.5f, new PointF(), Color.White, UIScreenBorder.Right, 0.0225f, 0.04725f);
                     BackgroundRectangle = new UIRectangle(new RectangleF(), Color.FromArgb(150, Color.DarkGray), Color.Black, UIRectangleType.FilledWithBorders, UIScreenBorder.Right, 0.0225f, 0.04725f);
                     BackgroundRectangle.Hovered += backRectHoveredEvent;
                 }
@@ -742,78 +895,87 @@
                     BackgroundRectangle.Color = hoveredBackRectColor;
                 }
 
-                public static WeaponItem GetWeaponItemForWeapon(EWeaponHash hash)
+                public static WeaponItem GetWeaponItemForWeapon(EWeaponHash hash, ItemType type)
                 {
                     Rage.Texture texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armory Resources\UI\" + hash + ".png");
-                    return new WeaponItem(hash, texture);
+                    if (texture == null)
+                        texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armory Resources\UI\Not_Added.png");
+                    return new WeaponItem(hash, type, texture);
                 }
-
-                public static EWeaponHash[] GetAvalaibleWeapons()
+                public static WeaponItem GetWeaponItemForMiscItem(MiscItems item)
                 {
-                    return new EWeaponHash[]
-                    {
-                        // melee     
-                        EWeaponHash.Nightstick,
-                        //EWeaponHash.Flashlight,   // doesn't have texture     
-
-                        // pistols  
-                        EWeaponHash.Pistol,
-                        EWeaponHash.Combat_Pistol,
-                        EWeaponHash.AP_Pistol,
-                        EWeaponHash.Pistol_50,
-                        EWeaponHash.Heavy_Pistol,
-                        EWeaponHash.Stun_Gun,              
-
-                        // submachines  done textures
-                        EWeaponHash.Micro_SMG,
-                        EWeaponHash.SMG,
-                        EWeaponHash.Assault_SMG,
-
-                        // rifles
-                        EWeaponHash.Assault_Rifle,
-                        EWeaponHash.Carbine_Rifle,
-                        EWeaponHash.Advanced_Rifle,
-                        EWeaponHash.Bullpup_Rifle,         
-
-                        //mgs
-                        EWeaponHash.MG,
-                        EWeaponHash.Combat_MG,             
-
-                        // shotguns  
-                        EWeaponHash.Pump_Shotgun,
-                        EWeaponHash.Sawn_Off_Shotgun,
-                        EWeaponHash.Assault_Shotgun,
-                        EWeaponHash.Bullpup_Shotgun,       
-                        //EWeaponHash.Heavy_Shotgun,       // doesn't have texture          
-
-                        // snipers     done textures except Marksman_Rifle
-                        EWeaponHash.Sniper_Rifle,
-                        EWeaponHash.Heavy_Sniper,          
-                        //EWeaponHash.Marksman_Rifle,     // doesn't have texture          
-
-                        // big guns
-                        //EWeaponHash.Grenade_Launcher,      
-                        //EWeaponHash.RPG,                   
-                        //EWeaponHash.Stinger,               
-                        //EWeaponHash.Minigun,               
-
-                        // throwables
-                        EWeaponHash.Grenade,
-                        EWeaponHash.Sticky_Bomb,
-                        EWeaponHash.Smoke_Grenade,     
-                        EWeaponHash.Flare,
-                        //EWeaponHash.BZ_Gas,                // doesn't have texture        
-                        //case EWeaponHash.Molotov,               
-                        EWeaponHash.Fire_Extinguisher,
-                    };
+                    Rage.Texture texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armory Resources\UI\" + item + ".png");
+                    if(texture == null)
+                        texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armory Resources\UI\Not_Added.png");
+                    return new WeaponItem(item, texture);
                 }
+
+                //public static EWeaponHash[] GetAvalaibleWeapons()
+                //{
+                //    return new EWeaponHash[]
+                //    {
+                //        // melee     
+                //        EWeaponHash.Nightstick,
+                //        //EWeaponHash.Flashlight,   // doesn't have texture     
+
+                //        // pistols  
+                //        EWeaponHash.Pistol,
+                //        EWeaponHash.Combat_Pistol,
+                //        EWeaponHash.AP_Pistol,
+                //        EWeaponHash.Pistol_50,
+                //        EWeaponHash.Heavy_Pistol,
+                //        EWeaponHash.Stun_Gun,              
+
+                //        // submachines  done textures
+                //        EWeaponHash.Micro_SMG,
+                //        EWeaponHash.SMG,
+                //        EWeaponHash.Assault_SMG,
+
+                //        // rifles
+                //        EWeaponHash.Assault_Rifle,
+                //        EWeaponHash.Carbine_Rifle,
+                //        EWeaponHash.Advanced_Rifle,
+                //        EWeaponHash.Bullpup_Rifle,         
+
+                //        //mgs
+                //        EWeaponHash.MG,
+                //        EWeaponHash.Combat_MG,             
+
+                //        // shotguns  
+                //        EWeaponHash.Pump_Shotgun,
+                //        EWeaponHash.Sawn_Off_Shotgun,
+                //        EWeaponHash.Assault_Shotgun,
+                //        EWeaponHash.Bullpup_Shotgun,       
+                //        //EWeaponHash.Heavy_Shotgun,       // doesn't have texture          
+
+                //        // snipers     done textures except Marksman_Rifle
+                //        EWeaponHash.Sniper_Rifle,
+                //        EWeaponHash.Heavy_Sniper,          
+                //        //EWeaponHash.Marksman_Rifle,     // doesn't have texture          
+
+                //        // big guns
+                //        //EWeaponHash.Grenade_Launcher,      
+                //        //EWeaponHash.RPG,                   
+                //        //EWeaponHash.Stinger,               
+                //        //EWeaponHash.Minigun,               
+
+                //        // throwables
+                //        EWeaponHash.Grenade,
+                //        EWeaponHash.Sticky_Bomb,
+                //        EWeaponHash.Smoke_Grenade,     
+                //        EWeaponHash.Flare,
+                //        //EWeaponHash.BZ_Gas,                // doesn't have texture        
+                //        //case EWeaponHash.Molotov,               
+                //        EWeaponHash.Fire_Extinguisher,
+                //    };
+                //}
 
                 public static EWeaponHash[] GetAvalaibleHandgunWeapons()
                 {
                     return new EWeaponHash[]
 {
                         // melee     
-                        EWeaponHash.Nightstick,
+                        //EWeaponHash.Nightstick,
                         //EWeaponHash.Flashlight,   // doesn't have texture     
 
                         // pistols  
@@ -827,7 +989,7 @@
                         // submachines  
                         EWeaponHash.Micro_SMG,
 
-                        EWeaponHash.Fire_Extinguisher,
+                        //EWeaponHash.Fire_Extinguisher,
                     };
                 }
 
@@ -874,15 +1036,34 @@
                         EWeaponHash.Flare,
                     };
                 }
+
+                public static MiscItems[] GetAvalaibleMiscItems()
+                {
+                    return new MiscItems[]
+                    {
+                        // throwables
+                        MiscItems.Bulletproof_Vest,
+                        MiscItems.Nightstick,
+                        MiscItems.Fire_Extinguisher,
+                    };
+                }
             }
         }
 
+        protected enum MiscItems : uint
+        {
+            Bulletproof_Vest,
+            Nightstick = EWeaponHash.Nightstick,
+            Fire_Extinguisher = EWeaponHash.Fire_Extinguisher,
 
-        protected enum WeaponType
+        }
+
+        protected enum ItemType
         {
             Handgun,
             LongGun,
             Throwable,
+            Misc,
         }
     }
 }

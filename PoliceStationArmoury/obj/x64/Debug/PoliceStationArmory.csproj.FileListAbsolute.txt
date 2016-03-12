@@ -33,3 +33,4 @@ E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\
 E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Throwables_Icon.png
 E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Long_Guns_Icon.png
 E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Flare.png
+E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Not_Added.png
