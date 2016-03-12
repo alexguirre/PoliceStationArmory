@@ -61,6 +61,7 @@
                             tempCam.Interpolate(Cam, 1500, true, true, true);
                             Cam.Active = true;
                             playerTask.WaitForCompletion();
+                            Cop.Tasks.Clear();
                             Game.LocalPlayer.Character.IsPositionFrozen = true;
                             Cop.PlayAmbientSpeech(new string[] { Speech.GENERIC_HI, Speech.GENERIC_HOWS_IT_GOING }.GetRandomElement(), false);
                             Game.LocalPlayer.Character.PlayAmbientSpeech(new string[] { Speech.GENERIC_HI }.GetRandomElement(), false);
@@ -76,6 +77,10 @@
                             Game.LocalPlayer.Character.IsPositionFrozen = false;
                             Game.LocalPlayer.Character.Tasks.GoStraightToPosition(playerLeavesPos.Position, 1.0f, playerLeavesPos.Heading, 0.0f, -1).WaitForCompletion();
 
+                            string scenario = new string[] { Scenario.WORLD_HUMAN_AA_COFFEE, Scenario.WORLD_HUMAN_CLIPBOARD, Scenario.WORLD_HUMAN_COP_IDLES }.GetRandomElement();
+                            Scenario.StartInPlace(Cop, scenario, scenario == Scenario.WORLD_HUMAN_COP_IDLES ? true : false);
+                            Logger.LogTrivial("Cop playing scenario " + scenario);
+
                             Cam.Active = false;
                             Common.DisplayHud(true);
                             Common.DisplayRadar(true);
@@ -86,6 +91,7 @@
                 if (!Game.LocalPlayer.Character.IsInRangeOf2D(copSpawnPos.Position, 50f))
                 {
                     Cop.Delete();
+                    Logger.LogTrivial("Deleted cop");
                 }
             }
             else
@@ -93,6 +99,9 @@
                 if (Game.LocalPlayer.Character.IsInRangeOf2D(copSpawnPos.Position, 20f))
                 {
                     Cop = GetOrCreateCop();
+                    string scenario = new string[] { Scenario.WORLD_HUMAN_AA_COFFEE, Scenario.WORLD_HUMAN_CLIPBOARD, Scenario.WORLD_HUMAN_COP_IDLES }.GetRandomElement();
+                    Scenario.StartInPlace(Cop, scenario, scenario == Scenario.WORLD_HUMAN_COP_IDLES ? true : false);
+                    Logger.LogTrivial("Cop playing scenario " + scenario);
                 }
             }
         }
@@ -134,7 +143,7 @@
                 WeaponType type = GetTypeForWeapon(selectedItem.WeaponHash);
                 Task copAnimTask    = Cop.PlayAnimation(type == WeaponType.Handgun ? GiveHandgunAnimation : GiveRifleAnimation, -1, 1f, 0.5f, 0.0f);
                 Task playerAnimTask = Game.LocalPlayer.Character.PlayAnimation(type == WeaponType.Handgun ? ReceiveHandgunAnimation : ReceiveRifleAnimation, -1, 1f, 0.5f, 0.0f);
-                GameFiber.Sleep(375);
+                GameFiber.Sleep(410);
                 Cop.Inventory.GiveNewWeapon((WeaponHash)selectedItem.WeaponHash, 999, true);
                 Cop.PlayAmbientSpeech(Speech.CHAT_STATE, false);
                 if (Cop.IsAnySpeechPlaying)
@@ -558,7 +567,7 @@
                     Logger.LogTrivial("Hash: " + item.WeaponHash);
                     item.Texture.RectangleF = new RectangleF(x, y, item.Texture.Texture.Size.Width * 0.375f, item.Texture.Texture.Size.Height * 0.375f);
                     item.BackgroundRectangle.RectangleF = new RectangleF(x, y, 1280, item.Texture.Texture.Size.Height * 0.375f);
-                    item.Label.Position = new PointF(x + item.Texture.Texture.Size.Width * 0.4f, y + (item.Texture.Texture.Size.Height * 0.1125f));
+                    item.Label.Position = new PointF(x + item.Texture.Texture.Size.Width * 0.4f, y + (item.Texture.Texture.Size.Height * 0.095f/*0.1125f*/));
                     y += item.Texture.Texture.Size.Height * 0.375f;
                 }
 
@@ -571,7 +580,7 @@
                     Logger.LogTrivial("Hash: " + item.WeaponHash);
                     item.Texture.RectangleF = new RectangleF(x, y, item.Texture.Texture.Size.Width * 0.28125f, item.Texture.Texture.Size.Height * 0.28125f);
                     item.BackgroundRectangle.RectangleF = new RectangleF(x, y, 1280, item.Texture.Texture.Size.Height * 0.28125f);
-                    item.Label.Position = new PointF(x + item.Texture.Texture.Size.Width * 0.4f, y + (item.Texture.Texture.Size.Height * 0.1125f));
+                    item.Label.Position = new PointF(x + item.Texture.Texture.Size.Width * 0.4f, y + (item.Texture.Texture.Size.Height * 0.095f/*0.1125f*/));
                     y += item.Texture.Texture.Size.Height * 0.28125f;
                 }
 
@@ -714,67 +723,6 @@
                 {
                     Rage.Texture texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armory Resources\UI\" + hash + ".png");
                     return new WeaponItem(hash, texture);
-                    //Rage.Texture texture = null;
-                    //switch (hash)                           // TODO: complete textures switch statement and create the textures
-                    //{
-                    //    // melee      done textures except Flashlight
-                    //    case EWeaponHash.Nightstick:            texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\" + hash); break;
-                    //    case EWeaponHash.Flashlight:            texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-
-                    //    // pistols    done textures
-                    //    case EWeaponHash.Pistol:                texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-                    //    case EWeaponHash.Combat_Pistol:         texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-                    //    case EWeaponHash.AP_Pistol:             texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-                    //    case EWeaponHash.Pistol_50:             texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-                    //    case EWeaponHash.Heavy_Pistol:          texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-                    //    case EWeaponHash.Stun_Gun:              texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-
-                    //    // submachines  done textures
-                    //    case EWeaponHash.Micro_SMG:             texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-                    //    case EWeaponHash.SMG:                   texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-                    //    case EWeaponHash.Assault_SMG:           texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-
-                    //    // rifles   done textures
-                    //    case EWeaponHash.Assault_Rifle:         texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-                    //    case EWeaponHash.Carbine_Rifle:         texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-                    //    case EWeaponHash.Advanced_Rifle:        texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-                    //    case EWeaponHash.Bullpup_Rifle:         texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-
-                    //    //mgs     done textures
-                    //    case EWeaponHash.MG:                    texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-                    //    case EWeaponHash.Combat_MG:             texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-
-                    //    // shotguns    done textures except Heavy_Shotgun
-                    //    case EWeaponHash.Pump_Shotgun:          texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-                    //    case EWeaponHash.Sawn_Off_Shotgun:      texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-                    //    case EWeaponHash.Assault_Shotgun:       texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-                    //    case EWeaponHash.Bullpup_Shotgun:       texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-                    //    case EWeaponHash.Heavy_Shotgun:         texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-
-                    //    // snipers     done textures except Marksman_Rifle
-                    //    case EWeaponHash.Sniper_Rifle:          texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-                    //    case EWeaponHash.Heavy_Sniper:          texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-                    //    case EWeaponHash.Marksman_Rifle:        texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-
-                    //    // big guns
-                    //    //case EWeaponHash.Grenade_Launcher:      texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-                    //    //case EWeaponHash.RPG:                   texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-                    //    //case EWeaponHash.Stinger:               texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-                    //    //case EWeaponHash.Minigun:               texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-
-                    //    // throwables
-                    //    case EWeaponHash.Grenade:               texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-                    //    case EWeaponHash.Sticky_Bomb:           texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-                    //    case EWeaponHash.Smoke_Grenade:         texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-                    //    case EWeaponHash.BZ_Gas:                texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-                    //    //case EWeaponHash.Molotov:               texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-                    //    case EWeaponHash.Fire_Extinguisher:     texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-                    //    //case EWeaponHash.Petrol_Can:            texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-                    //    //case EWeaponHash.Flare:                 texture = Game.CreateTextureFromFile(@"Plugins\Police Station Armoury Resources\UI\"); break;
-                    //    default:
-                    //        return null;
-                    //}
-                    //return new WeaponItem(hash, texture);
                 }
 
                 public static EWeaponHash[] GetAvalaibleWeapons()
