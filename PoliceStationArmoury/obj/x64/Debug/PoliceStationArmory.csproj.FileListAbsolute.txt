@@ -30,5 +30,5 @@ E:\Rockstar Games\Grand Theft Auto V\Plugins\PoliceStationArmory.pdb
 C:\Users\PcCom1\Documents\Visual Studio 2015\Projects\PoliceStationArmoury\PoliceStationArmoury\obj\x64\Debug\PoliceStationArmory.dll
 C:\Users\PcCom1\Documents\Visual Studio 2015\Projects\PoliceStationArmoury\PoliceStationArmoury\obj\x64\Debug\PoliceStationArmory.pdb
 E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Handguns_Icon.png
-E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Rifles_Icon.png
 E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Throwables_Icon.png
+E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Long_Guns_Icon.png

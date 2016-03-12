@@ -237,7 +237,7 @@
                 case EWeaponHash.Sniper_Rifle:          
                 case EWeaponHash.Heavy_Sniper:          
                 case EWeaponHash.Marksman_Rifle:
-                    return WeaponType.Rifle;      
+                    return WeaponType.Long_Gun;      
             }
             return WeaponType.Handgun;
         }
@@ -433,7 +433,7 @@
             {
                 HandgunsItem = new MenuItem("Handguns", Game.CreateTextureFromFile(@"Plugins\Police Station Armory Resources\UI\Handguns_Icon.png"));
                 HandgunsItem.BackgroundRectangle.Clicked += (s) => { CurrentMenu = ECurrentMenu.HandgunsMenu; };
-                RifleItem = new MenuItem("Two hands guns", Game.CreateTextureFromFile(@"Plugins\Police Station Armory Resources\UI\Rifles_Icon.png"));
+                RifleItem = new MenuItem("Long guns", Game.CreateTextureFromFile(@"Plugins\Police Station Armory Resources\UI\Long_Guns_Icon.png"));
                 RifleItem.BackgroundRectangle.Clicked += (s) => { CurrentMenu = ECurrentMenu.RiflesMenu; };
                 ThrowableItem = new MenuItem("Throwables", Game.CreateTextureFromFile(@"Plugins\Police Station Armory Resources\UI\Throwables_Icon.png"));
                 ThrowableItem.BackgroundRectangle.Clicked += (s) => { CurrentMenu = ECurrentMenu.ThrowablesMenu; };
@@ -900,7 +900,7 @@
         protected enum WeaponType
         {
             Handgun,
-            Rifle,
+            Long_Gun,
             Throwable,
         }
     }

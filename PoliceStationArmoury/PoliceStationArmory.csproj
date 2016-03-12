@@ -94,7 +94,7 @@
     <None Include="Police Station Armory Resources\UI\Handguns_Icon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Police Station Armory Resources\UI\Rifles_Icon.png">
+    <None Include="Police Station Armory Resources\UI\Long_Guns_Icon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Police Station Armory Resources\UI\Throwables_Icon.png">
