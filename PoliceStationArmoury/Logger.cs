@@ -1,7 +1,11 @@
 ﻿namespace PoliceStationArmory
 {
-    using Rage;
+    // System
     using System;
+    using System.Diagnostics;
+
+    // RPH
+    using Rage;
 
     /// <summary>
     /// Class for improved logging
@@ -20,14 +24,14 @@
             Game.LogTrivial("[" + PluginName + " | " + specific + "] " + o);
         }
 
-
+        [Conditional("DEBUG")]
         public static void LogDebug(object o)
         {
 #if DEBUG
             Game.LogTrivial("[" + PluginName + "]<DEBUG> " + o);
 #endif
         }
-
+        [Conditional("DEBUG")]
         public static void LogDebug(string specific, object o)
         {
 #if DEBUG
@@ -47,13 +51,14 @@
         }
 
 
+        [Conditional("DEBUG")]
         public static void LogExceptionDebug(Exception ex)
         {
 #if DEBUG
             Game.LogTrivial("[" + PluginName + "]<DEBUG | EXCEPTION> " + ex.ToString());
 #endif
         }
-
+        [Conditional("DEBUG")]
         public static void LogExceptionDebug(string specific, Exception ex)
         {
 #if DEBUG
