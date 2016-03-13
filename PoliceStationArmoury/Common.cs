@@ -46,12 +46,12 @@
             NativeFunction.CallByName<uint>("DISPLAY_RADAR", toggle);
         }
 
-        public static void DisableAllGameControls(GameControlGroup controlGroup)
+        public static void DisableGameControlsGroup(GameControlsGroup controlGroup)
         {
             NativeFunction.Natives.DISABLE_ALL_CONTROL_ACTIONS((int)controlGroup);
         }
 
-        public static void EnableAllGameControls(GameControlGroup controlGroup)
+        public static void EnableGameControlsGroup(GameControlsGroup controlGroup)
         {
             NativeFunction.Natives.ENABLE_ALL_CONTROL_ACTIONS((int)controlGroup);
         }
@@ -91,5 +91,30 @@
             }
             NativeFunction.CallByName<uint>("DRAW_MARKER", (int)type, pos.X, pos.Y, pos.Z, dir.X, dir.Y, dir.Z, rot.X, rot.Y, rot.Z, scale.X, scale.Y, scale.Z, (int)color.R, (int)color.G, (int)color.B, (int)color.A, bobUpAndDown, faceCamY, unk2, rotateY, dict, name, drawOnEnt);
         }
+
+        public static uint CreatePickup(PickupType type, Vector3 position, Rotator rotation, Model customModel, int value)
+        {
+            customModel.LoadAndWait();
+            uint handle = NativeFunction.CallByName<uint>("CREATE_PICKUP_ROTATE", (int)type, position.X, position.Y, position.Z, rotation.Pitch, rotation.Roll, rotation.Yaw, 0, value, 2, true, customModel.Hash);
+
+            if (handle == 0)
+            {
+                return 0;
+            }
+
+            return handle;
+        }
+        public static uint CreatePickup(PickupType type, Vector3 position, Rotator rotation, int value)
+        {
+            uint handle = NativeFunction.CallByName<uint>("CREATE_PICKUP_ROTATE", (int)type, position.X, position.Y, position.Z, rotation.Pitch, rotation.Roll, rotation.Yaw, 0, value, 2, true, 0);
+
+            if (handle == 0)
+            {
+                return 0;
+            }
+
+            return handle;
+        }
     }
 }
+

@@ -49,9 +49,6 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="RAGENativeUI">
-      <HintPath>..\..\..\..\..\Desktop\RAGENativeUI\RAGENativeUI.dll</HintPath>
-    </Reference>
     <Reference Include="RagePluginHookSDK">
       <HintPath>..\..\..\..\..\Desktop\RagePluginHook\SDK\RagePluginHookSDK.dll</HintPath>
     </Reference>
@@ -77,6 +74,7 @@
     <Compile Include="Types\Animation.cs" />
     <Compile Include="Types\Enums.cs" />
     <Compile Include="Types\Scenario.cs" />
+    <Compile Include="Types\Sound.cs" />
     <Compile Include="Types\SpawnPoint.cs" />
     <Compile Include="Types\Speech.cs" />
     <Compile Include="UI\Scaleform.cs" />
