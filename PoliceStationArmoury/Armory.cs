@@ -42,24 +42,59 @@
         public Armory()
         {
 #if DEBUG
-            Loadout l = new Loadout()
+            Loadout noose = new Loadout()
             {
-                Name = "Test Loadout",
-                TextureFileName = "Stun_Gun",
+                Name = "NOOSE Loadout",
+                TextureFileName = "Carbine_Rifle",
                 Items = new List<Item>()
                 {
-                    new Item() { Type = Item.ItemType.Stun_Gun,             Components = new WeaponComponent[] { } },
-                    new Item() { Type = Item.ItemType.Sniper_Rifle,         Components = new WeaponComponent[] { WeaponComponent.COMPONENT_AT_SCOPE_MAX } },
-                    new Item() { Type = Item.ItemType.MG,                   Components = new WeaponComponent[] { WeaponComponent.COMPONENT_MG_CLIP_02 } },
-                    new Item() { Type = Item.ItemType.AP_Pistol,            Components = new WeaponComponent[] { WeaponComponent.COMPONENT_APPISTOL_CLIP_02 } },
-                    new Item() { Type = Item.ItemType.Fire_Extinguisher,    Components = new WeaponComponent[] { } },
-                    new Item() { Type = Item.ItemType.Flare_Gun,            Components = new WeaponComponent[] { } },
+                    new Item() { Type = Item.ItemType.Combat_Pistol,        Components = new WeaponComponent[] { WeaponComponent.COMPONENT_AT_PI_FLSH }                                                                                           },
+                    new Item() { Type = Item.ItemType.Stun_Gun,             Components = new WeaponComponent[] { }                                                                                                                                },
+                    new Item() { Type = Item.ItemType.SMG,                  Components = new WeaponComponent[] { WeaponComponent.COMPONENT_AT_AR_FLSH, WeaponComponent.COMPONENT_AT_SCOPE_MACRO_02, WeaponComponent.COMPONENT_AT_PI_SUPP }        },
+                    new Item() { Type = Item.ItemType.Carbine_Rifle,        Components = new WeaponComponent[] { WeaponComponent.COMPONENT_AT_AR_FLSH, WeaponComponent.COMPONENT_AT_SCOPE_MEDIUM }                                                },
+                    new Item() { Type = Item.ItemType.Sniper_Rifle,         Components = new WeaponComponent[] { WeaponComponent.COMPONENT_AT_AR_FLSH, WeaponComponent.COMPONENT_AT_SCOPE_MAX, WeaponComponent.COMPONENT_AT_AR_SUPP_02 }          },
+                    new Item() { Type = Item.ItemType.Assault_Shotgun,      Components = new WeaponComponent[] { WeaponComponent.COMPONENT_AT_AR_FLSH, WeaponComponent.COMPONENT_ASSAULTSHOTGUN_CLIP_02 }                                         },
+                    new Item() { Type = Item.ItemType.Flare,                Components = new WeaponComponent[] { }                                                                                                                                },
+                    new Item() { Type = Item.ItemType.Sticky_Bomb,          Components = new WeaponComponent[] { }                                                                                                                                },
+                    new Item() { Type = Item.ItemType.Fire_Extinguisher,    Components = new WeaponComponent[] { }                                                                                                                                },
+                    new Item() { Type = Item.ItemType.Bulletproof_Vest,     Components = new WeaponComponent[] { }                                                                                                                                },
+                },
+            };
+
+            Loadout.WriteToXML(LOADOUTS_FOLDER + "NOOSE", noose);
+
+
+            Loadout fib = new Loadout()
+            {
+                Name = "FIB Loadout",
+                TextureFileName = "Combat_Pistol",
+                Items = new List<Item>()
+                {
+                    new Item() { Type = Item.ItemType.Combat_Pistol,        Components = new WeaponComponent[] { } },
+                    new Item() { Type = Item.ItemType.SMG,                  Components = new WeaponComponent[] { } },
                     new Item() { Type = Item.ItemType.Bulletproof_Vest,     Components = new WeaponComponent[] { } },
                 },
             };
-            Loadout.WriteToXML(LOADOUTS_FOLDER + "test2", l);
-#endif
 
+            Loadout.WriteToXML(LOADOUTS_FOLDER + "FIB", fib);
+
+
+            Loadout lspd = new Loadout()
+            {
+                Name = "LSPD/LSSD Loadout",
+                TextureFileName = "Pistol",
+                Items = new List<Item>()
+                {
+                    new Item() { Type = Item.ItemType.Nightstick,           Components = new WeaponComponent[] { } },
+                    new Item() { Type = Item.ItemType.Pistol,               Components = new WeaponComponent[] { } },
+                    new Item() { Type = Item.ItemType.Pump_Shotgun,         Components = new WeaponComponent[] { } },
+                    new Item() { Type = Item.ItemType.Fire_Extinguisher,    Components = new WeaponComponent[] { } },
+                    new Item() { Type = Item.ItemType.Bulletproof_Vest,     Components = new WeaponComponent[] { } },
+                },
+            };
+
+            Loadout.WriteToXML(LOADOUTS_FOLDER + "LSPD_LSSD", lspd);
+#endif
             userInterface = new UserInterface();
             userInterface.WeaponItemSelected += OnWeaponItemSelected;
             userInterface.LoadoutItemSelected += OnLoadoutItemSelected;
@@ -74,7 +109,7 @@
         {
             if (Cop.Exists())
             {
-                if (Cop.Position != copSpawnPos.Position)
+                if (!Cop.Position.IsInRangeOf(copSpawnPos.Position, 0.25f))
                     Cop.Position = copSpawnPos.Position;
 
                 if(canPlayerEnterTheArmory()/*Game.LocalPlayer.Character.IsInRangeOf2D(playerGetStuffPos.Position, 4.85f)*/)
@@ -104,6 +139,7 @@
                             Cam.Active = true;
                             playerTask.WaitForCompletion();
                             Cop.Tasks.Clear();
+                            Game.LocalPlayer.Character.Tasks.Clear();
                             Game.LocalPlayer.Character.IsPositionFrozen = true;
                             Cop.PlayAmbientSpeech(new string[] { Speech.GENERIC_HI, Speech.GENERIC_HOWS_IT_GOING }.GetRandomElement(), false);
                             Game.LocalPlayer.Character.PlayAmbientSpeech(new string[] { Speech.GENERIC_HI }.GetRandomElement(), false);
@@ -220,7 +256,7 @@
                     {
                         GameFiber.StartNew(delegate
                         {
-                            GameFiber.Sleep(900);
+                            GameFiber.Sleep(1000);
                             Game.LocalPlayer.Character.PlayAmbientSpeech(Speech.CHAT_RESP, false);
                         });
                     }
@@ -230,7 +266,7 @@
                 }
                 else
                 {
-                    if(selectedItem.MiscItem == MiscItems.Fire_Extinguisher || selectedItem.MiscItem == MiscItems.Nightstick)
+                    if (selectedItem.MiscItem == MiscItems.Fire_Extinguisher || selectedItem.MiscItem == MiscItems.Nightstick)
                     {
                         Task copAnimTask = Cop.PlayAnimation(GiveHandgunAnimation, -1, 1f, 0.5f, 0.0f);
                         Task playerAnimTask = Game.LocalPlayer.Character.PlayAnimation(ReceiveHandgunAnimation, -1, 1f, 0.5f, 0.0f);
@@ -241,7 +277,7 @@
                         {
                             GameFiber.StartNew(delegate
                             {
-                                GameFiber.Sleep(900);
+                                GameFiber.Sleep(1000);
                                 Game.LocalPlayer.Character.PlayAmbientSpeech(Speech.CHAT_RESP, false);
                             });
                         }
@@ -249,7 +285,7 @@
                         Cop.Inventory.Weapons.Remove((WeaponHash)selectedItem.MiscItem);
                         Game.LocalPlayer.Character.Inventory.GiveNewWeapon((WeaponHash)selectedItem.MiscItem, 999, true);
                     }
-                    else if(selectedItem.MiscItem == MiscItems.Bulletproof_Vest)
+                    else if (selectedItem.MiscItem == MiscItems.Bulletproof_Vest)
                     {
                         Task copAnimTask = Cop.PlayAnimation(GiveAmmoAnimation/*GivePackageAnimation*/, -1, 1f, 0.5f, 0.0f);
                         Task playerAnimTask = Game.LocalPlayer.Character.PlayAnimation(/*ReceiveAmmoAnimation*/ReceivePackageAnimation, -1, 1f, 0.5f, 0.0f);
@@ -262,7 +298,7 @@
                         {
                             GameFiber.StartNew(delegate
                             {
-                                GameFiber.Sleep(900);
+                                GameFiber.Sleep(1000);
                                 Game.LocalPlayer.Character.PlayAmbientSpeech(Speech.CHAT_RESP, false);
                             });
                         }
@@ -277,6 +313,36 @@
                         //Game.LocalPlayer.Character.Armor = 250;
                         //Cop.Inventory.Weapons.Remove((WeaponHash)selectedItem.MiscItem);
                         //Game.LocalPlayer.Character.Inventory.GiveNewWeapon((WeaponHash)selectedItem.MiscItem, 999, true);
+                    }
+                    else if (selectedItem.MiscItem == MiscItems.Refill_Ammo)
+                    {
+                        // prop_ld_ammo_pack_01, prop_ld_ammo_pack_02, prop_ld_ammo_pack_03
+                        Task copAnimTask = Cop.PlayAnimation(GiveAmmoAnimation, -1, 1f, 0.5f, 0.0f);
+                        Task playerAnimTask = Game.LocalPlayer.Character.PlayAnimation(ReceiveAmmoAnimation, -1, 1f, 0.5f, 0.0f);
+                        GameFiber.Sleep(500);
+                        Rage.Object tempObj = new Rage.Object("prop_ld_ammo_pack_0" + Globals.Random.Next(1, 4), Vector3.Zero);
+                        tempObj.AttachTo(Cop, Cop.GetBoneIndex(PedBoneId.RightPhHand), new Vector3(0f, 0f, 0f), new Rotator(0f, 180f, 0f));
+                        //Cop.Inventory.GiveNewWeapon((WeaponHash)selectedItem.MiscItem, 999, true);
+                        Cop.PlayAmbientSpeech(Speech.CHAT_STATE, false);
+                        if (Cop.IsAnySpeechPlaying)
+                        {
+                            GameFiber.StartNew(delegate
+                            {
+                                GameFiber.Sleep(1000);
+                                Game.LocalPlayer.Character.PlayAmbientSpeech(Speech.CHAT_RESP, false);
+                            });
+                        }
+                        //GameFiber.Sleep(3500);
+                        //tempObj.AttachTo(Game.LocalPlayer.Character, Game.LocalPlayer.Character.GetBoneIndex(PedBoneId.RightPhHand), new Vector3(0f, 0f, 0f), new Rotator(0f, 0f, 0f));
+                        copAnimTask.WaitForCompletion();
+                        //tempObj.Detach();
+                        //Vector3 pos = tempObj.Position;
+                        //Rotator rot = tempObj.Rotation;
+                        tempObj.Delete();
+                        foreach (WeaponDescriptor w in Game.LocalPlayer.Character.Inventory.Weapons)
+                        {
+                            w.Ammo += 250;
+                        }
                     }
                 }
                 IsCopGivingAWeapon = false;
@@ -766,9 +832,9 @@
                 RifleItem.BackgroundRectangle.Clicked += (s) => { CurrentMenu = ECurrentMenu.LongGunsMenu; };
                 ThrowableItem = new MenuItem("Throwables", Game.CreateTextureFromFile(UI_FOLDER + "Throwables_Icon.png"));
                 ThrowableItem.BackgroundRectangle.Clicked += (s) => { CurrentMenu = ECurrentMenu.ThrowablesMenu; };
-                MiscItem = new MenuItem("Misc", Game.CreateTextureFromFile(UI_FOLDER + "Not_Added.png")); // TODO: create icon for MiscItem
+                MiscItem = new MenuItem("Misc", Game.CreateTextureFromFile(UI_FOLDER + "Not_Added.png")); 
                 MiscItem.BackgroundRectangle.Clicked += (s) => { CurrentMenu = ECurrentMenu.MiscMenu; };
-                PredefinedLoadoutItem = new MenuItem("Loadouts", Game.CreateTextureFromFile(UI_FOLDER + "Not_Added.png")); // TODO: create icon for PredefinedLoadoutItem
+                PredefinedLoadoutItem = new MenuItem("Loadouts", Game.CreateTextureFromFile(UI_FOLDER + "Not_Added.png"));
                 PredefinedLoadoutItem.BackgroundRectangle.Clicked += (s) => { CurrentMenu = ECurrentMenu.PredefinedLoadoutsMenu; };
 
                 HandgunWeaponItems = new List<WeaponItem>();
@@ -884,6 +950,10 @@
                 {
                     item.Draw(e);
                 }
+                foreach (LoadoutItem item in PredefinedLoadoutItems)
+                {
+                    item.DrawHelpText(e);
+                }
             }
 
             private void invokeLoadoutItemSelected(LoadoutItem item)
@@ -997,8 +1067,8 @@
                 HandgunsMenu,
                 LongGunsMenu,
                 ThrowablesMenu,
-                MiscMenu,
-                PredefinedLoadoutsMenu,
+                MiscMenu,                   // TODO: add MiscMenu texture
+                PredefinedLoadoutsMenu,     // TODO: add PredefinedLoadoutsMenu texture
             }
             
             public class MenuItem
@@ -1276,9 +1346,10 @@
                     return new MiscItems[]
                     {
                         // throwables
-                        MiscItems.Bulletproof_Vest,
+                        MiscItems.Bulletproof_Vest,  // TODO: add Bulletproof_Vest texture
                         MiscItems.Nightstick,
                         MiscItems.Fire_Extinguisher,
+                        MiscItems.Refill_Ammo,   // TODO: add Refill_Ammo texture
                     };
                 }
             }
@@ -1338,6 +1409,10 @@
                     BackgroundRectangle.Draw(e);
                     Label.Draw(e);
                     Texture.Draw(e);
+                }
+
+                public void DrawHelpText(GraphicsEventArgs e)
+                {
                     HelpRectangle.Draw(e);
                     HelpText.Draw(e);
                 }
@@ -1355,7 +1430,7 @@
                     Vector2 mousePos = UI.UICommon.GetCursorPosition();
                     HelpText.Text = Loadout.Description;
                     HelpText.Position = new PointF(mousePos.X + 0.5f, mousePos.Y + 30f);
-                    HelpRectangle.RectangleF = new RectangleF(new PointF(HelpText.Position.X - 0.15f, HelpText.Position.Y), HelpText.Measure() + new SizeF(5.5f, 7.585f));
+                    HelpRectangle.RectangleF = new RectangleF(new PointF(HelpText.Position.X - 0.15f, HelpText.Position.Y), HelpText.Measure() + new SizeF(11f, 7.585f));
                     if (HelpText.State != UI.UIState.Showing)
                         HelpText.State = UI.UIState.Showing;
                     if (HelpRectangle.State != UI.UIState.Showing)
@@ -1367,6 +1442,7 @@
         protected enum MiscItems : uint
         {
             Bulletproof_Vest,
+            Refill_Ammo,
             Nightstick = EWeaponHash.Nightstick,
             Fire_Extinguisher = EWeaponHash.Fire_Extinguisher,
 
@@ -1377,7 +1453,7 @@
             Handgun,
             LongGun,
             Throwable,
-            Misc,
+            Misc,      
         }
     }
 
@@ -1412,6 +1488,10 @@
             Stun_Gun = EWeaponHash.Stun_Gun,
             Micro_SMG = EWeaponHash.Micro_SMG,
             Flare_Gun = EWeaponHash.Flare_Gun,
+            Grenade = EWeaponHash.Grenade,
+            Sticky_Bomb = EWeaponHash.Sticky_Bomb,
+            Smoke_Grenade = EWeaponHash.Smoke_Grenade,
+            Flare = EWeaponHash.Flare,
         }
 
         [XmlElement]
@@ -1429,23 +1509,34 @@
         public string TextureFileName;
         [XmlElement]
         public string Name;
-
+        
+        [XmlIgnore]
+        private string _description;
+        [XmlIgnore]
         public string Description
         {
             get
             {
-                StringBuilder sb = new StringBuilder();
-                foreach (Item item in Items)
+                if (String.IsNullOrEmpty(_description))
                 {
-                    sb.AppendLine("-" + item.Type);
-                    foreach (WeaponComponent comp in item.Components)
+                    StringBuilder sb = new StringBuilder();
+                    foreach (Item item in Items)
                     {
-                        sb.AppendLine("  -" + comp);
+                        sb.AppendLine("-" + item.Type);
+                        foreach (WeaponComponent comp in item.Components)
+                        {
+                            sb.AppendLine("  -" + comp);
+                        }
+                        sb.AppendLine();
                     }
-                    sb.AppendLine();
-                }
 
-                return sb.ToString();
+                    return _description = sb.ToString();
+                }
+                return _description;
+            }
+            set
+            {
+                _description = value;
             }
         }
 
@@ -1461,7 +1552,7 @@
                 WeaponAsset wAsset = new WeaponAsset((uint)item.Type);
                 if (wAsset.IsValid)
                 {
-                    ped.Inventory.GiveNewWeapon(wAsset, 999, true);
+                    ped.Inventory.GiveNewWeapon(wAsset, 999, false);
                     foreach (WeaponComponent comp in item.Components)
                     {
                         ped.Inventory.AddComponentToWeapon(wAsset, comp.ToString());
@@ -1497,6 +1588,13 @@
             // Uses the Deserialize method to restore the object's state 
             // with data from the XML document. */
             loadout = (Loadout)serializer.Deserialize(fs);
+            foreach (Item item in loadout.Items)
+            {
+                if (item.Components == null)
+                {
+                    item.Components = new WeaponComponent[] { };
+                }
+            }
 #if DEBUG
             Logger.LogTrivial("Loaded Loadout from " + xmlFilePath);
             Logger.LogTrivial("  -Name:               " + loadout.Name);
@@ -1505,16 +1603,9 @@
             foreach (Item item in loadout.Items)
             {
                 sb.Append(item.Type + "(");
-                if (item.Components != null)
-                {
-                    foreach (WeaponComponent c in item.Components)
-                        sb.Append(c + ",");
-                }
-                else
-                {
-                    item.Components = new WeaponComponent[] { };
-                }
-                sb.Append(")"+ ",");
+                foreach (WeaponComponent c in item.Components)
+                    sb.Append(c + ",");
+                sb.Append(")" + ",");
             }
             Logger.LogTrivial(sb);
 #endif
@@ -1544,7 +1635,9 @@
         COMPONENT_AT_PI_FLSH,
         COMPONENT_AT_AR_FLSH,
         COMPONENT_AT_SCOPE_MACRO,
+        COMPONENT_AT_SCOPE_MACRO_02,
         COMPONENT_AT_SCOPE_SMALL,
+        COMPONENT_AT_SCOPE_SMALL_02,
         COMPONENT_AT_SCOPE_MEDIUM,
         COMPONENT_AT_SCOPE_LARGE,
         COMPONENT_AT_SCOPE_MAX,

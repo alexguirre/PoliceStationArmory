@@ -1,0 +1,43 @@
+﻿<Window x:Class="Police_Station_Armory_Loadouts_Creator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Police_Station_Armory_Loadouts_Creator"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="550" Width="720" MinWidth="720" MaxWidth="720" MinHeight="544" MaxHeight="550">
+    <Grid Margin="0,0,2,2">
+        <GroupBox x:Name="loadoutNameGroupBox" Header="Name" HorizontalAlignment="Left" Margin="16,16,0,0" VerticalAlignment="Top" Height="120" Width="330">
+            <Grid Height="93" Margin="8,8,-2,-3" RenderTransformOrigin="0.5,0.5" VerticalAlignment="Bottom" Width="312">
+                <TextBox x:Name="loadoutNameTxtBox" HorizontalAlignment="Left" Height="20" Margin="0,66,0,0" TextWrapping="Wrap" Text="&lt;insert your loadout name here&gt;" VerticalAlignment="Top" Width="236" RenderTransformOrigin="0.5,0.5">
+                    <TextBox.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform/>
+                            <SkewTransform/>
+                            <RotateTransform Angle="0"/>
+                            <TranslateTransform/>
+                        </TransformGroup>
+                    </TextBox.RenderTransform>
+                </TextBox>
+                <Label x:Name="loadoutNameDescLbl" Content="name description" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,-5,0,0"/>
+            </Grid>
+        </GroupBox>
+        <GroupBox x:Name="loadoutTextureNameGroupBox" Header="Texture Name" HorizontalAlignment="Left" Margin="369,16,0,0" VerticalAlignment="Top" Height="120" Width="330">
+            <Grid Height="93" Margin="8,8,-2,-3">
+                <TextBox x:Name="loadoutTextureNameTxtBox" HorizontalAlignment="Left" Height="20" Margin="0,66,0,0" TextWrapping="Wrap" Text="&lt;insert your texture name here&gt;" VerticalAlignment="Top" Width="236" RenderTransformOrigin="0.5,0.5">
+                    <TextBox.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform/>
+                            <SkewTransform/>
+                            <RotateTransform Angle="0"/>
+                            <TranslateTransform/>
+                        </TransformGroup>
+                    </TextBox.RenderTransform>
+                </TextBox>
+                <Label x:Name="loadoutTextureNameDescLbl" Content="texture name description" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.488,0.461" Margin="0,-5,0,0"/>
+            </Grid>
+        </GroupBox>
+        <GroupBox x:Name="loadoutItemsGroupBox" Header="Items" HorizontalAlignment="Left" Margin="16,135,0,0" VerticalAlignment="Top" Height="221" Width="683"/>
+        <Button x:Name="loadLoadoutBttn" Content="Load Loadout" HorizontalAlignment="Left" Margin="16,378,0,0" VerticalAlignment="Top" Width="141" Height="38" Click="loadLoadoutBttn_Click"/>
+    </Grid>
+</Window>

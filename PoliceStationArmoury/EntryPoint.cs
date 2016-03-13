@@ -18,6 +18,5 @@
                 Globals.MainArmoury.Update();
             }
         }
-
     }
 }
