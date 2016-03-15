@@ -1,0 +1,16 @@
+﻿<Window x:Class="Police_Station_Armory_Loadouts_Creator.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Police_Station_Armory_Loadouts_Creator"
+        mc:Ignorable="d"
+        Title="About" Height="250" Width="300" ResizeMode="NoResize">
+    <Grid Height="220" VerticalAlignment="Top">
+        <Label x:Name="labelProductName" Content="Product Name" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="11.25"/>
+        <Label x:Name="labelVersion" Content="Version" HorizontalAlignment="Left" Margin="10,36,0,0" VerticalAlignment="Top" FontSize="11.25"/>
+        <Label x:Name="labelCopyright" Content="Copyright" HorizontalAlignment="Left" Margin="10,62,0,0" VerticalAlignment="Top" FontSize="11.25"/>
+        <Label x:Name="labelCompanyName" Content="Company Name" HorizontalAlignment="Left" Margin="10,88,0,0" VerticalAlignment="Top" FontSize="11.25"/>
+        <TextBox x:Name="textBoxDescription" HorizontalAlignment="Left" Height="84" Margin="10,114,0,0" TextWrapping="Wrap" Text="Description" VerticalAlignment="Top" Width="265" FontSize="11.25"/>
+    </Grid>
+</Window>

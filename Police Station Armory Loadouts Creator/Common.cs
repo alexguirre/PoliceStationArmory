@@ -9,5 +9,10 @@
         {
             return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
         }
+
+        public static int GetEnumCount<EnumType>()
+        {
+            return Enum.GetValues(typeof(EnumType)).Length;
+        }
     }
 }

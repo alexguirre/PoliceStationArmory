@@ -42,7 +42,7 @@
                 }
                 return _description;
             }
-            set
+            private set
             {
                 _description = value;
             }
@@ -73,7 +73,7 @@
         public static void WriteToXML(string xmlFilePath, Loadout loadout)
         {
             XmlSerializer serializer = new XmlSerializer(typeof(Loadout));
-            TextWriter writer = new StreamWriter(xmlFilePath + ".xml");
+            TextWriter writer = new StreamWriter(xmlFilePath);
             serializer.Serialize(writer, loadout);
             writer.Close();
             writer.Dispose();

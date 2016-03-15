@@ -36,8 +36,6 @@
         /// The Logger contructor
         /// </summary>
         /// <param name="fileName">The name of the file that will be created.</param>
-        /// <param name="createConsole">If true a <see cref="XEngine.Core.XConsole"/> will be created.</param>
-        /// <remarks>Do not set <paramref name="createConsole"/> to true if there isn't a <see cref="System.Windows.Forms.Form">Windows Forms</see> running</remarks>
         public Logger(string fileName)
         {
             string path = @"Police Station Armory Loadouts Creator Logs\" + fileName + "_" + DateTime.UtcNow.ToShortDateString().Replace("/", "-") + "_" + DateTime.UtcNow.ToLongTimeString().Replace(":", "") + ".log";

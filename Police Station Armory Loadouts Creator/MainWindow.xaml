@@ -5,9 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Police_Station_Armory_Loadouts_Creator"
         mc:Ignorable="d"
-        Title="MainWindow" Height="550" Width="720" MinWidth="720" MaxWidth="720" MinHeight="544" MaxHeight="550">
+        Title="Police Station Armory Loadouts Creator" Height="565" Width="720" ResizeMode="NoResize">
     <Grid Margin="0,0,2,2">
-        <GroupBox x:Name="loadoutNameGroupBox" Header="Name" HorizontalAlignment="Left" Margin="16,16,0,0" VerticalAlignment="Top" Height="120" Width="330">
+        <GroupBox x:Name="loadoutNameGroupBox" Header="Name" HorizontalAlignment="Left" Margin="16,29,0,0" VerticalAlignment="Top" Height="120" Width="330">
             <Grid Height="93" Margin="8,8,-2,-3" RenderTransformOrigin="0.5,0.5" VerticalAlignment="Bottom" Width="312">
                 <TextBox x:Name="loadoutNameTxtBox" HorizontalAlignment="Left" Height="20" Margin="0,66,0,0" TextWrapping="Wrap" Text="&lt;insert your loadout name here&gt;" VerticalAlignment="Top" Width="236" RenderTransformOrigin="0.5,0.5">
                     <TextBox.RenderTransform>
@@ -22,7 +22,7 @@
                 <Label x:Name="loadoutNameDescLbl" Content="name description" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,-5,0,0"/>
             </Grid>
         </GroupBox>
-        <GroupBox x:Name="loadoutTextureNameGroupBox" Header="Texture Name" HorizontalAlignment="Left" Margin="369,16,0,0" VerticalAlignment="Top" Height="120" Width="330">
+        <GroupBox x:Name="loadoutTextureNameGroupBox" Header="Texture Name" HorizontalAlignment="Left" Margin="369,29,0,0" VerticalAlignment="Top" Height="120" Width="330">
             <Grid Height="93" Margin="8,8,-2,-3">
                 <TextBox x:Name="loadoutTextureNameTxtBox" HorizontalAlignment="Left" Height="20" Margin="0,66,0,0" TextWrapping="Wrap" Text="&lt;insert your texture name here&gt;" VerticalAlignment="Top" Width="236" RenderTransformOrigin="0.5,0.5">
                     <TextBox.RenderTransform>
@@ -37,7 +37,24 @@
                 <Label x:Name="loadoutTextureNameDescLbl" Content="texture name description" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.488,0.461" Margin="0,-5,0,0"/>
             </Grid>
         </GroupBox>
-        <GroupBox x:Name="loadoutItemsGroupBox" Header="Items" HorizontalAlignment="Left" Margin="16,135,0,0" VerticalAlignment="Top" Height="221" Width="683"/>
-        <Button x:Name="loadLoadoutBttn" Content="Load Loadout" HorizontalAlignment="Left" Margin="16,378,0,0" VerticalAlignment="Top" Width="141" Height="38" Click="loadLoadoutBttn_Click"/>
+        <GroupBox x:Name="loadoutItemsGroupBox" Header="Items" HorizontalAlignment="Left" Margin="16,148,0,0" VerticalAlignment="Top" Height="329" Width="683">
+            <Grid x:Name="itemsGrid" HorizontalAlignment="Left" Height="306" Margin="4,4,0,-3" VerticalAlignment="Top" Width="667">
+                <ListBox x:Name="itemsListBox" HorizontalAlignment="Left" Height="291" Margin="10,5,0,0" VerticalAlignment="Top" Width="155"/>
+                <CheckBox x:Name="addItemCheckBox" Content="Add item" HorizontalAlignment="Left" Margin="249,14,0,0" VerticalAlignment="Top" Width="77" IsEnabled="False"/>
+                <ListView x:Name="itemComponentsListView" HorizontalAlignment="Left" Height="286" Margin="342,10,0,0" VerticalAlignment="Top" Width="315">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Component" Width="300"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+                <Label x:Name="loadoutItemsDescLbl" Content="items description" HorizontalAlignment="Left" Margin="170,102,0,0" VerticalAlignment="Top" Height="194" Width="167"/>
+            </Grid>
+        </GroupBox>
+        <Button x:Name="loadLoadoutBttn" Content="Load Loadout" HorizontalAlignment="Left" Margin="16,481,0,0" VerticalAlignment="Top" Width="141" Height="38" Click="loadLoadoutBttn_Click"/>
+        <Button x:Name="saveLoadoutBttn" Content="Save Loadout" HorizontalAlignment="Left" Margin="558,481,0,0" VerticalAlignment="Top" Width="141" Height="38" Click="saveLoadoutBttn_Click"/>
+        <Menu x:Name="menu" HorizontalAlignment="Left" Height="19" VerticalAlignment="Top" Width="710" Background="White" BorderBrush="#FF6E6E6E">
+            <MenuItem x:Name="aboutMenuItem" Header="About" Click="AboutMenuItem_Click" Background="White"/>
+        </Menu>
     </Grid>
 </Window>

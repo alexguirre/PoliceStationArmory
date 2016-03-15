@@ -1534,7 +1534,7 @@
                 }
                 return _description;
             }
-            set
+            private set
             {
                 _description = value;
             }
