@@ -1,5 +1,11 @@
 ﻿namespace PoliceStationArmory
 {
+    //
+    // online character creation police room coords X:414.54  Y:-998.37  Z:-98.66
+    //
+    // police garage coords X:407.55  Y:-963.6  Z:-99
+    //
+
     // System
     using System;
     using System.Linq;
@@ -25,80 +31,74 @@
         public const string UI_FOLDER       = MAIN_FOLDER + @"UI\";
         public const string LOADOUTS_FOLDER = MAIN_FOLDER + @"Loadouts\";
 
-        public string AUDIO_LIBRARY = "HUD_FRONTEND_DEFAULT_SOUNDSET";
+        public const string AUDIO_LIBRARY = "HUD_FRONTEND_DEFAULT_SOUNDSET";
 
-        public string AUDIO_UPDOWN = "NAV_UP_DOWN";
-        public string AUDIO_LEFTRIGHT = "NAV_LEFT_RIGHT";
-        public string AUDIO_SELECT = "SELECT";
-        public string AUDIO_BACK = "BACK";
-        public string AUDIO_ERROR = "ERROR";
+        //public const string AUDIO_UPDOWN = "NAV_UP_DOWN";
+        //public const string AUDIO_LEFTRIGHT = "NAV_LEFT_RIGHT";
+        public const string AUDIO_SELECT = "SELECT";
+        public const string AUDIO_BACK = "BACK";
+        public const string AUDIO_ERROR = "ERROR";
+
+        public const int TEXTURE_WIDTH = 128, TEXTURE_HEIGHT = 64;
+
+        //public const float HANDGUNS_TEXTURES_MULTIPLIER     = 1.0f,
+        //                   LONG_GUNS_TEXTURES_MULTIPLIER    = 1.0f,
+        //                   THROWABLES_TEXTURES_MULTIPLIER   = 1.0f,
+        //                   MISC_ITEMS_TEXTURES_MULTIPLIER   = 1.0f,
+        //                   LOADOUTS_TEXTURES_MULTIPLIER     = 1.0f;
+
+        //public static readonly Color BackgroundRectangleColor           = Color.FromArgb(150, System.Drawing.Color.DarkGray),
+        //                             HoveredBackgroundRectangleColor    = ControlPaint.Light(BackgroundRectangleColor, 1.0f),
+        //                             BorderRectangleColor               = Color.Black,
+
+        //                             LabelTextColor                     = Color.White,
+
+        //                             HelpTextBackgroundRectangleColor   = Color.FromArgb(195, Color.Black),
+        //                             HelpTextLabelTextColor             = Color.White;
+
+        private static Rage.Texture _missingTexture;
+        public static Rage.Texture MissingTexture
+        {
+            get
+            {
+                if (_missingTexture == null)
+                    _missingTexture = Game.CreateTextureFromFile(UI_FOLDER + "Missing_Texture.png");
+                return _missingTexture;
+            }
+        }
+
+        public static readonly Color BackgroundRectangleColor           = Color.FromArgb(140, Color.DarkGray),
+                                     HoveredBackgroundRectangleColor    = Color.FromArgb(160, Color.WhiteSmoke),
+                                     BorderRectangleColor               = Color.FromArgb(180, Color.Black),
+
+                                     LabelTextColor                     = Color.White,
+
+                                     HelpTextBackgroundRectangleColor   = Color.FromArgb(195, Color.Black),
+                                     HelpTextLabelTextColor             = Color.White,
+
+                                     ScrollBarBackgroundColor           = Color.DarkGray,
+                                     ScrollBarColor                     = Color.Black;      
+
 
         public Ped Cop { get; private set; }
         public Camera Cam { get; private set; }
         public bool IsPlayerUsingTheArmoury { get; private set; }
         public bool IsCopGivingAWeapon { get; private set; }
-        public Sound SelectedSound { get; private set; }
+        public Sound SoundInstance { get; private set; }
 
         public Armory()
         {
-#if DEBUG
-            Loadout noose = new Loadout()
-            {
-                Name = "NOOSE Loadout",
-                TextureFileName = "Carbine_Rifle",
-                Items = new List<Item>()
-                {
-                    new Item() { Type = Item.ItemType.Combat_Pistol,        Components = new WeaponComponent[] { WeaponComponent.COMPONENT_AT_PI_FLSH }                                                                                           },
-                    new Item() { Type = Item.ItemType.Stun_Gun,             Components = new WeaponComponent[] { }                                                                                                                                },
-                    new Item() { Type = Item.ItemType.SMG,                  Components = new WeaponComponent[] { WeaponComponent.COMPONENT_AT_AR_FLSH, WeaponComponent.COMPONENT_AT_SCOPE_MACRO_02, WeaponComponent.COMPONENT_AT_PI_SUPP }        },
-                    new Item() { Type = Item.ItemType.Carbine_Rifle,        Components = new WeaponComponent[] { WeaponComponent.COMPONENT_AT_AR_FLSH, WeaponComponent.COMPONENT_AT_SCOPE_MEDIUM }                                                },
-                    new Item() { Type = Item.ItemType.Sniper_Rifle,         Components = new WeaponComponent[] { WeaponComponent.COMPONENT_AT_AR_FLSH, WeaponComponent.COMPONENT_AT_SCOPE_MAX, WeaponComponent.COMPONENT_AT_AR_SUPP_02 }          },
-                    new Item() { Type = Item.ItemType.Assault_Shotgun,      Components = new WeaponComponent[] { WeaponComponent.COMPONENT_AT_AR_FLSH, WeaponComponent.COMPONENT_ASSAULTSHOTGUN_CLIP_02 }                                         },
-                    new Item() { Type = Item.ItemType.Flare,                Components = new WeaponComponent[] { }                                                                                                                                },
-                    new Item() { Type = Item.ItemType.Sticky_Bomb,          Components = new WeaponComponent[] { }                                                                                                                                },
-                    new Item() { Type = Item.ItemType.Fire_Extinguisher,    Components = new WeaponComponent[] { }                                                                                                                                },
-                    new Item() { Type = Item.ItemType.Bulletproof_Vest,     Components = new WeaponComponent[] { }                                                                                                                                },
-                },
-            };
-
-            Loadout.WriteToXML(LOADOUTS_FOLDER + "NOOSE", noose);
-
-
-            Loadout fib = new Loadout()
-            {
-                Name = "FIB Loadout",
-                TextureFileName = "Combat_Pistol",
-                Items = new List<Item>()
-                {
-                    new Item() { Type = Item.ItemType.Combat_Pistol,        Components = new WeaponComponent[] { } },
-                    new Item() { Type = Item.ItemType.SMG,                  Components = new WeaponComponent[] { } },
-                    new Item() { Type = Item.ItemType.Bulletproof_Vest,     Components = new WeaponComponent[] { } },
-                },
-            };
-
-            Loadout.WriteToXML(LOADOUTS_FOLDER + "FIB", fib);
-
-
-            Loadout lspd = new Loadout()
-            {
-                Name = "LSPD/LSSD Loadout",
-                TextureFileName = "Pistol",
-                Items = new List<Item>()
-                {
-                    new Item() { Type = Item.ItemType.Nightstick,           Components = new WeaponComponent[] { } },
-                    new Item() { Type = Item.ItemType.Pistol,               Components = new WeaponComponent[] { } },
-                    new Item() { Type = Item.ItemType.Pump_Shotgun,         Components = new WeaponComponent[] { } },
-                    new Item() { Type = Item.ItemType.Fire_Extinguisher,    Components = new WeaponComponent[] { } },
-                    new Item() { Type = Item.ItemType.Bulletproof_Vest,     Components = new WeaponComponent[] { } },
-                },
-            };
-
-            Loadout.WriteToXML(LOADOUTS_FOLDER + "LSPD_LSSD", lspd);
-#endif
             userInterface = new UserInterface();
             userInterface.WeaponItemSelected += OnWeaponItemSelected;
             userInterface.LoadoutItemSelected += OnLoadoutItemSelected;
-            SelectedSound = new Sound(-1);
+            SoundInstance = new Sound(-1);
+            userInterface.MenuChanged += (s, e) =>
+            {
+                if (userInterface.CurrentMenu == UserInterface.ECurrentMenu.MainMenu)
+                    SoundInstance.PlayFrontend(AUDIO_BACK, AUDIO_LIBRARY);
+                else
+                    SoundInstance.PlayFrontend(AUDIO_SELECT, AUDIO_LIBRARY);
+            };
 
             Game.FrameRender += UIFrameRender;
             Game.RawFrameRender += UIRawFrameRender;
@@ -190,8 +190,8 @@
 
         public Ped GetOrCreateCop()
         {
-            Ped copCreatedByLSPDFR = World.GetClosestEntity(copSpawnPos.Position, 1.25f, GetEntitiesFlags.ConsiderHumanPeds | GetEntitiesFlags.ExcludePlayerPed) as Ped;
-            if (!copCreatedByLSPDFR.Exists() || copCreatedByLSPDFR.IsDead)
+            Ped copAlreadyCreated = World.GetClosestEntity(copSpawnPos.Position, 1.25f, GetEntitiesFlags.ConsiderHumanPeds | GetEntitiesFlags.ExcludePlayerPed) as Ped;
+            if (!copAlreadyCreated.Exists() || copAlreadyCreated.IsDead)
             {
                 Ped ped = new Ped("s_m_y_cop_01", copSpawnPos.Position, copSpawnPos.Heading);
                 ped.IsPersistent = true;
@@ -205,14 +205,14 @@
             }
             else
             {
-                copCreatedByLSPDFR.IsPersistent = true;
-                copCreatedByLSPDFR.Invincible = true;
-                copCreatedByLSPDFR.BlockPermanentEvents = true;
-                copCreatedByLSPDFR.Position = copSpawnPos.Position;
-                copCreatedByLSPDFR.Heading = copSpawnPos.Heading;
-                copCreatedByLSPDFR.Tasks.Clear();
+                copAlreadyCreated.IsPersistent = true;
+                copAlreadyCreated.Invincible = true;
+                copAlreadyCreated.BlockPermanentEvents = true;
+                copAlreadyCreated.Position = copSpawnPos.Position;
+                copAlreadyCreated.Heading = copSpawnPos.Heading;
+                copAlreadyCreated.Tasks.Clear();
                 Logger.LogTrivial("Cop detected, using it");
-                return copCreatedByLSPDFR;
+                return copAlreadyCreated;
             }
         }
 
@@ -231,24 +231,30 @@
                     Common.DrawMarker(MarkerType.VerticalCylinder, v3, Vector3.Zero, Vector3.Zero, new Vector3(checkRadius * 2), Color.FromArgb(180, Color.Red));
 #endif
             Ped player = Game.LocalPlayer.Character;
-            return player.IsInRangeOf2D(enterCheckPos[0], checkRadius) ||
-                   player.IsInRangeOf2D(enterCheckPos[1], checkRadius) ||
-                   player.IsInRangeOf2D(enterCheckPos[2], checkRadius + 0.3f);
+            return player.IsInRangeOf(enterCheckPos[0], checkRadius) ||
+                   player.IsInRangeOf(enterCheckPos[1], checkRadius) ||
+                   player.IsInRangeOf(enterCheckPos[2], checkRadius + 0.3f);
         }
 
         private void OnWeaponItemSelected(UserInterface.WeaponItem selectedItem)
         {
+            if (IsCopGivingAWeapon)
+            {
+                SoundInstance.PlayFrontend(AUDIO_ERROR, AUDIO_LIBRARY);
+                return;
+            }
+
             GameFiber.StartNew(delegate
             {
                 IsCopGivingAWeapon = true;
-                SelectedSound.PlayFrontend(AUDIO_SELECT, AUDIO_LIBRARY);
+                SoundInstance.PlayFrontend(AUDIO_SELECT, AUDIO_LIBRARY);
                 NativeFunction.CallByName<uint>("SET_CURRENT_PED_WEAPON", Game.LocalPlayer.Character, (uint)EWeaponHash.Unarmed, true);
                 //ItemType type = GetTypeForWeapon(selectedItem.WeaponHash);
                 ItemType type = selectedItem.Type;
                 if (type != ItemType.Misc)
                 {
-                    Task copAnimTask = Cop.PlayAnimation(type == ItemType.LongGun ? GiveRifleAnimation : GiveHandgunAnimation, -1, 1f, 0.5f, 0.0f);
-                    Task playerAnimTask = Game.LocalPlayer.Character.PlayAnimation(type == ItemType.LongGun ? ReceiveRifleAnimation : ReceiveHandgunAnimation, -1, 1f, 0.5f, 0.0f);
+                    AnimationTask copAnimTask =  type == ItemType.LongGun ? GiveRifleAnimation.PlayOnPed(Cop) : GiveHandgunAnimation.PlayOnPed(Cop);
+                    AnimationTask playerAnimTask = type == ItemType.LongGun ? ReceiveRifleAnimation.PlayOnPed(Game.LocalPlayer.Character) : ReceiveHandgunAnimation.PlayOnPed(Game.LocalPlayer.Character);
                     GameFiber.Sleep(420);
                     Cop.Inventory.GiveNewWeapon((WeaponHash)selectedItem.WeaponHash, 999, true);
                     Cop.PlayAmbientSpeech(Speech.CHAT_STATE, false);
@@ -266,10 +272,10 @@
                 }
                 else
                 {
-                    if (selectedItem.MiscItem == MiscItems.Fire_Extinguisher || selectedItem.MiscItem == MiscItems.Nightstick)
+                    if (selectedItem.MiscItem == MiscItems.Fire_Extinguisher || selectedItem.MiscItem == MiscItems.Nightstick || selectedItem.MiscItem == MiscItems.Flashlight)
                     {
-                        Task copAnimTask = Cop.PlayAnimation(GiveHandgunAnimation, -1, 1f, 0.5f, 0.0f);
-                        Task playerAnimTask = Game.LocalPlayer.Character.PlayAnimation(ReceiveHandgunAnimation, -1, 1f, 0.5f, 0.0f);
+                        AnimationTask copAnimTask = GiveHandgunAnimation.PlayOnPed(Cop);
+                        AnimationTask playerAnimTask = ReceiveHandgunAnimation.PlayOnPed(Game.LocalPlayer.Character);
                         GameFiber.Sleep(420);
                         Cop.Inventory.GiveNewWeapon((WeaponHash)selectedItem.MiscItem, 999, true);
                         Cop.PlayAmbientSpeech(Speech.CHAT_STATE, false);
@@ -287,8 +293,8 @@
                     }
                     else if (selectedItem.MiscItem == MiscItems.Bulletproof_Vest)
                     {
-                        Task copAnimTask = Cop.PlayAnimation(GiveAmmoAnimation/*GivePackageAnimation*/, -1, 1f, 0.5f, 0.0f);
-                        Task playerAnimTask = Game.LocalPlayer.Character.PlayAnimation(/*ReceiveAmmoAnimation*/ReceivePackageAnimation, -1, 1f, 0.5f, 0.0f);
+                        AnimationTask copAnimTask = GiveAmmoAnimation.PlayOnPed(Cop);
+                        AnimationTask playerAnimTask = ReceivePackageAnimation.PlayOnPed(Game.LocalPlayer.Character);
                         GameFiber.Sleep(500);
                         Rage.Object tempObj = new Rage.Object("prop_armour_pickup", Vector3.Zero);
                         tempObj.AttachTo(Cop, Cop.GetBoneIndex(PedBoneId.RightPhHand), new Vector3(0f, 0f, 0f), new Rotator(0f, 180f, 0f));
@@ -317,8 +323,8 @@
                     else if (selectedItem.MiscItem == MiscItems.Refill_Ammo)
                     {
                         // prop_ld_ammo_pack_01, prop_ld_ammo_pack_02, prop_ld_ammo_pack_03
-                        Task copAnimTask = Cop.PlayAnimation(GiveAmmoAnimation, -1, 1f, 0.5f, 0.0f);
-                        Task playerAnimTask = Game.LocalPlayer.Character.PlayAnimation(ReceiveAmmoAnimation, -1, 1f, 0.5f, 0.0f);
+                        AnimationTask copAnimTask = GiveAmmoAnimation.PlayOnPed(Cop);
+                        AnimationTask playerAnimTask = ReceiveAmmoAnimation.PlayOnPed(Game.LocalPlayer.Character);
                         GameFiber.Sleep(500);
                         Rage.Object tempObj = new Rage.Object("prop_ld_ammo_pack_0" + Globals.Random.Next(1, 4), Vector3.Zero);
                         tempObj.AttachTo(Cop, Cop.GetBoneIndex(PedBoneId.RightPhHand), new Vector3(0f, 0f, 0f), new Rotator(0f, 180f, 0f));
@@ -334,10 +340,16 @@
                         }
                         //GameFiber.Sleep(3500);
                         //tempObj.AttachTo(Game.LocalPlayer.Character, Game.LocalPlayer.Character.GetBoneIndex(PedBoneId.RightPhHand), new Vector3(0f, 0f, 0f), new Rotator(0f, 0f, 0f));
-                        copAnimTask.WaitForCompletion();
+                        //copAnimTask.WaitForCompletion();
                         //tempObj.Detach();
                         //Vector3 pos = tempObj.Position;
                         //Rotator rot = tempObj.Rotation;
+                        while (true)
+                        {
+                            GameFiber.Yield();
+                            if (playerAnimTask.CurrentTime >= 7.5f || !playerAnimTask.IsActive)
+                                break;
+                        }
                         tempObj.Delete();
                         foreach (WeaponDescriptor w in Game.LocalPlayer.Character.Inventory.Weapons)
                         {
@@ -351,29 +363,60 @@
 
         private void OnLoadoutItemSelected(UserInterface.LoadoutItem selectedItem)
         {
+            if (IsCopGivingAWeapon)
+            {
+                SoundInstance.PlayFrontend(AUDIO_ERROR, AUDIO_LIBRARY);
+                return;
+            }
+
             GameFiber.StartNew(delegate
             {
-                Task copAnimTask = Cop.PlayAnimation(GiveAmmoAnimation/*GivePackageAnimation*/, -1, 1f, 0.5f, 0.0f);
-                Task playerAnimTask = Game.LocalPlayer.Character.PlayAnimation(/*ReceiveAmmoAnimation*/ReceivePackageAnimation, -1, 1f, 0.5f, 0.0f);
+                IsCopGivingAWeapon = true;
+                SoundInstance.PlayFrontend(AUDIO_SELECT, AUDIO_LIBRARY);
+                NativeFunction.CallByName<uint>("SET_CURRENT_PED_WEAPON", Game.LocalPlayer.Character, (uint)EWeaponHash.Unarmed, true);
+                AnimationTask copAnimTask = GiveAmmoAnimation.PlayOnPed(Cop);
+                AnimationTask playerAnimTask = ReceivePackageAnimation.PlayOnPed(Game.LocalPlayer.Character);
                 GameFiber.Sleep(500);
                 Rage.Object tempObj = new Rage.Object("prop_big_bag_01", Vector3.Zero);
-                tempObj.AttachTo(Cop, Cop.GetBoneIndex(PedBoneId.RightPhHand), new Vector3(0f, 0f, 0f), new Rotator(0f, 180f, 0f));
+                tempObj.AttachTo(Cop, Cop.GetBoneIndex(PedBoneId.RightPhHand), new Vector3(0f, 0f, 0.2f), new Rotator(0f, 180f, 0f));
                 //Cop.Inventory.GiveNewWeapon((WeaponHash)selectedItem.MiscItem, 999, true);
                 Cop.PlayAmbientSpeech(Speech.CHAT_STATE, false);
                 if (Cop.IsAnySpeechPlaying)
                 {
                     GameFiber.StartNew(delegate
                     {
-                        GameFiber.Sleep(900);
+                        GameFiber.Sleep(1000);
                         Game.LocalPlayer.Character.PlayAmbientSpeech(Speech.CHAT_RESP, false);
                     });
                 }
                 GameFiber.Sleep(3500);
-                tempObj.AttachTo(Game.LocalPlayer.Character, Game.LocalPlayer.Character.GetBoneIndex(PedBoneId.RightPhHand), new Vector3(0f, 0f, 0f), new Rotator(0f, 0f, 0f));
+                tempObj.AttachTo(Game.LocalPlayer.Character, Game.LocalPlayer.Character.GetBoneIndex(PedBoneId.RightPhHand), new Vector3(0f, 0f, -0.2f/*285*/), new Rotator(0f, 0f, 0f));
                 copAnimTask.WaitForCompletion();
                 tempObj.Detach();
-                tempObj.Dismiss();
+                Game.LocalPlayer.Character.IsPositionFrozen = false;
+                Game.LocalPlayer.Character.Tasks.AchieveHeading(Game.LocalPlayer.Character.GetHeadingTowards(tempObj)).WaitForCompletion(3000);
+                Game.LocalPlayer.Character.IsPositionFrozen = true;
+                TendToDeadIdleLoopAnimation.PlayOnPed(Game.LocalPlayer.Character);
+                GameFiber.Sleep(2750);
                 selectedItem.Loadout.GiveToPed(Game.LocalPlayer.Character);
+                Game.LocalPlayer.Character.Tasks.Clear();
+                Game.LocalPlayer.Character.IsPositionFrozen = false;
+                Game.LocalPlayer.Character.Tasks.FollowNavigationMeshToPosition(playerGetStuffPos.Position, playerGetStuffPos.Heading, 1.0f, 0.0f, -1).WaitForCompletion();
+                Game.LocalPlayer.Character.IsPositionFrozen = true;
+                //Game.LocalPlayer.Character.Tasks.AchieveHeading(playerGetStuffPos.Heading).WaitForCompletion(1000);
+
+                AnimationTask playerAnimTask2 = GiveAmmoAnimation.PlayOnPed(Game.LocalPlayer.Character);
+                AnimationTask copAnimTask2 = ReceivePackageAnimation.PlayOnPed(Cop);
+                GameFiber.Sleep(500);
+                tempObj.AttachTo(Game.LocalPlayer.Character, Game.LocalPlayer.Character.GetBoneIndex(PedBoneId.RightPhHand), new Vector3(0f, 0f, 0.2f), new Rotator(0f, 180f, 0f));
+                GameFiber.Sleep(3500);
+                tempObj.AttachTo(Cop, Cop.GetBoneIndex(PedBoneId.RightPhHand), new Vector3(0f, 0f, -0.2f/*285*/), new Rotator(0f, 0f, 0f));
+                playerAnimTask2.WaitForCompletion();
+                tempObj.Detach();
+                tempObj.Delete();
+                //tempObj.Dismiss();
+
+                IsCopGivingAWeapon = false;
             });
         }
 
@@ -416,78 +459,29 @@
             }
             if (Cam.Exists())
                 Cam.Delete();
+            userInterface = null;
             Common.DisplayHud(true);
             Common.DisplayRadar(true);
+            Camera.DeleteAllCameras();
             Common.EnableGameControlsGroup(GameControlsGroup.MAX_INPUTGROUPS);
             Game.LocalPlayer.Character.IsPositionFrozen = false;
             Game.LocalPlayer.Character.Tasks.ClearImmediately();
         }
 
-        //private ItemType GetTypeForWeapon(EWeaponHash hash)
-        //{
-        //    switch (hash)                           // TODO: add flashlight
-        //    {                
-        //        // pistols    
-        //        case EWeaponHash.Pistol:  
-        //        case EWeaponHash.Combat_Pistol:         
-        //        case EWeaponHash.AP_Pistol:             
-        //        case EWeaponHash.Pistol_50:             
-        //        case EWeaponHash.Heavy_Pistol:          
-        //        case EWeaponHash.Stun_Gun:        
-        //        // submachines
-        //        case EWeaponHash.Micro_SMG:
-        //        // throwables
-        //        case EWeaponHash.Grenade:
-        //        case EWeaponHash.Sticky_Bomb:
-        //        case EWeaponHash.Smoke_Grenade:
-        //        case EWeaponHash.BZ_Gas:
-        //        case EWeaponHash.Flare:
-        //            return ItemType.Handgun;
-                             
-
-
-        //        case EWeaponHash.SMG:      
-        //        case EWeaponHash.Assault_SMG:   
-        //        // rifles  
-        //        case EWeaponHash.Assault_Rifle:         
-        //        case EWeaponHash.Carbine_Rifle:         
-        //        case EWeaponHash.Advanced_Rifle:        
-        //        case EWeaponHash.Bullpup_Rifle:    
-        //        //mgs     
-        //        case EWeaponHash.MG:                    
-        //        case EWeaponHash.Combat_MG:        
-        //        // shotguns    
-        //        case EWeaponHash.Pump_Shotgun:          
-        //        case EWeaponHash.Sawn_Off_Shotgun:      
-        //        case EWeaponHash.Assault_Shotgun:       
-        //        case EWeaponHash.Bullpup_Shotgun:       
-        //        case EWeaponHash.Heavy_Shotgun:    
-        //        // snipers  
-        //        case EWeaponHash.Sniper_Rifle:          
-        //        case EWeaponHash.Heavy_Sniper:          
-        //        case EWeaponHash.Marksman_Rifle:
-        //            return ItemType.LongGun;
-
-        //        case EWeaponHash.Fire_Extinguisher:
-        //        // melee    
-        //        case EWeaponHash.Nightstick:
-        //        case EWeaponHash.Flashlight:
-        //            return ItemType.Misc;
-        //    }
-        //    return ItemType.Misc;
-        //}
-
         private UserInterface userInterface;
 
-        private readonly Animation GiveAmmoAnimation = new Animation("mp_cop_armoury", "ammo_on_counter_cop");
-        private readonly Animation GiveHandgunAnimation = new Animation("mp_cop_armoury", "pistol_on_counter_cop");
-        private readonly Animation GiveRifleAnimation = new Animation("mp_cop_armoury", "rifle_on_counter_cop");
-        private readonly Animation GivePackageAnimation = new Animation("mp_cop_armoury", "package_from_counter");
+        private readonly Animation GiveAmmoAnimation        = new Animation("mp_cop_armoury",   "ammo_on_counter_cop",        AnimationFlags.None, 1f, 0.5f, 0.0f);
+        private readonly Animation GiveHandgunAnimation     = new Animation("mp_cop_armoury",   "pistol_on_counter_cop",      AnimationFlags.None, 1f, 0.5f, 0.0f);
+        private readonly Animation GiveRifleAnimation       = new Animation("mp_cop_armoury",   "rifle_on_counter_cop",       AnimationFlags.None, 1f, 0.5f, 0.0f);
+        private readonly Animation GivePackageAnimation     = new Animation("mp_cop_armoury",   "package_from_counter",       AnimationFlags.None, 1f, 0.5f, 0.0f);
 
-        private readonly Animation ReceiveAmmoAnimation = new Animation("mp_cop_armoury", "ammo_on_counter");
-        private readonly Animation ReceiveHandgunAnimation = new Animation("mp_cop_armoury", "pistol_on_counter");
-        private readonly Animation ReceiveRifleAnimation = new Animation("mp_cop_armoury", "rifle_on_counter");
-        private readonly Animation ReceivePackageAnimation = new Animation("mp_cop_armoury", "package_from_counter_cop");
+        private readonly Animation ReceiveAmmoAnimation     = new Animation("mp_cop_armoury",   "ammo_on_counter",            AnimationFlags.None, 1f, 0.5f, 0.0f);
+        private readonly Animation ReceiveHandgunAnimation  = new Animation("mp_cop_armoury",   "pistol_on_counter",          AnimationFlags.None, 1f, 0.5f, 0.0f);
+        private readonly Animation ReceiveRifleAnimation    = new Animation("mp_cop_armoury",   "rifle_on_counter",           AnimationFlags.None, 1f, 0.5f, 0.0f);
+        private readonly Animation ReceivePackageAnimation  = new Animation("mp_cop_armoury",   "package_from_counter_cop",   AnimationFlags.None, 1f, 0.5f, 0.0f);
+
+        private readonly Animation TendToDeadIdleLoopAnimation = new Animation("amb@medic@standing@tendtodead@idle_a", "idle_a", AnimationFlags.Loop, 2.0f, 0.5f, 0.0f);   // TODO: improve searching anim for loadouts 
+
 
         private readonly SpawnPoint copSpawnPos = new SpawnPoint(new Vector3(454.11f, -980.26f, 30.69f), 90f);
         private readonly SpawnPoint playerGetStuffPos = new SpawnPoint(new Vector3(452.26f, -980.0f, 30.69f), 263.19f);
@@ -516,39 +510,31 @@
             public List<WeaponItem> MiscWeaponItems { get; }
             public List<LoadoutItem> PredefinedLoadoutItems { get; }
 
-            //private UIState _state;
-            //public UIState State
-            //{
-            //    get
-            //    {
-            //        return _state;
-            //    }
-            //    set
-            //    {
-            //        if (_state == value)
-            //            return;
+            
+            public UIRectangle ScrollBarBackgroundRectangle { get; }
+            public UIRectangle ScrollBarRectangle { get; }
+            public float ScrollBarValue { get; set; } = 1.0f;
+            public float MaxScrollBarValue { get; } = Game.Resolution.Height - 50.0f;
+            public float MinScrollBarValue { get; } = 0.0f;
+            private bool _shouldDrawScrollBar;
+            public bool ShouldDrawScrollBar
+            {
+                get
+                {
+                    return _shouldDrawScrollBar;
+                }
+                private set
+                {
+                    _shouldDrawScrollBar = value;
+                    isScrollBarClicked = false;
+                    ScrollBarBackgroundRectangle.State = _shouldDrawScrollBar ? UIState.ComingIntoView : UIState.Hiding;
+                    ScrollBarRectangle.State = _shouldDrawScrollBar ? UIState.ComingIntoView : UIState.Hiding; 
+                }
+            }
 
-            //        HandgunsItem.State = value;
-            //        RifleItem.State = value;
-            //        ThrowableItem.State = value;
-
-            //        //foreach (WeaponItem item in HandgunWeaponItems)
-            //        //{
-            //        //    item.State = value;
-            //        //}
-            //        //foreach (WeaponItem item in RifleWeaponItems)
-            //        //{
-            //        //    item.State = value;
-            //        //}
-            //        //foreach (WeaponItem item in ThrowableWeaponItems)
-            //        //{
-            //        //    item.State = value;
-            //        //}
-
-            //        _state = value;
-            //    }
-            //}
             public bool Visible { get; set; }
+
+            public event EventHandler MenuChanged = delegate { };
 
             private ECurrentMenu _currentMenu = ECurrentMenu.MainMenu;
             public ECurrentMenu CurrentMenu
@@ -559,6 +545,9 @@
                 }
                 set
                 {
+                    //if (value == _currentMenu)
+                    //    return;
+
                     switch (value)
                     {
                         case ECurrentMenu.MainMenu:
@@ -602,6 +591,7 @@
 
                             if (PredefinedLoadoutItem.State != UIState.ComingIntoView || PredefinedLoadoutItem.State != UIState.Showing)
                                 PredefinedLoadoutItem.State = UIState.ComingIntoView;
+                            ShouldDrawScrollBar = false;
                             break;
                         case ECurrentMenu.HandgunsMenu:
                             foreach (WeaponItem item in LongGunsWeaponItems)
@@ -645,6 +635,7 @@
                                 if (item.State != UIState.ComingIntoView || item.State != UIState.Showing)
                                     item.State = UIState.ComingIntoView;
                             }
+                            ShouldDrawScrollBar = true;
                             break;
                         case ECurrentMenu.LongGunsMenu:
                             foreach (WeaponItem item in HandgunWeaponItems)
@@ -688,6 +679,7 @@
                                 if (item.State != UIState.ComingIntoView || item.State != UIState.Showing)
                                     item.State = UIState.ComingIntoView;
                             }
+                            ShouldDrawScrollBar = true;
                             break;
                         case ECurrentMenu.ThrowablesMenu:
                             foreach (WeaponItem item in HandgunWeaponItems)
@@ -731,6 +723,7 @@
                                 if (item.State != UIState.ComingIntoView || item.State != UIState.Showing)
                                     item.State = UIState.ComingIntoView;
                             }
+                            ShouldDrawScrollBar = true;
                             break;
                         case ECurrentMenu.MiscMenu:
                             foreach (WeaponItem item in HandgunWeaponItems)
@@ -774,6 +767,7 @@
                                 if (item.State != UIState.ComingIntoView || item.State != UIState.Showing)
                                     item.State = UIState.ComingIntoView;
                             }
+                            ShouldDrawScrollBar = true;
                             break;
                         case ECurrentMenu.PredefinedLoadoutsMenu:
                             foreach (WeaponItem item in HandgunWeaponItems)
@@ -818,9 +812,15 @@
                                 if (item.State != UIState.ComingIntoView || item.State != UIState.Showing)
                                     item.State = UIState.ComingIntoView;
                             }
+                            ShouldDrawScrollBar = true;
                             break;
                     }
                     _currentMenu = value;
+                    ScrollBarRectangle.RectangleF = new RectangleF(ScrollBarRectangle.RectangleF.X, 0.0f, ScrollBarRectangle.RectangleF.Width, ScrollBarRectangle.RectangleF.Height);
+                    ScrollBarValue = 0.0f;
+                    calculateItemsPosition();
+                    if (MenuChanged != null)
+                        MenuChanged.Invoke(this, EventArgs.Empty);
                 }
             }
 
@@ -832,9 +832,9 @@
                 RifleItem.BackgroundRectangle.Clicked += (s) => { CurrentMenu = ECurrentMenu.LongGunsMenu; };
                 ThrowableItem = new MenuItem("Throwables", Game.CreateTextureFromFile(UI_FOLDER + "Throwables_Icon.png"));
                 ThrowableItem.BackgroundRectangle.Clicked += (s) => { CurrentMenu = ECurrentMenu.ThrowablesMenu; };
-                MiscItem = new MenuItem("Misc", Game.CreateTextureFromFile(UI_FOLDER + "Not_Added.png")); 
+                MiscItem = new MenuItem("Misc", Game.CreateTextureFromFile(UI_FOLDER + "Misc_Icon.png")); 
                 MiscItem.BackgroundRectangle.Clicked += (s) => { CurrentMenu = ECurrentMenu.MiscMenu; };
-                PredefinedLoadoutItem = new MenuItem("Loadouts", Game.CreateTextureFromFile(UI_FOLDER + "Not_Added.png"));
+                PredefinedLoadoutItem = new MenuItem("Loadouts", Game.CreateTextureFromFile(UI_FOLDER + "Loadouts_Icon.png")); 
                 PredefinedLoadoutItem.BackgroundRectangle.Clicked += (s) => { CurrentMenu = ECurrentMenu.PredefinedLoadoutsMenu; };
 
                 HandgunWeaponItems = new List<WeaponItem>();
@@ -850,7 +850,7 @@
                     HandgunWeaponItems.Add(item);
                 }
 
-                foreach (EWeaponHash hash in WeaponItem.GetAvalaibleRifleWeapons())
+                foreach (EWeaponHash hash in WeaponItem.GetAvalaibleLongWeapons())
                 {
                     WeaponItem item = WeaponItem.GetWeaponItemForWeapon(hash, ItemType.LongGun);
                     item.BackgroundRectangle.Clicked += (s) => { invokeWeaponItemSelected(item); };
@@ -878,7 +878,15 @@
                     item.BackgroundRectangle.Clicked += (s) => { invokeLoadoutItemSelected(item); };
                     PredefinedLoadoutItems.Add(item);
                 }
-                updateItemsPosition();
+
+                ScrollBarBackgroundRectangle = new UIRectangle(new RectangleF(Game.Resolution.Width - 15f, 0, 20f, Game.Resolution.Height), ScrollBarBackgroundColor, UIRectangleType.Filled, UIScreenBorder.Right, 0.0225f, 0.04725f);
+                ScrollBarRectangle = new UIRectangle(new RectangleF(Game.Resolution.Width - 15f, 0, 20f, 50f), ScrollBarColor, UIRectangleType.Filled, UIScreenBorder.Right, 0.0225f, 0.04725f);
+                ScrollBarRectangle.Clicked += scrollBarClicked;
+
+                isFirstPositionCalculation = true;
+                calculateItemsPosition();
+                CurrentMenu = ECurrentMenu.MainMenu;
+                hideAll();
             }
 
             public void Process()
@@ -917,6 +925,13 @@
                 {
                     item.Process();
                 }
+
+                if (ShouldDrawScrollBar)
+                {
+                    ScrollBarBackgroundRectangle.Process();
+                    ScrollBarRectangle.Process();
+                    scrollBarUpdate();
+                }
             }
 
             public void Draw(GraphicsEventArgs e)
@@ -954,111 +969,232 @@
                 {
                     item.DrawHelpText(e);
                 }
+
+                if (ShouldDrawScrollBar)
+                {
+                    ScrollBarBackgroundRectangle.Draw(e);
+                    ScrollBarRectangle.Draw(e);
+                }
             }
 
             private void invokeLoadoutItemSelected(LoadoutItem item)
             {
+                if (isScrollBarClicked)
+                    return;
+
                 if (LoadoutItemSelected != null)
                     LoadoutItemSelected(item);
             }
 
             private void invokeWeaponItemSelected(WeaponItem item)
             {
+                if (isScrollBarClicked)
+                    return;
+
                 if (WeaponItemSelected != null)
                     WeaponItemSelected(item);
             }
 
-            private void updateItemsPosition()
+
+            bool isScrollBarClicked = false;
+            private void scrollBarClicked(UIElementBase sender)
             {
-                float x = Game.Resolution.Width - 600f;
+                isScrollBarClicked = true;
+                float yRect = ScrollBarRectangle.RectangleF.Y;
+                //float yMouse = Game.GetMouseState().Y;
+                float yMouse = UICommon.GetCursorPosition().Y;
+                yOffset = yRect - yMouse;
+            }
+
+            float previousScrollBarValue = 0.0f;
+            float yOffset = 0.0f;
+            private void scrollBarUpdate()
+            {
+                if (isScrollBarClicked)
+                {
+                    MouseState mouseState = Game.GetMouseState();
+
+                    previousScrollBarValue = ScrollBarValue;
+
+                    float newYValue = mouseState.Y + yOffset > MaxScrollBarValue ? MaxScrollBarValue :
+                                      mouseState.Y + yOffset < MinScrollBarValue ? MinScrollBarValue :
+                                      mouseState.Y + yOffset;
+
+                    ScrollBarRectangle.RectangleF = new RectangleF(ScrollBarRectangle.RectangleF.X, newYValue, ScrollBarRectangle.RectangleF.Width, ScrollBarRectangle.RectangleF.Height);
+                    ScrollBarValue = newYValue;
+
+                    if(ScrollBarValue != previousScrollBarValue)
+                        calculateItemsPosition();
+
+                    if (!mouseState.IsLeftButtonDown)
+                    {
+                        yOffset = 0.0f;
+                        isScrollBarClicked = false;
+                    }
+                }
+                else
+                {
+                    MouseState mouseState = Game.GetMouseState();
+                    float delta = -mouseState.MouseWheelDelta;
+                    const float multiplier = 9.225f;
+
+                    previousScrollBarValue = ScrollBarValue;
+
+                    float newYValue = ScrollBarRectangle.RectangleF.Y + delta * multiplier > MaxScrollBarValue ? MaxScrollBarValue :
+                                      ScrollBarRectangle.RectangleF.Y + delta * multiplier < MinScrollBarValue ? MinScrollBarValue :
+                                      ScrollBarRectangle.RectangleF.Y + delta * multiplier;
+
+                    ScrollBarRectangle.RectangleF = new RectangleF(ScrollBarRectangle.RectangleF.X, newYValue, ScrollBarRectangle.RectangleF.Width, ScrollBarRectangle.RectangleF.Height);
+                    ScrollBarValue = newYValue;
+
+                    if (ScrollBarValue != previousScrollBarValue)
+                        calculateItemsPosition();
+                }
+            }
+
+            private bool isFirstPositionCalculation;
+            private void calculateItemsPosition()   
+            {
+                float resWidth = Game.Resolution.Width;
+                float resHeight = Game.Resolution.Height;
+
+                float x = resWidth - 600f;
                 float y = 0f;
-                float height = Game.Resolution.Height / 5;
+                float height = resHeight / 5;
 
-                HandgunsItem.Texture.RectangleF = new RectangleF(x, y, HandgunsItem.Texture.Texture.Size.Width * 0.375f, HandgunsItem.Texture.Texture.Size.Height * 0.375f);
-                HandgunsItem.BackgroundRectangle.RectangleF = new RectangleF(x, y, 1280, HandgunsItem.Texture.Texture.Size.Height * 0.375f);
-                HandgunsItem.Label.Position = new PointF(x + HandgunsItem.Texture.Texture.Size.Width * 0.4f, y + (HandgunsItem.Texture.Texture.Size.Height * 0.1125f));
-                y += height;
-                RifleItem.Texture.RectangleF = new RectangleF(x, y, RifleItem.Texture.Texture.Size.Width * 0.375f, RifleItem.Texture.Texture.Size.Height * 0.375f);
-                RifleItem.BackgroundRectangle.RectangleF = new RectangleF(x, y, 1280, RifleItem.Texture.Texture.Size.Height * 0.375f);
-                RifleItem.Label.Position = new PointF(x + RifleItem.Texture.Texture.Size.Width * 0.4f, y + (RifleItem.Texture.Texture.Size.Height * 0.1125f));
-                y += height;
-                ThrowableItem.Texture.RectangleF = new RectangleF(x, y, ThrowableItem.Texture.Texture.Size.Width * 0.375f, ThrowableItem.Texture.Texture.Size.Height * 0.375f);
-                ThrowableItem.BackgroundRectangle.RectangleF = new RectangleF(x, y, 1280, ThrowableItem.Texture.Texture.Size.Height * 0.375f);
-                ThrowableItem.Label.Position = new PointF(x + ThrowableItem.Texture.Texture.Size.Width * 0.4f, y + (ThrowableItem.Texture.Texture.Size.Height * 0.1125f));
-                y += height;
-                MiscItem.Texture.RectangleF = new RectangleF(x, y, MiscItem.Texture.Texture.Size.Width * 0.375f, MiscItem.Texture.Texture.Size.Height * 0.375f);
-                MiscItem.BackgroundRectangle.RectangleF = new RectangleF(x, y, 1280, MiscItem.Texture.Texture.Size.Height * 0.375f);
-                MiscItem.Label.Position = new PointF(x + MiscItem.Texture.Texture.Size.Width * 0.4f, y + (MiscItem.Texture.Texture.Size.Height * 0.1125f));
-                y += height;
-                PredefinedLoadoutItem.Texture.RectangleF = new RectangleF(x, y, PredefinedLoadoutItem.Texture.Texture.Size.Width * 0.375f, PredefinedLoadoutItem.Texture.Texture.Size.Height * 0.375f);
-                PredefinedLoadoutItem.BackgroundRectangle.RectangleF = new RectangleF(x, y, 1280, PredefinedLoadoutItem.Texture.Texture.Size.Height * 0.375f);
-                PredefinedLoadoutItem.Label.Position = new PointF(x + PredefinedLoadoutItem.Texture.Texture.Size.Width * 0.4f, y + (PredefinedLoadoutItem.Texture.Texture.Size.Height * 0.1125f));
-                y += height;
+                const float RECTANGLE_WIDTH = 584.0f;
+                const float MAIN_MENU_RECT_WIDTH = RECTANGLE_WIDTH + 27.0f;
 
 
-                x = Game.Resolution.Width - 600f;
-                y = 0f;
+                ScrollBarBackgroundRectangle.RectangleF = new RectangleF(resWidth - 15f, 0, 20f, resHeight);
+                ScrollBarRectangle.RectangleF = new RectangleF(resWidth - 15f, ScrollBarValue, 20f, 50f);
+
+
+                float mainMenuYAddition = (resHeight / 6) - TEXTURE_HEIGHT;
+
+                y = mainMenuYAddition * 1;
+                HandgunsItem.Texture.RectangleF = new RectangleF(x, y, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+                HandgunsItem.BackgroundRectangle.RectangleF = new RectangleF(x, y, MAIN_MENU_RECT_WIDTH, TEXTURE_HEIGHT);
+                HandgunsItem.Label.Position = new PointF(x + TEXTURE_WIDTH, y + TEXTURE_HEIGHT * 0.25f);
+                y = mainMenuYAddition * 2;
+                RifleItem.Texture.RectangleF = new RectangleF(x, y, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+                RifleItem.BackgroundRectangle.RectangleF = new RectangleF(x, y, MAIN_MENU_RECT_WIDTH, TEXTURE_HEIGHT);
+                RifleItem.Label.Position = new PointF(x + TEXTURE_WIDTH, y + TEXTURE_HEIGHT * 0.25f);
+                y = mainMenuYAddition * 3;
+                ThrowableItem.Texture.RectangleF = new RectangleF(x, y, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+                ThrowableItem.BackgroundRectangle.RectangleF = new RectangleF(x, y, MAIN_MENU_RECT_WIDTH, TEXTURE_HEIGHT);
+                ThrowableItem.Label.Position = new PointF(x + TEXTURE_WIDTH, y + TEXTURE_HEIGHT * 0.25f);
+                y = mainMenuYAddition * 4;
+                MiscItem.Texture.RectangleF = new RectangleF(x, y, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+                MiscItem.BackgroundRectangle.RectangleF = new RectangleF(x, y, MAIN_MENU_RECT_WIDTH, TEXTURE_HEIGHT);
+                MiscItem.Label.Position = new PointF(x + TEXTURE_WIDTH, y + TEXTURE_HEIGHT * 0.25f);
+                y = mainMenuYAddition * 5;
+                PredefinedLoadoutItem.Texture.RectangleF = new RectangleF(x, y, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+                PredefinedLoadoutItem.BackgroundRectangle.RectangleF = new RectangleF(x, y, MAIN_MENU_RECT_WIDTH, TEXTURE_HEIGHT);
+                PredefinedLoadoutItem.Label.Position = new PointF(x + TEXTURE_WIDTH, y + TEXTURE_HEIGHT * 0.25f);
+
+
+
+                x = resWidth - 600f;
+                y = -ScrollBarValue;
 
                 foreach (WeaponItem item in HandgunWeaponItems)
                 {
-                    //Logger.LogTrivial("Hash: " + item.WeaponHash);
-                    item.Texture.RectangleF = new RectangleF(x, y, item.Texture.Texture.Size.Width * 0.375f, item.Texture.Texture.Size.Height * 0.375f);
-                    item.BackgroundRectangle.RectangleF = new RectangleF(x, y, 1280, item.Texture.Texture.Size.Height * 0.375f);
-                    item.Label.Position = new PointF(x + item.Texture.Texture.Size.Width * 0.4f, y + (item.Texture.Texture.Size.Height * 0.09f/*0.1125f*/));
-                    y += item.Texture.Texture.Size.Height * 0.375f;
+                    item.Texture.RectangleF = new RectangleF(x, y, TEXTURE_WIDTH /* * HANDGUNS_TEXTURES_MULTIPLIER */, TEXTURE_HEIGHT /* * HANDGUNS_TEXTURES_MULTIPLIER */);
+                    item.BackgroundRectangle.RectangleF = new RectangleF(x, y, RECTANGLE_WIDTH, TEXTURE_HEIGHT /* * HANDGUNS_TEXTURES_MULTIPLIER */);
+                    item.Label.Position = new PointF(x + TEXTURE_WIDTH /* * HANDGUNS_TEXTURES_MULTIPLIER */, y + TEXTURE_HEIGHT /* * HANDGUNS_TEXTURES_MULTIPLIER */ * 0.25f);
+                    y += TEXTURE_HEIGHT /* * HANDGUNS_TEXTURES_MULTIPLIER */;
                 }
 
 
-                x = Game.Resolution.Width - 600f;
-                y = 0f;
+                x = resWidth - 600f;
+                y = -ScrollBarValue;
 
                 foreach (WeaponItem item in LongGunsWeaponItems)
                 {
-                    //Logger.LogTrivial("Hash: " + item.WeaponHash);
-                    item.Texture.RectangleF = new RectangleF(x, y, item.Texture.Texture.Size.Width * 0.28125f, item.Texture.Texture.Size.Height * 0.28125f);
-                    item.BackgroundRectangle.RectangleF = new RectangleF(x, y, 1280, item.Texture.Texture.Size.Height * 0.28125f);
-                    item.Label.Position = new PointF(x + item.Texture.Texture.Size.Width * 0.4f, y + (item.Texture.Texture.Size.Height * 0.09f/*0.1125f*/));
-                    y += item.Texture.Texture.Size.Height * 0.28125f;
+                    item.Texture.RectangleF = new RectangleF(x, y, TEXTURE_WIDTH /* * LONG_GUNS_TEXTURES_MULTIPLIER*/, TEXTURE_HEIGHT /* * LONG_GUNS_TEXTURES_MULTIPLIER*/);
+                    item.BackgroundRectangle.RectangleF = new RectangleF(x, y, RECTANGLE_WIDTH, TEXTURE_HEIGHT /* * LONG_GUNS_TEXTURES_MULTIPLIER*/);
+                    item.Label.Position = new PointF(x + TEXTURE_WIDTH /* * LONG_GUNS_TEXTURES_MULTIPLIER*/, y + TEXTURE_HEIGHT /* * LONG_GUNS_TEXTURES_MULTIPLIER*/ * 0.25f);
+                    y += TEXTURE_HEIGHT /* * LONG_GUNS_TEXTURES_MULTIPLIER*/;
                 }
 
 
-                x = Game.Resolution.Width - 600f;
-                y = 0f;
+                x = resWidth - 600f;
+                y = -ScrollBarValue;
 
                 foreach (WeaponItem item in ThrowableWeaponItems)
                 {
-                    //Logger.LogTrivial("Hash: " + item.WeaponHash);
-                    item.Texture.RectangleF = new RectangleF(x, y, item.Texture.Texture.Size.Width * 0.375f, item.Texture.Texture.Size.Height * 0.375f);
-                    item.BackgroundRectangle.RectangleF = new RectangleF(x, y, 1280, item.Texture.Texture.Size.Height * 0.375f);
-                    item.Label.Position = new PointF(x + item.Texture.Texture.Size.Width * 0.4f, y + (item.Texture.Texture.Size.Height * 0.09f));
-                    y += item.Texture.Texture.Size.Height * 0.375f;
+                    item.Texture.RectangleF = new RectangleF(x, y, TEXTURE_WIDTH /* * THROWABLES_TEXTURES_MULTIPLIER */, TEXTURE_HEIGHT /* * THROWABLES_TEXTURES_MULTIPLIER */);
+                    item.BackgroundRectangle.RectangleF = new RectangleF(x, y, RECTANGLE_WIDTH, TEXTURE_HEIGHT /* * THROWABLES_TEXTURES_MULTIPLIER */);
+                    item.Label.Position = new PointF(x + TEXTURE_WIDTH /* * THROWABLES_TEXTURES_MULTIPLIER */, y + TEXTURE_HEIGHT /* * THROWABLES_TEXTURES_MULTIPLIER */ * 0.25f);
+                    y += TEXTURE_HEIGHT /* * THROWABLES_TEXTURES_MULTIPLIER */;
                 }
 
 
-                x = Game.Resolution.Width - 600f;
-                y = 0f;
+                x = resWidth - 600f;
+                y = -ScrollBarValue;
 
                 foreach (WeaponItem item in MiscWeaponItems)
                 {
-                    //Logger.LogTrivial("Hash: " + item.WeaponHash);
-                    item.Texture.RectangleF = new RectangleF(x, y, item.Texture.Texture.Size.Width * 0.375f, item.Texture.Texture.Size.Height * 0.375f);
-                    item.BackgroundRectangle.RectangleF = new RectangleF(x, y, 1280, item.Texture.Texture.Size.Height * 0.375f);
-                    item.Label.Position = new PointF(x + item.Texture.Texture.Size.Width * 0.4f, y + (item.Texture.Texture.Size.Height * 0.09f));
-                    y += item.Texture.Texture.Size.Height * 0.375f;
+                    item.Texture.RectangleF = new RectangleF(x, y, TEXTURE_WIDTH /* * MISC_ITEMS_TEXTURES_MULTIPLIER*/, TEXTURE_HEIGHT /* * MISC_ITEMS_TEXTURES_MULTIPLIER*/);
+                    item.BackgroundRectangle.RectangleF = new RectangleF(x, y, RECTANGLE_WIDTH, TEXTURE_HEIGHT /* * MISC_ITEMS_TEXTURES_MULTIPLIER*/);
+                    item.Label.Position = new PointF(x + TEXTURE_WIDTH /* * MISC_ITEMS_TEXTURES_MULTIPLIER*/, y + TEXTURE_HEIGHT /* * MISC_ITEMS_TEXTURES_MULTIPLIER*/ * 0.25f);
+                    y += TEXTURE_HEIGHT /* * MISC_ITEMS_TEXTURES_MULTIPLIER*/;
                 }
 
 
-                x = Game.Resolution.Width - 600f;
-                y = 0f;
+                x = resWidth - 600f;
+                y = -ScrollBarValue;
 
                 foreach (LoadoutItem item in PredefinedLoadoutItems)
                 {
-                    //Logger.LogTrivial("Hash: " + item.WeaponHash);
-                    item.Texture.RectangleF = new RectangleF(x, y, item.Texture.Texture.Size.Width * 0.375f, item.Texture.Texture.Size.Height * 0.375f);
-                    item.BackgroundRectangle.RectangleF = new RectangleF(x, y, 1280, item.Texture.Texture.Size.Height * 0.375f);
-                    item.Label.Position = new PointF(x + item.Texture.Texture.Size.Width * 0.4f, y + (item.Texture.Texture.Size.Height * 0.09f));
-                    y += item.Texture.Texture.Size.Height * 0.375f;
+                    item.Texture.RectangleF = new RectangleF(x, y, TEXTURE_WIDTH /* * LOADOUTS_TEXTURES_MULTIPLIER*/, TEXTURE_HEIGHT /* * LOADOUTS_TEXTURES_MULTIPLIER*/);
+                    item.BackgroundRectangle.RectangleF = new RectangleF(x, y, RECTANGLE_WIDTH, TEXTURE_HEIGHT /* * LOADOUTS_TEXTURES_MULTIPLIER*/);
+                    item.Label.Position = new PointF(x + TEXTURE_WIDTH /* * LOADOUTS_TEXTURES_MULTIPLIER*/, y + TEXTURE_HEIGHT /* * LOADOUTS_TEXTURES_MULTIPLIER*/ * 0.25f);
+                    y += TEXTURE_HEIGHT /* * LOADOUTS_TEXTURES_MULTIPLIER*/;
                 }
+                
+                const int timesToUpdate = 3;
+
+                for (int i = 0; i < timesToUpdate; i++)
+                {
+                    HandgunsItem.Process();             // update items position before display
+                    RifleItem.Process();
+                    ThrowableItem.Process();
+                    MiscItem.Process();
+                    PredefinedLoadoutItem.Process();
+
+                    foreach (WeaponItem item in HandgunWeaponItems)
+                        item.Process();
+                    foreach (WeaponItem item in LongGunsWeaponItems)
+                        item.Process();
+                    foreach (WeaponItem item in ThrowableWeaponItems)
+                        item.Process();
+                    foreach (WeaponItem item in MiscWeaponItems)
+                        item.Process();
+                    foreach (LoadoutItem item in PredefinedLoadoutItems)
+                        item.Process();
+                }
+            }
+
+            private void hideAll()
+            {
+                foreach (WeaponItem item in HandgunWeaponItems)
+                    item.State = UIState.Hidden;
+                foreach (WeaponItem item in LongGunsWeaponItems)
+                    item.State = UIState.Hidden;
+                foreach (WeaponItem item in ThrowableWeaponItems)
+                    item.State = UIState.Hidden;
+                foreach (WeaponItem item in MiscWeaponItems)
+                    item.State = UIState.Hidden;
+                foreach (LoadoutItem item in PredefinedLoadoutItems)
+                    item.State = UIState.Hidden;
+
+                HandgunsItem.State = UIState.Hidden;
+                RifleItem.State = UIState.Hidden;
+                ThrowableItem.State = UIState.Hidden;
+                MiscItem.State = UIState.Hidden;
+                PredefinedLoadoutItem.State = UIState.Hidden;
             }
 
             public enum ECurrentMenu
@@ -1067,8 +1203,8 @@
                 HandgunsMenu,
                 LongGunsMenu,
                 ThrowablesMenu,
-                MiscMenu,                   // TODO: add MiscMenu texture
-                PredefinedLoadoutsMenu,     // TODO: add PredefinedLoadoutsMenu texture
+                MiscMenu,                   
+                PredefinedLoadoutsMenu,
             }
             
             public class MenuItem
@@ -1098,15 +1234,17 @@
 
                 public MenuItem(string label, Rage.Texture texture)
                 {
+                    if (texture == null)
+                        texture = MissingTexture;
                     Texture = new UITexture(texture, new RectangleF(), UIScreenBorder.Right, 0.0225f, 0.04725f);
-                    Label = new UILabel(label, "Arial", 22.5f, new PointF(), Color.White, UIScreenBorder.Right, 0.0225f, 0.04725f);
-                    BackgroundRectangle = new UIRectangle(new RectangleF(), Color.FromArgb(150, Color.DarkGray), Color.Black, UIRectangleType.FilledWithBorders, UIScreenBorder.Right, 0.0225f, 0.04725f);
+                    Label = new UILabel(label, "Arial", 22.5f, new PointF(), LabelTextColor, UIScreenBorder.Right, 0.0225f, 0.04725f);
+                    BackgroundRectangle = new UIRectangle(new RectangleF(), BackgroundRectangleColor, BorderRectangleColor, /*UIRectangleType.FilledWithBorders*/UIRectangleType.Filled, UIScreenBorder.Right, 0.0225f, 0.04725f);
                     BackgroundRectangle.Hovered += backRectHoveredEvent;
                 }
 
                 public void Process()
                 {
-                    BackgroundRectangle.Color = defaultBackRectColor;
+                    BackgroundRectangle.Color = BackgroundRectangleColor;
                     BackgroundRectangle.Process();
                     Label.Process();
                     Texture.Process();
@@ -1118,12 +1256,10 @@
                     Label.Draw(e);
                     Texture.Draw(e);
                 }
-
-                private Color defaultBackRectColor = Color.FromArgb(150, Color.DarkGray);
-                private Color hoveredBackRectColor = ControlPaint.Light(Color.FromArgb(150, Color.DarkGray), 1.0f);
+                
                 private void backRectHoveredEvent(UIElementBase sender)
                 {
-                    BackgroundRectangle.Color = hoveredBackRectColor;
+                    BackgroundRectangle.Color = HoveredBackgroundRectangleColor;
                 }
             }
             public class WeaponItem
@@ -1158,9 +1294,11 @@
                 {
                     Type = type;
                     WeaponHash = hash;
+                    if (texture == null)
+                        texture = MissingTexture;
                     Texture = new UITexture(texture, new RectangleF(), UIScreenBorder.Right, 0.0225f, 0.04725f);
-                    Label = new UILabel(hash.ToString().Replace('_', ' '), "Arial", 22.5f, new PointF(), Color.White, UIScreenBorder.Right, 0.0225f, 0.04725f);
-                    BackgroundRectangle = new UIRectangle(new RectangleF(), Color.FromArgb(150, Color.DarkGray), Color.Black, UIRectangleType.FilledWithBorders, UIScreenBorder.Right, 0.0225f, 0.04725f);
+                    Label = new UILabel(hash.ToString().Replace('_', ' '), "Arial", 22.5f, new PointF(), LabelTextColor, UIScreenBorder.Right, 0.0225f, 0.04725f);
+                    BackgroundRectangle = new UIRectangle(new RectangleF(), BackgroundRectangleColor, BorderRectangleColor, UIRectangleType.Filled, UIScreenBorder.Right, 0.0225f, 0.04725f);
                     BackgroundRectangle.Hovered += backRectHoveredEvent;
                     Logger.LogDebug("Created new WeaponItem - Hash: " + hash + "  Type: " + type);
                 }
@@ -1170,16 +1308,18 @@
                     Type = ItemType.Misc;
                     WeaponHash = 0;
                     MiscItem = item;
+                    if (texture == null)
+                        texture = MissingTexture;
                     Texture = new UITexture(texture, new RectangleF(), UIScreenBorder.Right, 0.0225f, 0.04725f);
-                    Label = new UILabel(item.ToString().Replace('_', ' '), "Arial", 22.5f, new PointF(), Color.White, UIScreenBorder.Right, 0.0225f, 0.04725f);
-                    BackgroundRectangle = new UIRectangle(new RectangleF(), Color.FromArgb(150, Color.DarkGray), Color.Black, UIRectangleType.FilledWithBorders, UIScreenBorder.Right, 0.0225f, 0.04725f);
+                    Label = new UILabel(item.ToString().Replace('_', ' '), "Arial", 22.5f, new PointF(), LabelTextColor, UIScreenBorder.Right, 0.0225f, 0.04725f);
+                    BackgroundRectangle = new UIRectangle(new RectangleF(), BackgroundRectangleColor, BorderRectangleColor, UIRectangleType.Filled, UIScreenBorder.Right, 0.0225f, 0.04725f);
                     BackgroundRectangle.Hovered += backRectHoveredEvent;
                     Logger.LogDebug("Created new WeaponItem - MiscItems: " + MiscItem + "  Type: " + Type);
                 }
 
                 public void Process()
                 {
-                    BackgroundRectangle.Color = defaultBackRectColor;
+                    BackgroundRectangle.Color = BackgroundRectangleColor;
                     BackgroundRectangle.Process();
                     Label.Process();
                     Texture.Process();
@@ -1192,25 +1332,20 @@
                     Texture.Draw(e);
                 }
 
-                private Color defaultBackRectColor = Color.FromArgb(150, Color.DarkGray);
-                private Color hoveredBackRectColor = ControlPaint.Light(Color.FromArgb(150, Color.DarkGray), 1.0f);
+
                 private void backRectHoveredEvent(UIElementBase sender)
                 {
-                    BackgroundRectangle.Color = hoveredBackRectColor;
+                    BackgroundRectangle.Color = HoveredBackgroundRectangleColor;
                 }
 
                 public static WeaponItem GetWeaponItemForWeapon(EWeaponHash hash, ItemType type)
                 {
                     Rage.Texture texture = Game.CreateTextureFromFile(UI_FOLDER + hash + ".png");
-                    if (texture == null)
-                        texture = Game.CreateTextureFromFile(UI_FOLDER + "Not_Added.png");
                     return new WeaponItem(hash, type, texture);
                 }
                 public static WeaponItem GetWeaponItemForMiscItem(MiscItems item)
                 {
                     Rage.Texture texture = Game.CreateTextureFromFile(UI_FOLDER + item + ".png");
-                    if(texture == null)
-                        texture = Game.CreateTextureFromFile(UI_FOLDER + "Not_Added.png");
                     return new WeaponItem(item, texture);
                 }
 
@@ -1277,39 +1412,39 @@
                 public static EWeaponHash[] GetAvalaibleHandgunWeapons()
                 {
                     return new EWeaponHash[]
-{
-                        // melee     
-                        //EWeaponHash.Nightstick,
-                        //EWeaponHash.Flashlight,   // doesn't have texture     
-
+                    {
                         // pistols  
                         EWeaponHash.Pistol,
                         EWeaponHash.Combat_Pistol,
                         EWeaponHash.AP_Pistol,
                         EWeaponHash.Pistol_50,
                         EWeaponHash.Heavy_Pistol,
+                        EWeaponHash.Heavy_Revolver,
+                        EWeaponHash.Machine_Pistol,
+                        EWeaponHash.Flare_Gun,
                         EWeaponHash.Stun_Gun,              
 
                         // submachines  
                         EWeaponHash.Micro_SMG,
-
-                        //EWeaponHash.Fire_Extinguisher,
                     };
                 }
 
-                public static EWeaponHash[] GetAvalaibleRifleWeapons()
+                public static EWeaponHash[] GetAvalaibleLongWeapons()
                 {
                     return new EWeaponHash[]
                     {
                         // submachines
                         EWeaponHash.SMG,
                         EWeaponHash.Assault_SMG,
+                        EWeaponHash.Combat_PDW,
 
                         // rifles
                         EWeaponHash.Assault_Rifle,
                         EWeaponHash.Carbine_Rifle,
                         EWeaponHash.Advanced_Rifle,
                         EWeaponHash.Bullpup_Rifle,         
+                        EWeaponHash.Compact_Rifle,
+                        EWeaponHash.Special_Carbine,
 
                         //mgs
                         EWeaponHash.MG,
@@ -1319,13 +1454,14 @@
                         EWeaponHash.Pump_Shotgun,
                         EWeaponHash.Sawn_Off_Shotgun,
                         EWeaponHash.Assault_Shotgun,
-                        EWeaponHash.Bullpup_Shotgun,       
-                        //EWeaponHash.Heavy_Shotgun,       // doesn't have texture          
+                        EWeaponHash.Bullpup_Shotgun,
+                        EWeaponHash.Heavy_Shotgun,                
+                        EWeaponHash.Double_Barrel_Shotgun,
 
                         // snipers  
                         EWeaponHash.Sniper_Rifle,
-                        EWeaponHash.Heavy_Sniper,          
-                        //EWeaponHash.Marksman_Rifle,     // doesn't have texture   
+                        EWeaponHash.Heavy_Sniper,
+                        EWeaponHash.Marksman_Rifle,        
                     };
                 }
 
@@ -1346,10 +1482,11 @@
                     return new MiscItems[]
                     {
                         // throwables
-                        MiscItems.Bulletproof_Vest,  // TODO: add Bulletproof_Vest texture
+                        MiscItems.Bulletproof_Vest,  
                         MiscItems.Nightstick,
                         MiscItems.Fire_Extinguisher,
-                        MiscItems.Refill_Ammo,   // TODO: add Refill_Ammo texture
+                        MiscItems.Flashlight,
+                        MiscItems.Refill_Ammo,  
                     };
                 }
             }
@@ -1383,18 +1520,18 @@
                 {
                     Rage.Texture texture = Game.CreateTextureFromFile(UI_FOLDER + loadout.TextureFileName + ".png");
                     if(texture == null)
-                        texture = Game.CreateTextureFromFile(UI_FOLDER + "Not_Added.png");
+                        texture = MissingTexture;
 
                     Texture = new UITexture(texture, new RectangleF(), UIScreenBorder.Right, 0.0225f, 0.04725f);
-                    Label = new UILabel(loadout.Name, "Arial", 22.5f, new PointF(), Color.White, UIScreenBorder.Right, 0.0225f, 0.04725f);
-                    BackgroundRectangle = new UIRectangle(new RectangleF(), Color.FromArgb(150, Color.DarkGray), Color.Black, UIRectangleType.FilledWithBorders, UIScreenBorder.Right, 0.0225f, 0.04725f);
+                    Label = new UILabel(loadout.Name, "Arial", 22.5f, new PointF(), LabelTextColor, UIScreenBorder.Right, 0.0225f, 0.04725f);
+                    BackgroundRectangle = new UIRectangle(new RectangleF(), BackgroundRectangleColor, BorderRectangleColor, UIRectangleType.Filled, UIScreenBorder.Right, 0.0225f, 0.04725f);
                     BackgroundRectangle.Hovered += backRectHoveredEvent;
                     Loadout = loadout;
                 }
 
                 public void Process()
                 {
-                    BackgroundRectangle.Color = defaultBackRectColor;
+                    BackgroundRectangle.Color = BackgroundRectangleColor;
                     HelpText.State = UI.UIState.Hidden;
                     HelpRectangle.State = UI.UIState.Hidden;
                     BackgroundRectangle.Process();
@@ -1418,14 +1555,12 @@
                 }
 
 
-                private UILabel HelpText = new UI.UILabel("", "", 13f, PointF.Empty, Color.White, UI.UIScreenBorder.Top, 0.035f, 0.0475f);
-                private UIRectangle HelpRectangle = new UI.UIRectangle(new RectangleF(), Color.FromArgb(195, Color.Black), UI.UIRectangleType.Filled, UI.UIScreenBorder.Top, 0.035f, 0.0475f);
-
-                private Color defaultBackRectColor = Color.FromArgb(150, Color.DarkGray);
-                private Color hoveredBackRectColor = ControlPaint.Light(Color.FromArgb(150, Color.DarkGray), 1.0f);
+                private UILabel HelpText = new UI.UILabel("", "", 13f, PointF.Empty, HelpTextLabelTextColor, UI.UIScreenBorder.Top, 0.035f, 0.0475f);
+                private UIRectangle HelpRectangle = new UI.UIRectangle(new RectangleF(), HelpTextBackgroundRectangleColor, UI.UIRectangleType.Filled, UI.UIScreenBorder.Top, 0.035f, 0.0475f);
+                
                 private void backRectHoveredEvent(UIElementBase sender)
                 {
-                    BackgroundRectangle.Color = hoveredBackRectColor;
+                    BackgroundRectangle.Color = HoveredBackgroundRectangleColor;
 
                     Vector2 mousePos = UI.UICommon.GetCursorPosition();
                     HelpText.Text = Loadout.Description;
@@ -1445,7 +1580,7 @@
             Refill_Ammo,
             Nightstick = EWeaponHash.Nightstick,
             Fire_Extinguisher = EWeaponHash.Fire_Extinguisher,
-
+            Flashlight = EWeaponHash.Flashlight,
         }
 
         protected enum ItemType
@@ -1464,34 +1599,65 @@
         public enum ItemType : uint
         {
             Bulletproof_Vest,
-            Nightstick = EWeaponHash.Nightstick,
-            Fire_Extinguisher = EWeaponHash.Fire_Extinguisher,
-            SMG = EWeaponHash.SMG,
-            Assault_SMG = EWeaponHash.Assault_SMG,
-            Assault_Rifle = EWeaponHash.Assault_Rifle,
-            Carbine_Rifle = EWeaponHash.Carbine_Rifle,
-            Advanced_Rifle = EWeaponHash.Advanced_Rifle,
-            Bullpup_Rifle = EWeaponHash.Bullpup_Rifle,
-            MG = EWeaponHash.MG,
-            Combat_MG = EWeaponHash.Combat_MG,
-            Pump_Shotgun = EWeaponHash.Pump_Shotgun,
-            Sawn_Off_Shotgun = EWeaponHash.Sawn_Off_Shotgun,
-            Assault_Shotgun = EWeaponHash.Assault_Shotgun,
-            Bullpup_Shotgun = EWeaponHash.Bullpup_Shotgun,
-            Sniper_Rifle = EWeaponHash.Sniper_Rifle,
-            Heavy_Sniper = EWeaponHash.Heavy_Sniper,
-            Pistol = EWeaponHash.Pistol,
-            Combat_Pistol = EWeaponHash.Combat_Pistol,
-            AP_Pistol = EWeaponHash.AP_Pistol,
-            Pistol_50 = EWeaponHash.Pistol_50,
-            Heavy_Pistol = EWeaponHash.Heavy_Pistol,
-            Stun_Gun = EWeaponHash.Stun_Gun,
-            Micro_SMG = EWeaponHash.Micro_SMG,
-            Flare_Gun = EWeaponHash.Flare_Gun,
-            Grenade = EWeaponHash.Grenade,
-            Sticky_Bomb = EWeaponHash.Sticky_Bomb,
-            Smoke_Grenade = EWeaponHash.Smoke_Grenade,
-            Flare = EWeaponHash.Flare,
+            Nightstick            = EWeaponHash.Nightstick,
+            Fire_Extinguisher     = EWeaponHash.Fire_Extinguisher,
+            SMG                   = EWeaponHash.SMG,
+            Assault_SMG           = EWeaponHash.Assault_SMG,
+            Assault_Rifle         = EWeaponHash.Assault_Rifle,
+            Carbine_Rifle         = EWeaponHash.Carbine_Rifle,
+            Advanced_Rifle        = EWeaponHash.Advanced_Rifle,
+            Bullpup_Rifle         = EWeaponHash.Bullpup_Rifle,
+            MG                    = EWeaponHash.MG,
+            Combat_MG             = EWeaponHash.Combat_MG,
+            Pump_Shotgun          = EWeaponHash.Pump_Shotgun,
+            Sawn_Off_Shotgun      = EWeaponHash.Sawn_Off_Shotgun,
+            Assault_Shotgun       = EWeaponHash.Assault_Shotgun,
+            Bullpup_Shotgun       = EWeaponHash.Bullpup_Shotgun,
+            Sniper_Rifle          = EWeaponHash.Sniper_Rifle,
+            Heavy_Sniper          = EWeaponHash.Heavy_Sniper,
+            Pistol                = EWeaponHash.Pistol,
+            Combat_Pistol         = EWeaponHash.Combat_Pistol,
+            AP_Pistol             = EWeaponHash.AP_Pistol,
+            Pistol_50             = EWeaponHash.Pistol_50,
+            Heavy_Pistol          = EWeaponHash.Heavy_Pistol,
+            Stun_Gun              = EWeaponHash.Stun_Gun,
+            Micro_SMG             = EWeaponHash.Micro_SMG,
+            Flare_Gun             = EWeaponHash.Flare_Gun,
+            Grenade               = EWeaponHash.Grenade,
+            Sticky_Bomb           = EWeaponHash.Sticky_Bomb,
+            Smoke_Grenade         = EWeaponHash.Smoke_Grenade,
+            Flare                 = EWeaponHash.Flare,
+            Bat                   = EWeaponHash.Bat,
+            Bottle                = EWeaponHash.Bottle,
+            BZ_Gas                = EWeaponHash.BZ_Gas,
+            Combat_PDW            = EWeaponHash.Combat_PDW,
+            Flashlight            = EWeaponHash.Flashlight,
+            Golf_Club             = EWeaponHash.Golf_Club,
+            Grenade_Launcher      = EWeaponHash.Grenade_Launcher,
+            Gusenberg             = EWeaponHash.Gusenberg,
+            Hammer                = EWeaponHash.Hammer,
+            Heavy_Revolver        = EWeaponHash.Heavy_Revolver,
+            Heavy_Shotgun         = EWeaponHash.Heavy_Shotgun,
+            Knife                 = EWeaponHash.Knife,
+            Knuckle_Dusters       = EWeaponHash.Knuckle_Dusters,
+            Machete               = EWeaponHash.Machete,
+            Machine_Pistol        = EWeaponHash.Machine_Pistol,
+            Marksman_Pistol       = EWeaponHash.Marksman_Pistol,
+            Marksman_Rifle        = EWeaponHash.Marksman_Rifle,
+            Minigun               = EWeaponHash.Minigun,
+            Molotov               = EWeaponHash.Molotov,
+            Musket                = EWeaponHash.Musket,
+            Petrol_Can            = EWeaponHash.Petrol_Can,
+            Proximity_Mine        = EWeaponHash.Proximity_Mine,
+            Railgun               = EWeaponHash.Railgun,
+            RPG                   = EWeaponHash.RPG,
+            SNS_Pistol            = EWeaponHash.SNS_Pistol,
+            Switchblade           = EWeaponHash.Switchblade,
+            Stinger               = EWeaponHash.Stinger,
+            Vintage_Pistol        = EWeaponHash.Vintage_Pistol,
+            Compact_Rifle         = EWeaponHash.Compact_Rifle,
+            Double_Barrel_Shotgun = EWeaponHash.Double_Barrel_Shotgun,
+            Special_Carbine       = EWeaponHash.Special_Carbine,
         }
 
         [XmlElement]
@@ -1618,7 +1784,7 @@
             // Creates an instance of the XmlSerializer class;
             // specifies the type of object to serialize.
             XmlSerializer serializer = new XmlSerializer(typeof(Loadout));
-            TextWriter writer = new StreamWriter(xmlFilePath + ".xml");
+            TextWriter writer = new StreamWriter(xmlFilePath);
 
             // Serializes the purchase order, and closes the TextWriter.
             serializer.Serialize(writer, loadout);
@@ -1627,60 +1793,6 @@
         }
     }
 
-
-    public enum WeaponComponent
-    {
-        COMPONENT_AT_RAILCOVER_01,
-        COMPONENT_AT_AR_AFGRIP,
-        COMPONENT_AT_PI_FLSH,
-        COMPONENT_AT_AR_FLSH,
-        COMPONENT_AT_SCOPE_MACRO,
-        COMPONENT_AT_SCOPE_MACRO_02,
-        COMPONENT_AT_SCOPE_SMALL,
-        COMPONENT_AT_SCOPE_SMALL_02,
-        COMPONENT_AT_SCOPE_MEDIUM,
-        COMPONENT_AT_SCOPE_LARGE,
-        COMPONENT_AT_SCOPE_MAX,
-        COMPONENT_AT_PI_SUPP,
-        COMPONENT_AT_AR_SUPP,
-        COMPONENT_AT_AR_SUPP_02,
-        COMPONENT_AT_SR_SUPP,
-        COMPONENT_PISTOL_CLIP_01,
-        COMPONENT_PISTOL_CLIP_02,
-        COMPONENT_COMBATPISTOL_CLIP_01,
-        COMPONENT_COMBATPISTOL_CLIP_02,
-        COMPONENT_APPISTOL_CLIP_01,
-        COMPONENT_APPISTOL_CLIP_02,
-        COMPONENT_MICROSMG_CLIP_01,
-        COMPONENT_MICROSMG_CLIP_02,
-        COMPONENT_SMG_CLIP_01,
-        COMPONENT_SMG_CLIP_02,
-        COMPONENT_ASSAULTRIFLE_CLIP_01,
-        COMPONENT_ASSAULTRIFLE_CLIP_02,
-        COMPONENT_CARBINERIFLE_CLIP_01,
-        COMPONENT_CARBINERIFLE_CLIP_02,
-        COMPONENT_ADVANCEDRIFLE_CLIP_01,
-        COMPONENT_ADVANCEDRIFLE_CLIP_02,
-        COMPONENT_MG_CLIP_01,
-        COMPONENT_MG_CLIP_02,
-        COMPONENT_COMBATMG_CLIP_01,
-        COMPONENT_COMBATMG_CLIP_02,
-        COMPONENT_PUMPSHOTGUN_CLIP_01,
-        COMPONENT_SAWNOFFSHOTGUN_CLIP_01,
-        COMPONENT_ASSAULTSHOTGUN_CLIP_01,
-        COMPONENT_ASSAULTSHOTGUN_CLIP_02,
-        COMPONENT_SNIPERRIFLE_CLIP_01,
-        COMPONENT_HEAVYSNIPER_CLIP_01,
-        COMPONENT_MINIGUN_CLIP_01,
-        COMPONENT_RPG_CLIP_01,
-        COMPONENT_GRENADELAUNCHER_CLIP_01,
-        COMPONENT_PISTOL50_CLIP_01,
-        COMPONENT_PISTOL50_CLIP_02,
-        COMPONENT_ASSAULTSMG_CLIP_01,
-        COMPONENT_ASSAULTSMG_CLIP_02,
-        COMPONENT_BULLPUPSHOTGUN_CLIP_01,
-        // TODO: add components to WeaponComponent enum
-    }
 }
 
 

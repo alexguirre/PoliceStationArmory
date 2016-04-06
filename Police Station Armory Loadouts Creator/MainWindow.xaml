@@ -54,7 +54,10 @@
         <Button x:Name="loadLoadoutBttn" Content="Load Loadout" HorizontalAlignment="Left" Margin="16,481,0,0" VerticalAlignment="Top" Width="141" Height="38" Click="loadLoadoutBttn_Click"/>
         <Button x:Name="saveLoadoutBttn" Content="Save Loadout" HorizontalAlignment="Left" Margin="558,481,0,0" VerticalAlignment="Top" Width="141" Height="38" Click="saveLoadoutBttn_Click"/>
         <Menu x:Name="menu" HorizontalAlignment="Left" Height="19" VerticalAlignment="Top" Width="710" Background="White" BorderBrush="#FF6E6E6E">
-            <MenuItem x:Name="aboutMenuItem" Header="About" Click="AboutMenuItem_Click" Background="White"/>
+            <MenuItem x:Name="helpMenuItem" Header="Help" Background="White">
+                <MenuItem x:Name="aboutMenuItem" Header="About" Click="AboutMenuItem_Click" HorizontalAlignment="Left" Width="171" Height="22" Margin="0,0,-31,0"/>
+                <MenuItem x:Name="createDefaultLoadoutsMenuItem" Header="Default loadouts" Click="CreateDefaultLoadoutsMenuItem_Click" HorizontalAlignment="Left" Width="176" Height="26" Margin="0,0,-36,0"/>
+            </MenuItem>
         </Menu>
     </Grid>
 </Window>

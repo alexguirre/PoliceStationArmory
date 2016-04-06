@@ -8,7 +8,7 @@
 
     internal static class Globals
     {
-        public static Armory MainArmoury { get; set; }
+        public static Armory MainArmouryInstance { get; set; }
 
         public static Random Random { get; } = new Random();
 
@@ -16,8 +16,8 @@
 
         public static void GlobalCleanUp()
         {
-            if(MainArmoury != null)
-                MainArmoury.CleanUp();
+            if(MainArmouryInstance != null)
+                MainArmouryInstance.CleanUp();
         }
     }
 }

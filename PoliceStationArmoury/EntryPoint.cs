@@ -9,13 +9,13 @@
         {
             Logger.LogWelcome();
 
-            Globals.MainArmoury = new Armory();
+            Globals.MainArmouryInstance = new Armory();
 
             while (true)
             {
                 GameFiber.Yield();
 
-                Globals.MainArmoury.Update();
+                Globals.MainArmouryInstance.Update();
             }
         }
     }

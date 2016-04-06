@@ -29,8 +29,8 @@
     {
         public Loadout CurrentLoadout = null;
 
-        public List<ItemControl> items = new List<ItemControl>();
-        public ItemControl currentItem = null;
+        internal List<ItemControl> items = new List<ItemControl>();
+        internal ItemControl currentItem = null;
 
         public MainWindow()
         {
@@ -38,8 +38,8 @@
             loadoutNameDescLbl.Content = @"The name displayed in the loadouts menu.";
             loadoutTextureNameDescLbl.Content = @"The file name of the image that will be displayed as the
 icon in the loadouts menu.
-The format of file has to 
-be a PNG File(.png).";
+The format of file has to be a PNG File(.png) and has to
+be inside the Police Station Armory Resources\UI folder.";
             loadoutItemsDescLbl.Content = @"Here you will choose which 
 items the loadout will have.
 Select one of the avalaible 
@@ -53,15 +53,15 @@ magazines, suppresors...)
 the selected item will have.";
 
             itemComponentsListView.IsEnabled = false;
-            foreach (WeaponComponent comp in Enum.GetValues(typeof(WeaponComponent)))
+            foreach (WeaponComponent comp in new List<WeaponComponent>((WeaponComponent[])Enum.GetValues(typeof(WeaponComponent))).OrderBy(w => w.ToString()))
             {
-                CheckBox checkbox = new CheckBox() { Margin = new Thickness(5, 5, 0, 0), Content = comp.ToString(), IsChecked = false, IsEnabled = false };
+                CheckBox checkbox = new CheckBox() { Margin = new Thickness(5, 5, 0, 0), Content = comp.ToString().Remove(0, 9), IsChecked = false, IsEnabled = false };     // remove COMPONENT
                 checkbox.Checked += ComponentCheckBox_CheckChanged;
                 checkbox.Unchecked += ComponentCheckBox_CheckChanged;
                 itemComponentsListView.Items.Add(checkbox);
             }
 
-            foreach (ItemType type in Enum.GetValues(typeof(ItemType)))
+            foreach (ItemType type in new List<ItemType>((ItemType[])Enum.GetValues(typeof(ItemType))).OrderBy(t => t.ToString()))
             {
                 ItemControl i = new ItemControl(type);
                 items.Add(i);
@@ -72,14 +72,14 @@ the selected item will have.";
             addItemCheckBox.Checked += AddItemCheckBox_CheckChanged;
             addItemCheckBox.Unchecked += AddItemCheckBox_CheckChanged;
 
-            Logger.LogTrivial<MainWindow>("Initialized MainWindow");
+            //Logger.LogTrivial<MainWindow>("Initialized MainWindow");
         }
 
 
         private void ComponentCheckBox_CheckChanged(object sender, RoutedEventArgs e)
         {
             CheckBox senderCheckBox = ((CheckBox)sender);
-            WeaponComponent checkboxComponent = (WeaponComponent)Enum.Parse(typeof(WeaponComponent), senderCheckBox.Content.ToString());
+            WeaponComponent checkboxComponent = (WeaponComponent)Enum.Parse(typeof(WeaponComponent), "COMPONENT" + senderCheckBox.Content.ToString());
             currentItem.SetComponentActive(checkboxComponent, senderCheckBox.IsChecked.HasValue ? senderCheckBox.IsChecked.Value : false);
         }
 
@@ -89,9 +89,12 @@ the selected item will have.";
             if (addItemCheckBox.IsChecked.HasValue && addItemCheckBox.IsChecked.Value == true)
             {
                 itemComponentsListView.IsEnabled = true;
-                foreach (UIElement item in itemComponentsListView.Items)
+                string[] componentsNamesToEnable = Array.ConvertAll(currentItem.Type.GetAvalaibleComponents(), i => i.ToString().Remove(0, 9));
+                foreach (CheckBox item in itemComponentsListView.Items)
                 {
-                    item.IsEnabled = true;
+                    item.IsEnabled = false;
+                    if (componentsNamesToEnable.Contains(item.Content.ToString()))
+                        item.IsEnabled = true;
                 }
             }
             else if (!addItemCheckBox.IsChecked.HasValue || addItemCheckBox.IsChecked.Value == false)
@@ -104,9 +107,12 @@ the selected item will have.";
             }
             currentItem.IsAdded = addItemCheckBox.IsChecked.HasValue ? addItemCheckBox.IsChecked.Value : false;
         }
-        // TODO: add some visual(a tick...) to easily see if an Item is added
+
         private void ItemsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (e.AddedItems.Count <= 0)
+                return;
+
             currentItem = items.FirstOrDefault(i => i.Type.ToString() == itemsListBox.SelectedItem.ToString());
             if (currentItem == null)
                 return;
@@ -114,7 +120,17 @@ the selected item will have.";
             addItemCheckBox.IsChecked = currentItem.IsAdded;
             foreach (CheckBox checkB in itemComponentsListView.Items)
             {
-                checkB.IsChecked = currentItem.IsComponentActive((WeaponComponent)Enum.Parse(typeof(WeaponComponent), checkB.Content.ToString()));
+                checkB.IsChecked = currentItem.IsComponentActive((WeaponComponent)Enum.Parse(typeof(WeaponComponent), "COMPONENT" + checkB.Content.ToString()));
+            }
+            if (itemComponentsListView.IsEnabled)
+            {
+                string[] componentsNamesToEnable = Array.ConvertAll(currentItem.Type.GetAvalaibleComponents(), i => i.ToString().Remove(0, 9));
+                foreach (CheckBox item in itemComponentsListView.Items)
+                {
+                    item.IsEnabled = false;
+                    if (componentsNamesToEnable.Contains(item.Content.ToString()))
+                        item.IsEnabled = true;
+                }
             }
         }
 
@@ -141,6 +157,15 @@ the selected item will have.";
                     loadoutNameTxtBox.Text = CurrentLoadout.Name;
                     loadoutTextureNameTxtBox.Text = CurrentLoadout.TextureFileName;
 
+                    foreach (ItemControl item in items)
+                    {
+                        item.IsAdded = false;
+                        for (int i = 0; i < item.ActiveComponents.Length; i++)
+                        {
+                            item.ActiveComponents[i] = false;
+                        }
+                    }
+
                     foreach (Item item in CurrentLoadout.Items)
                     {
                         ItemControl itemControl = new ItemControl(item.Type);
@@ -151,13 +176,18 @@ the selected item will have.";
                         itemControl.IsAdded = true;
                         items[items.FindIndex(i => i.Type == item.Type)] = itemControl;
                     }
+
+                    itemsListBox.UnselectAll();
+                    addItemCheckBox.IsEnabled = false;
+                    addItemCheckBox.IsChecked = false;
+                    foreach (CheckBox checkbox in itemComponentsListView.Items)
+                        checkbox.IsChecked = false;
                 }
             }
             catch (Exception ex)
             {
-                Logger.LogException<MainWindow>("Unexpected exception trying to load a Loadout file", ex);
                 ResetValues();
-                MessageBox.Show("Error loading the Loadout XML file", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Error loading the Loadout XML file" + Environment.NewLine + Environment.NewLine + ex.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -194,9 +224,9 @@ the selected item will have.";
             }
             catch (Exception ex)
             {
-                Logger.LogException<MainWindow>("Unexpected exception trying to save a Loadout in a file", ex);
+                //Logger.LogException<MainWindow>("Unexpected exception trying to save a Loadout in a file", ex);
                 ResetValues();
-                MessageBox.Show("Error saving the Loadout XML file", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Error saving the Loadout XML file" + Environment.NewLine + Environment.NewLine + ex.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
         }
@@ -228,12 +258,69 @@ the selected item will have.";
         {
             new AboutWindow().ShowDialog();
         }
+
+        private void CreateDefaultLoadoutsMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Forms.FolderBrowserDialog folderDialog = new System.Windows.Forms.FolderBrowserDialog();
+            folderDialog.ShowNewFolderButton = true;
+            folderDialog.Description = "Choose where to save the default loadouts XML files.";
+            System.Windows.Forms.DialogResult result = folderDialog.ShowDialog();
+            if(result == System.Windows.Forms.DialogResult.OK)
+            {
+                Loadout noose = new Loadout()
+                {
+                    Name = "NOOSE Loadout",
+                    TextureFileName = "Carbine_Rifle",
+                    Items = new List<Item>()
+                    {
+                        new Item() { Type = ItemType.Combat_Pistol,        Components = new WeaponComponent[] { WeaponComponent.COMPONENT_AT_PI_FLSH }                                                                                           },
+                        new Item() { Type = ItemType.Stun_Gun,             Components = new WeaponComponent[] { }                                                                                                                                },
+                        new Item() { Type = ItemType.SMG,                  Components = new WeaponComponent[] { WeaponComponent.COMPONENT_AT_AR_FLSH, WeaponComponent.COMPONENT_AT_SCOPE_MACRO_02, WeaponComponent.COMPONENT_AT_PI_SUPP }        },
+                        new Item() { Type = ItemType.Carbine_Rifle,        Components = new WeaponComponent[] { WeaponComponent.COMPONENT_AT_AR_FLSH, WeaponComponent.COMPONENT_AT_SCOPE_MEDIUM }                                                },
+                        new Item() { Type = ItemType.Sniper_Rifle,         Components = new WeaponComponent[] { WeaponComponent.COMPONENT_AT_AR_FLSH, WeaponComponent.COMPONENT_AT_SCOPE_MAX, WeaponComponent.COMPONENT_AT_AR_SUPP_02 }          },
+                        new Item() { Type = ItemType.Assault_Shotgun,      Components = new WeaponComponent[] { WeaponComponent.COMPONENT_AT_AR_FLSH, WeaponComponent.COMPONENT_ASSAULTSHOTGUN_CLIP_02 }                                         },
+                        new Item() { Type = ItemType.Flare,                Components = new WeaponComponent[] { }                                                                                                                                },
+                        new Item() { Type = ItemType.Sticky_Bomb,          Components = new WeaponComponent[] { }                                                                                                                                },
+                        new Item() { Type = ItemType.Fire_Extinguisher,    Components = new WeaponComponent[] { }                                                                                                                                },
+                        new Item() { Type = ItemType.Bulletproof_Vest,     Components = new WeaponComponent[] { }                                                                                                                                },
+                    },
+                };
+                Loadout.WriteToXML(System.IO.Path.Combine(folderDialog.SelectedPath, "NOOSE.xml"), noose);
+
+                Loadout fib = new Loadout()
+                {
+                    Name = "FIB Loadout",
+                    TextureFileName = "Combat_Pistol",
+                    Items = new List<Item>()
+                    {
+                        new Item() { Type = ItemType.Combat_Pistol,        Components = new WeaponComponent[] { } },
+                        new Item() { Type = ItemType.SMG,                  Components = new WeaponComponent[] { } },
+                        new Item() { Type = ItemType.Bulletproof_Vest,     Components = new WeaponComponent[] { } },
+                    },
+                };
+                Loadout.WriteToXML(System.IO.Path.Combine(folderDialog.SelectedPath, "FIB.xml"), fib);
+
+                Loadout lspd = new Loadout()
+                {
+                    Name = "LSPD/LSSD Loadout",
+                    TextureFileName = "Pistol",
+                    Items = new List<Item>()
+                    {
+                        new Item() { Type = ItemType.Nightstick,           Components = new WeaponComponent[] { } },
+                        new Item() { Type = ItemType.Pistol,               Components = new WeaponComponent[] { } },
+                        new Item() { Type = ItemType.Pump_Shotgun,         Components = new WeaponComponent[] { } },
+                        new Item() { Type = ItemType.Fire_Extinguisher,    Components = new WeaponComponent[] { } },
+                        new Item() { Type = ItemType.Bulletproof_Vest,     Components = new WeaponComponent[] { } },
+                    },
+                };
+                Loadout.WriteToXML(System.IO.Path.Combine(folderDialog.SelectedPath, "LSPD_LSSD.xml"), lspd);
+            }
+        }
     }
 
 
 
-
-    public class ItemControl
+    internal class ItemControl
     {
         public ItemType Type;
         public bool IsAdded = false;

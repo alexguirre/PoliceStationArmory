@@ -18,6 +18,8 @@
             this.labelCopyright.Content = AssemblyCopyright;
             this.labelCompanyName.Content = AssemblyCompany;
             this.textBoxDescription.Text = AssemblyDescription;
+            this.textBoxDescription.IsReadOnly = true;
+            this.textBoxDescription.IsReadOnlyCaretVisible = false;
         }
 
         #region Assembly Attribute Accessors

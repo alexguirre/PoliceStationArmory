@@ -20,7 +20,7 @@ namespace Police_Station_Armory_Loadouts_Creator
             else
                 AppDomain.CurrentDomain.DomainUnload += End;
 
-            Logger.Init();
+            //Logger.Init();
         }
 
         public static bool HasEnded { get; private set; } = false;
@@ -29,7 +29,7 @@ namespace Police_Station_Armory_Loadouts_Creator
             if (HasEnded)
                 return;
 
-            Logger.DisposeStaticLogger();
+            //Logger.DisposeStaticLogger();
 
             HasEnded = true;
         }

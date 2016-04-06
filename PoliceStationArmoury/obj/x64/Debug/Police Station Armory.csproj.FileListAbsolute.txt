@@ -28,9 +28,22 @@ E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\
 E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Sticky_Bomb.png
 E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Stun_Gun.png
 E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Flare.png
-E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Not_Added.png
 E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory.dll
 E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory.pdb
-C:\Users\PcCom1\Documents\Visual Studio 2015\Projects\PoliceStationArmoury\PoliceStationArmoury\obj\x64\Debug\Police Station Armory.csprojResolveAssemblyReference.cache
 C:\Users\PcCom1\Documents\Visual Studio 2015\Projects\PoliceStationArmoury\PoliceStationArmoury\obj\x64\Debug\Police Station Armory.dll
 C:\Users\PcCom1\Documents\Visual Studio 2015\Projects\PoliceStationArmoury\PoliceStationArmoury\obj\x64\Debug\Police Station Armory.pdb
+C:\Users\PcCom1\Documents\Visual Studio 2015\Projects\PoliceStationArmoury\PoliceStationArmoury\obj\x64\Debug\Police Station Armory.csprojResolveAssemblyReference.cache
+E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Combat_PDW.png
+E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Compact_Rifle.png
+E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Double_Barrel_Shotgun.png
+E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Flare_Gun.png
+E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Flashlight.png
+E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Heavy_Revolver.png
+E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Heavy_Shotgun.png
+E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Machine_Pistol.png
+E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Marksman_Rifle.png
+E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Refill_Ammo.png
+E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Missing_Texture.png
+E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Bulletproof_Vest.png
+E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Misc_Icon.png
+E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Loadouts_Icon.png

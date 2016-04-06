@@ -28,120 +28,6 @@
 
         private float _comingIntoViewAmount = 0f;
         private float _hidingAmount = 0f;
-        //public void Draw(GraphicsEventArgs e)
-        //{
-        //    switch (State)
-        //    {
-        //        case UIState.Hidden:
-        //            break;
-        //        case UIState.ComingIntoView:
-        //            CurrentPosition = Vector2.Lerp(new Vector2(
-        //                                        BorderToComeIntoViewFrom == UIScreenBorder.Left ? RectangleF.X - Game.Resolution.Width : BorderToComeIntoViewFrom == UIScreenBorder.Right ? RectangleF.X + Game.Resolution.Width : RectangleF.X,
-        //                                        BorderToComeIntoViewFrom == UIScreenBorder.Top ? RectangleF.Y - Game.Resolution.Height : BorderToComeIntoViewFrom == UIScreenBorder.Bottom ? RectangleF.X + Game.Resolution.Height : RectangleF.Y
-        //                                        ),
-        //                                        new Vector2(RectangleF.X, RectangleF.Y),
-        //                                        _comingIntoViewAmount);
-        //            if (Type == UIRectangleType.Filled)
-        //            {
-        //                e.Graphics.DrawRectangle(new RectangleF(CurrentPosition.X, CurrentPosition.Y, RectangleF.Width, RectangleF.Height), Color);
-        //            }
-        //            else if (Type == UIRectangleType.OnlyBorders)
-        //            {
-        //                e.Graphics.DrawLine(new Vector2(CurrentPosition.X, CurrentPosition.Y), new Vector2(CurrentPosition.X, CurrentPosition.Y + RectangleF.Height), BorderColor);
-        //                e.Graphics.DrawLine(new Vector2(CurrentPosition.X, CurrentPosition.Y), new Vector2(CurrentPosition.X + RectangleF.Width, CurrentPosition.Y), BorderColor);
-        //                e.Graphics.DrawLine(new Vector2(CurrentPosition.X, CurrentPosition.Y + RectangleF.Height), new Vector2(CurrentPosition.X + RectangleF.Width, CurrentPosition.Y + RectangleF.Height), BorderColor);
-        //                e.Graphics.DrawLine(new Vector2(CurrentPosition.X + RectangleF.Width, CurrentPosition.Y), new Vector2(CurrentPosition.X + RectangleF.Width, CurrentPosition.Y + RectangleF.Height), BorderColor);
-        //            }
-        //            else if (Type == UIRectangleType.FilledWithBorders)
-        //            {
-        //                e.Graphics.DrawRectangle(new RectangleF(CurrentPosition.X, CurrentPosition.Y, RectangleF.Width, RectangleF.Height), Color);
-        //                e.Graphics.DrawLine(new Vector2(CurrentPosition.X, CurrentPosition.Y), new Vector2(CurrentPosition.X, CurrentPosition.Y + RectangleF.Height), BorderColor);
-        //                e.Graphics.DrawLine(new Vector2(CurrentPosition.X, CurrentPosition.Y), new Vector2(CurrentPosition.X + RectangleF.Width, CurrentPosition.Y), BorderColor);
-        //                e.Graphics.DrawLine(new Vector2(CurrentPosition.X, CurrentPosition.Y + RectangleF.Height), new Vector2(CurrentPosition.X + RectangleF.Width, CurrentPosition.Y + RectangleF.Height), BorderColor);
-        //                e.Graphics.DrawLine(new Vector2(CurrentPosition.X + RectangleF.Width, CurrentPosition.Y), new Vector2(CurrentPosition.X + RectangleF.Width, CurrentPosition.Y + RectangleF.Height), BorderColor);
-        //            }
-        //            _comingIntoViewAmount += ComeIntoViewSpeed;
-        //            if ((BorderToComeIntoViewFrom == UIScreenBorder.Left && CurrentPosition.X >= RectangleF.X) || (BorderToComeIntoViewFrom == UIScreenBorder.Right && CurrentPosition.X <= RectangleF.X) ||
-        //                (BorderToComeIntoViewFrom == UIScreenBorder.Top && CurrentPosition.Y >= RectangleF.Y) || (BorderToComeIntoViewFrom == UIScreenBorder.Bottom && CurrentPosition.Y <= RectangleF.Y))
-        //            {
-        //                _comingIntoViewAmount = 0f;
-        //                State = UIState.Showing;
-        //            }
-        //            break;
-        //        case UIState.Showing:
-        //            CurrentPosition = new Vector2(RectangleF.X, RectangleF.Y);
-        //            if (Type == UIRectangleType.Filled)
-        //            {
-        //                e.Graphics.DrawRectangle(RectangleF, Color);
-        //            }
-        //            else if (Type == UIRectangleType.OnlyBorders)
-        //            {
-        //                e.Graphics.DrawLine(new Vector2(CurrentPosition.X, CurrentPosition.Y), new Vector2(CurrentPosition.X, CurrentPosition.Y + RectangleF.Height), Color);
-        //                e.Graphics.DrawLine(new Vector2(CurrentPosition.X, CurrentPosition.Y), new Vector2(CurrentPosition.X + RectangleF.Width, CurrentPosition.Y), Color);
-        //                e.Graphics.DrawLine(new Vector2(CurrentPosition.X, CurrentPosition.Y + RectangleF.Height), new Vector2(CurrentPosition.X + RectangleF.Width, CurrentPosition.Y + RectangleF.Height), Color);
-        //                e.Graphics.DrawLine(new Vector2(CurrentPosition.X + RectangleF.Width, CurrentPosition.Y), new Vector2(CurrentPosition.X + RectangleF.Width, CurrentPosition.Y + RectangleF.Height), Color);
-        //            }
-        //            else if (Type == UIRectangleType.FilledWithBorders)
-        //            {
-        //                e.Graphics.DrawRectangle(RectangleF, Color);
-        //                e.Graphics.DrawLine(new Vector2(CurrentPosition.X, CurrentPosition.Y), new Vector2(CurrentPosition.X, CurrentPosition.Y + RectangleF.Height), BorderColor);
-        //                e.Graphics.DrawLine(new Vector2(CurrentPosition.X, CurrentPosition.Y), new Vector2(CurrentPosition.X + RectangleF.Width, CurrentPosition.Y), BorderColor);
-        //                e.Graphics.DrawLine(new Vector2(CurrentPosition.X, CurrentPosition.Y + RectangleF.Height), new Vector2(CurrentPosition.X + RectangleF.Width, CurrentPosition.Y + RectangleF.Height), BorderColor);
-        //                e.Graphics.DrawLine(new Vector2(CurrentPosition.X + RectangleF.Width, CurrentPosition.Y), new Vector2(CurrentPosition.X + RectangleF.Width, CurrentPosition.Y + RectangleF.Height), BorderColor);
-        //            }
-        //            break;
-        //        case UIState.Hiding:
-        //            CurrentPosition = Vector2.Lerp(new Vector2(RectangleF.X, RectangleF.Y),
-        //                                        new Vector2(
-        //                                        BorderToComeIntoViewFrom == UIScreenBorder.Left ? RectangleF.X - Game.Resolution.Width : BorderToComeIntoViewFrom == UIScreenBorder.Right ? RectangleF.X + Game.Resolution.Width : RectangleF.X,
-        //                                        BorderToComeIntoViewFrom == UIScreenBorder.Top ? RectangleF.Y - Game.Resolution.Height : BorderToComeIntoViewFrom == UIScreenBorder.Bottom ? RectangleF.X + Game.Resolution.Height : RectangleF.Y),
-        //                                        _hidingAmount
-        //                                        );
-        //            if (Type == UIRectangleType.Filled)
-        //            {
-        //                e.Graphics.DrawRectangle(new RectangleF(CurrentPosition.X, CurrentPosition.Y, RectangleF.Width, RectangleF.Height), Color);
-        //            }
-        //            else if (Type == UIRectangleType.OnlyBorders)
-        //            {
-        //                e.Graphics.DrawLine(new Vector2(CurrentPosition.X, CurrentPosition.Y), new Vector2(CurrentPosition.X, CurrentPosition.Y + RectangleF.Height), Color);
-        //                e.Graphics.DrawLine(new Vector2(CurrentPosition.X, CurrentPosition.Y), new Vector2(CurrentPosition.X + RectangleF.Width, CurrentPosition.Y), Color);
-        //                e.Graphics.DrawLine(new Vector2(CurrentPosition.X, CurrentPosition.Y + RectangleF.Height), new Vector2(CurrentPosition.X + RectangleF.Width, CurrentPosition.Y + RectangleF.Height), Color);
-        //                e.Graphics.DrawLine(new Vector2(CurrentPosition.X + RectangleF.Width, CurrentPosition.Y), new Vector2(CurrentPosition.X + RectangleF.Width, CurrentPosition.Y + RectangleF.Height), Color);
-        //            }
-        //            else if (Type == UIRectangleType.FilledWithBorders)
-        //            {
-        //                e.Graphics.DrawRectangle(new RectangleF(CurrentPosition.X, CurrentPosition.Y, RectangleF.Width, RectangleF.Height), Color);
-        //                e.Graphics.DrawLine(new Vector2(CurrentPosition.X, CurrentPosition.Y), new Vector2(CurrentPosition.X, CurrentPosition.Y + RectangleF.Height), BorderColor);
-        //                e.Graphics.DrawLine(new Vector2(CurrentPosition.X, CurrentPosition.Y), new Vector2(CurrentPosition.X + RectangleF.Width, CurrentPosition.Y), BorderColor);
-        //                e.Graphics.DrawLine(new Vector2(CurrentPosition.X, CurrentPosition.Y + RectangleF.Height), new Vector2(CurrentPosition.X + RectangleF.Width, CurrentPosition.Y + RectangleF.Height), BorderColor);
-        //                e.Graphics.DrawLine(new Vector2(CurrentPosition.X + RectangleF.Width, CurrentPosition.Y), new Vector2(CurrentPosition.X + RectangleF.Width, CurrentPosition.Y + RectangleF.Height), BorderColor);
-        //            }
-        //            _hidingAmount += HideSpeed;
-        //            if ((BorderToComeIntoViewFrom == UIScreenBorder.Left && CurrentPosition.X <= RectangleF.X - Game.Resolution.Width) || (BorderToComeIntoViewFrom == UIScreenBorder.Right && CurrentPosition.X >= RectangleF.X + Game.Resolution.Width) ||
-        //                (BorderToComeIntoViewFrom == UIScreenBorder.Top && CurrentPosition.Y <= RectangleF.Y - Game.Resolution.Height) || (BorderToComeIntoViewFrom == UIScreenBorder.Bottom && CurrentPosition.Y >= RectangleF.X + Game.Resolution.Height))
-        //            {
-        //                _hidingAmount = 0f;
-        //                State = UIState.Hidden;
-        //            }
-        //            break;
-        //        default:
-        //            break;
-        //    }
-        //}
-
-        //public void Process()
-        //{
-        //    if (State == UIState.Hidden)
-        //        return;
-
-        //    if (UICommon.IsMouseInBounds(RectangleF))
-        //    {
-        //        MouseState = UIMouseState.ElementSelected;
-        //        OnHovered();
-        //    }
-        //}
-
-        /**************************************************/
 
         public override void Process()
         {
@@ -153,7 +39,7 @@
                 MouseState = UIMouseState.ElementHovered;
                 OnHovered();
 
-                if (IsMouseLeftButtonJustPressed()/*Game.IsControlJustPressed(0, GameControl.CursorAccept)/*mouse.IsLeftButtonDown*/)
+                if (IsMouseLeftButtonJustPressed())
                 {
                     OnClicked();
                 }

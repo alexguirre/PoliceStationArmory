@@ -57,8 +57,8 @@
         //public const string WORLD_HUMAN_SMOKING_POT = "WORLD_HUMAN_SMOKING_POT";
         //public const string WORLD_HUMAN_STAND_FIRE = "WORLD_HUMAN_STAND_FIRE";
         //public const string WORLD_HUMAN_STAND_FISHING = "WORLD_HUMAN_STAND_FISHING";
-        public const string WORLD_HUMAN_STAND_IMPATIENT = "WORLD_HUMAN_STAND_IMPATIENT";
-        public const string WORLD_HUMAN_STAND_IMPATIENT_UPRIGHT = "WORLD_HUMAN_STAND_IMPATIENT_UPRIGHT";
+        //public const string WORLD_HUMAN_STAND_IMPATIENT = "WORLD_HUMAN_STAND_IMPATIENT";
+        //public const string WORLD_HUMAN_STAND_IMPATIENT_UPRIGHT = "WORLD_HUMAN_STAND_IMPATIENT_UPRIGHT";
         //public const string WORLD_HUMAN_STAND_MOBILE = "WORLD_HUMAN_STAND_MOBILE";
         //public const string WORLD_HUMAN_STAND_MOBILE_UPRIGHT = "WORLD_HUMAN_STAND_MOBILE_UPRIGHT";
         //public const string WORLD_HUMAN_STRIP_WATCH_STAND = "WORLD_HUMAN_STRIP_WATCH_STAND";
@@ -147,7 +147,7 @@
         //public const string PROP_HUMAN_MOVIE_STUDIO_LIGHT = "PROP_HUMAN_MOVIE_STUDIO_LIGHT";
         //public const string CODE_HUMAN_MEDIC_KNEEL = "CODE_HUMAN_MEDIC_KNEEL";
         //public const string CODE_HUMAN_MEDIC_TEND_TO_DEAD = "CODE_HUMAN_MEDIC_TEND_TO_DEAD";
-        public const string CODE_HUMAN_MEDIC_TIME_OF_DEATH = "CODE_HUMAN_MEDIC_TIME_OF_DEATH";
+        //public const string CODE_HUMAN_MEDIC_TIME_OF_DEATH = "CODE_HUMAN_MEDIC_TIME_OF_DEATH";
         //public const string CODE_HUMAN_POLICE_CROWD_CONTROL = "CODE_HUMAN_POLICE_CROWD_CONTROL";
         //public const string CODE_HUMAN_POLICE_INVESTIGATE = "CODE_HUMAN_POLICE_INVESTIGATE";
         //public const string CODE_HUMAN_STAND_COWER = "CODE_HUMAN_STAND_COWER";
@@ -179,9 +179,9 @@
             NativeFunction.CallByName<uint>("TASK_START_SCENARIO_IN_PLACE", ped, scenarioName, unkDelay, playEnterAnim);
         }
 
-        public static void StartAtPosition(Ped ped, string scenarioName, Vector3 position, float heading)
-        {
-            NativeFunction.CallByName<uint>("TASK_START_SCENARIO_AT_POSITION", ped, scenarioName, position.X, position.Y, position.Z, heading, 0, 0, 1);
-        }
+        //public static void StartAtPosition(Ped ped, string scenarioName, Vector3 position, float heading)
+        //{
+        //    NativeFunction.CallByName<uint>("TASK_START_SCENARIO_AT_POSITION", ped, scenarioName, position.X, position.Y, position.Z, heading, 0, 0, 1);
+        //}
     }
 }

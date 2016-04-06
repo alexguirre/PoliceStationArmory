@@ -66,6 +66,8 @@
                     item.Components = new WeaponComponent[] { };
                 }
             }
+            fs.Close();
+            fs.Dispose();
             return loadout;
         }
 

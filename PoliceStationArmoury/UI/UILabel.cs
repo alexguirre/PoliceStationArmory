@@ -42,65 +42,6 @@
 
         private float _comingIntoViewAmount = 0f;
         private float _hidingAmount = 0f;
-        //public void Draw(GraphicsEventArgs e)
-        //{
-        //    switch (State)
-        //    {
-        //        case UIState.Hidden:
-        //            break;
-        //        case UIState.ComingIntoView:
-        //            CurrentPosition = Vector2.Lerp(new Vector2(
-        //                                        BorderToComeIntoViewFrom == UIScreenBorder.Left ? Position.X - Game.Resolution.Width : BorderToComeIntoViewFrom == UIScreenBorder.Right ? Position.X + Game.Resolution.Width : Position.X,
-        //                                        BorderToComeIntoViewFrom == UIScreenBorder.Top ? Position.Y - Game.Resolution.Height : BorderToComeIntoViewFrom == UIScreenBorder.Bottom ? Position.X + Game.Resolution.Height : Position.Y
-        //                                        ),
-        //                                        new Vector2(Position.X, Position.Y),
-        //                                        _comingIntoViewAmount);
-        //            e.Graphics.DrawText(Text, FontName, Size, new PointF(CurrentPosition.X, CurrentPosition.Y), Color);
-        //            _comingIntoViewAmount += ComeIntoViewSpeed;
-        //            if ((BorderToComeIntoViewFrom == UIScreenBorder.Left && CurrentPosition.X >= Position.X) || (BorderToComeIntoViewFrom == UIScreenBorder.Right && CurrentPosition.X <= Position.X) ||
-        //                (BorderToComeIntoViewFrom == UIScreenBorder.Top && CurrentPosition.Y >= Position.Y) || (BorderToComeIntoViewFrom == UIScreenBorder.Bottom && CurrentPosition.Y <= Position.Y))
-        //            {
-        //                _comingIntoViewAmount = 0f;
-        //                State = UIState.Showing;
-        //            }
-        //            break;
-        //        case UIState.Showing:
-        //            CurrentPosition = new Vector2(Position.X, Position.Y);
-        //            e.Graphics.DrawText(Text, FontName, Size, Position, Color);
-        //            break;
-        //        case UIState.Hiding:
-        //            CurrentPosition = Vector2.Lerp(new Vector2(Position.X, Position.Y),
-        //                                        new Vector2(
-        //                                        BorderToComeIntoViewFrom == UIScreenBorder.Left ? Position.X - Game.Resolution.Width : BorderToComeIntoViewFrom == UIScreenBorder.Right ? Position.X + Game.Resolution.Width : Position.X,
-        //                                        BorderToComeIntoViewFrom == UIScreenBorder.Top ? Position.Y - Game.Resolution.Height : BorderToComeIntoViewFrom == UIScreenBorder.Bottom ? Position.X + Game.Resolution.Height : Position.Y),
-        //                                        _hidingAmount
-        //                                        );
-        //            e.Graphics.DrawText(Text, FontName, Size, new PointF(CurrentPosition.X, CurrentPosition.Y), Color);
-        //            _hidingAmount += HideSpeed;
-        //            if ((BorderToComeIntoViewFrom == UIScreenBorder.Left && CurrentPosition.X <= Position.X - Game.Resolution.Width) || (BorderToComeIntoViewFrom == UIScreenBorder.Right && CurrentPosition.X >= Position.X + Game.Resolution.Width) ||
-        //                (BorderToComeIntoViewFrom == UIScreenBorder.Top && CurrentPosition.Y <= Position.Y - Game.Resolution.Height) || (BorderToComeIntoViewFrom == UIScreenBorder.Bottom && CurrentPosition.Y >= Position.X + Game.Resolution.Height))
-        //            {
-        //                _hidingAmount = 0f;
-        //                State = UIState.Hidden;
-        //            }
-        //            break;
-        //        default:
-        //            break;
-        //    }
-        //}
-
-
-        //public void Process()
-        //{
-        //    if (State == UIState.Hidden)
-        //        return;
-
-        //    if (UICommon.IsMouseInBounds(Position, Rage.Graphics.MeasureText(Text, FontName, Size)))
-        //    {
-        //        MouseState = UIMouseState.ElementSelected;
-        //        OnHovered();
-        //    }
-        //}
 
         public override void Draw(GraphicsEventArgs e)
         {
@@ -132,7 +73,7 @@
                 MouseState = UIMouseState.ElementHovered;
                 OnHovered();
 
-                if (IsMouseLeftButtonJustPressed()/*Game.IsControlJustPressed(0, GameControl.CursorAccept)/*mouse.IsLeftButtonDown*/)
+                if (IsMouseLeftButtonJustPressed())
                 {
                     OnClicked();
                 }
@@ -198,7 +139,6 @@
                 numLines++;
             }
             return numLines;
-            //return (Text.Length - Text.Replace(System.Environment.NewLine, string.Empty).Length);
         }
 
         public SizeF Measure()

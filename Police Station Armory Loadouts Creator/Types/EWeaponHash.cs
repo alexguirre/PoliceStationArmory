@@ -1,5 +1,7 @@
 ﻿namespace Police_Station_Armory_Loadouts_Creator.Types
 {
+    using System.Collections.Generic;
+
     internal enum EWeaponHash : uint
     {
         Unarmed = 2725352035,
@@ -112,5 +114,7 @@
         Heavy_Revolver = 3249783761,
         Air_Defence_Gun = 738733437,
         Fire_Truck_Water_Cannon = 1422046295,
+        Compact_Rifle = 0x624FE830,
+        Double_Barrel_Shotgun = 0xEF951FBB,
     }
 }
