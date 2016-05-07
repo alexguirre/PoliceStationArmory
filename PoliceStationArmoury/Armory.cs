@@ -69,6 +69,7 @@
 
         public static readonly Color BackgroundRectangleColor           = Color.FromArgb(140, Color.DarkGray),
                                      HoveredBackgroundRectangleColor    = Color.FromArgb(160, Color.WhiteSmoke),
+                                     SelectedBackgroundRectangleColor   = Color.FromArgb(160, Color.WhiteSmoke),
                                      BorderRectangleColor               = Color.FromArgb(180, Color.Black),
 
                                      LabelTextColor                     = Color.White,
@@ -1209,6 +1210,8 @@
 
             public abstract class Item
             {
+                public abstract bool Selected { get; set; }
+                public abstract bool Hovered { get; }
                 public abstract void Process();
                 public abstract void Draw(Rage.Graphics g);
             }
@@ -1238,6 +1241,16 @@
                     }
                 }
 
+                public override bool Hovered
+                {
+                    get
+                    {
+                        return BackgroundRectangle.MouseState == UIMouseState.ElementHovered;
+                    }
+                }
+
+                public override bool Selected { get; set; }
+
                 public MenuItem(string label, Rage.Texture texture)
                 {
                     if (texture == null)
@@ -1245,12 +1258,13 @@
                     Texture = new UITexture(texture, new RectangleF(), UIScreenBorder.Right, 0.0225f, 0.04725f);
                     Label = new UILabel(label, "Arial", 22.5f, new PointF(), LabelTextColor, UIScreenBorder.Right, 0.0225f, 0.04725f);
                     BackgroundRectangle = new UIRectangle(new RectangleF(), BackgroundRectangleColor, BorderRectangleColor, /*UIRectangleType.FilledWithBorders*/UIRectangleType.Filled, UIScreenBorder.Right, 0.0225f, 0.04725f);
-                    BackgroundRectangle.Hovered += backRectHoveredEvent;
+                    //BackgroundRectangle.Hovered += backRectHoveredEvent;
                 }
 
                 public override void Process()
                 {
-                    BackgroundRectangle.Color = BackgroundRectangleColor;
+                    BackgroundRectangle.Color = Selected ? SelectedBackgroundRectangleColor : Hovered ? HoveredBackgroundRectangleColor : BackgroundRectangleColor;
+
                     BackgroundRectangle.Process();
                     Label.Process();
                     Texture.Process();
@@ -1263,10 +1277,10 @@
                     Texture.Draw(g);
                 }
                 
-                private void backRectHoveredEvent(UIElementBase sender)
-                {
-                    BackgroundRectangle.Color = HoveredBackgroundRectangleColor;
-                }
+                //private void backRectHoveredEvent(UIElementBase sender)
+                //{
+                //    BackgroundRectangle.Color = HoveredBackgroundRectangleColor;
+                //}
             }
             public class WeaponItem : Item
             {
@@ -1296,6 +1310,16 @@
                     }
                 }
 
+                public override bool Hovered
+                {
+                    get
+                    {
+                        return BackgroundRectangle.MouseState == UIMouseState.ElementHovered;
+                    }
+                }
+
+                public override bool Selected { get; set; }
+
                 public WeaponItem(EWeaponHash hash, ItemType type, Rage.Texture texture)
                 {
                     Type = type;
@@ -1305,7 +1329,7 @@
                     Texture = new UITexture(texture, new RectangleF(), UIScreenBorder.Right, 0.0225f, 0.04725f);
                     Label = new UILabel(hash.ToString().Replace('_', ' '), "Arial", 22.5f, new PointF(), LabelTextColor, UIScreenBorder.Right, 0.0225f, 0.04725f);
                     BackgroundRectangle = new UIRectangle(new RectangleF(), BackgroundRectangleColor, BorderRectangleColor, UIRectangleType.Filled, UIScreenBorder.Right, 0.0225f, 0.04725f);
-                    BackgroundRectangle.Hovered += backRectHoveredEvent;
+                    //BackgroundRectangle.Hovered += backRectHoveredEvent;
                     Logger.LogDebug("Created new WeaponItem - Hash: " + hash + "  Type: " + type);
                 }
 
@@ -1319,16 +1343,17 @@
                     Texture = new UITexture(texture, new RectangleF(), UIScreenBorder.Right, 0.0225f, 0.04725f);
                     Label = new UILabel(item.ToString().Replace('_', ' '), "Arial", 22.5f, new PointF(), LabelTextColor, UIScreenBorder.Right, 0.0225f, 0.04725f);
                     BackgroundRectangle = new UIRectangle(new RectangleF(), BackgroundRectangleColor, BorderRectangleColor, UIRectangleType.Filled, UIScreenBorder.Right, 0.0225f, 0.04725f);
-                    BackgroundRectangle.Hovered += backRectHoveredEvent;
+                    //BackgroundRectangle.Hovered += backRectHoveredEvent;
                     Logger.LogDebug("Created new WeaponItem - MiscItems: " + MiscItem + "  Type: " + Type);
                 }
 
                 public override void Process()
                 {
-                    BackgroundRectangle.Color = BackgroundRectangleColor;
+                    BackgroundRectangle.Color = Selected ? SelectedBackgroundRectangleColor : Hovered ? HoveredBackgroundRectangleColor : BackgroundRectangleColor;
                     BackgroundRectangle.Process();
                     Label.Process();
                     Texture.Process();
+
                 }
 
                 public override void Draw(Rage.Graphics g)
@@ -1339,10 +1364,10 @@
                 }
 
 
-                private void backRectHoveredEvent(UIElementBase sender)
-                {
-                    BackgroundRectangle.Color = HoveredBackgroundRectangleColor;
-                }
+                //private void backRectHoveredEvent(UIElementBase sender)
+                //{
+                //    BackgroundRectangle.Color = HoveredBackgroundRectangleColor;
+                //}
 
                 public static WeaponItem GetWeaponItemForWeapon(EWeaponHash hash, ItemType type)
                 {
@@ -1522,6 +1547,16 @@
                     }
                 }
 
+                public override bool Hovered
+                {
+                    get
+                    {
+                        return BackgroundRectangle.MouseState == UIMouseState.ElementHovered;
+                    }
+                }
+
+                public override bool Selected { get; set; }
+
                 public LoadoutItem(Loadout loadout)
                 {
                     Rage.Texture texture = Game.CreateTextureFromFile(UI_FOLDER + loadout.TextureFileName + ".png");
@@ -1537,7 +1572,7 @@
 
                 public override void Process()
                 {
-                    BackgroundRectangle.Color = BackgroundRectangleColor;
+                    BackgroundRectangle.Color = Selected ? SelectedBackgroundRectangleColor : Hovered ? HoveredBackgroundRectangleColor : BackgroundRectangleColor;
                     HelpText.State = UI.UIState.Hidden;
                     HelpRectangle.State = UI.UIState.Hidden;
                     BackgroundRectangle.Process();
@@ -1566,8 +1601,6 @@
                 
                 private void backRectHoveredEvent(UIElementBase sender)
                 {
-                    BackgroundRectangle.Color = HoveredBackgroundRectangleColor;
-
                     Vector2 mousePos = UI.UICommon.GetCursorPosition();
                     HelpText.Text = Loadout.Description;
                     HelpText.Position = new PointF(mousePos.X + 0.5f, mousePos.Y + 30f);
