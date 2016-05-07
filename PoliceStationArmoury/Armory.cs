@@ -1206,9 +1206,14 @@
                 MiscMenu,                   
                 PredefinedLoadoutsMenu,
             }
-            
 
-            public class MenuItem
+            public abstract class Item
+            {
+                public abstract void Process();
+                public abstract void Draw(Rage.Graphics g);
+            }
+
+            public class MenuItem : Item
             {
                 public UITexture Texture { get; }
                 public UILabel Label { get; }
@@ -1243,7 +1248,7 @@
                     BackgroundRectangle.Hovered += backRectHoveredEvent;
                 }
 
-                public void Process()
+                public override void Process()
                 {
                     BackgroundRectangle.Color = BackgroundRectangleColor;
                     BackgroundRectangle.Process();
@@ -1251,7 +1256,7 @@
                     Texture.Process();
                 }
 
-                public void Draw(Rage.Graphics g)
+                public override void Draw(Rage.Graphics g)
                 {
                     BackgroundRectangle.Draw(g);
                     Label.Draw(g);
@@ -1263,7 +1268,7 @@
                     BackgroundRectangle.Color = HoveredBackgroundRectangleColor;
                 }
             }
-            public class WeaponItem
+            public class WeaponItem : Item
             {
                 public ItemType Type { get; }
                 public EWeaponHash WeaponHash { get; }
@@ -1318,7 +1323,7 @@
                     Logger.LogDebug("Created new WeaponItem - MiscItems: " + MiscItem + "  Type: " + Type);
                 }
 
-                public void Process()
+                public override void Process()
                 {
                     BackgroundRectangle.Color = BackgroundRectangleColor;
                     BackgroundRectangle.Process();
@@ -1326,7 +1331,7 @@
                     Texture.Process();
                 }
 
-                public void Draw(Rage.Graphics g)
+                public override void Draw(Rage.Graphics g)
                 {
                     BackgroundRectangle.Draw(g);
                     Label.Draw(g);
@@ -1491,7 +1496,7 @@
                     };
                 }
             }
-            public class LoadoutItem
+            public class LoadoutItem : Item
             {
                 public UITexture Texture { get; }
                 public UILabel Label { get; }
@@ -1530,7 +1535,7 @@
                     Loadout = loadout;
                 }
 
-                public void Process()
+                public override void Process()
                 {
                     BackgroundRectangle.Color = BackgroundRectangleColor;
                     HelpText.State = UI.UIState.Hidden;
@@ -1542,7 +1547,7 @@
                     HelpText.Process();
                 }
 
-                public void Draw(Rage.Graphics g)
+                public override void Draw(Rage.Graphics g)
                 {
                     BackgroundRectangle.Draw(g);
                     Label.Draw(g);
