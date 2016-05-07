@@ -5,9 +5,11 @@ Police Station Armory v1.2 by alexguirre
 --------------
 Drop all the content inside Police Station Armory 1.2.zip\Plugins into your GTA V Plugins folder, so you will end up with the Police Station Armory.dll and the Police Station Resources folder in your Plugins folder. 
 
+
  How to use it
 ---------------
 In-game, type in the console: LoadPlugin "Police Station Armory.dll". Then you can go to the Downtown Police Station to enter armory, there follow the instruction on-screen. If you don't find the place check this video: https://www.youtube.com/watch?v=ZPuaAlirzNs
+
 
  Loadouts
 ----------
