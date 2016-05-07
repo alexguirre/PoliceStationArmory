@@ -38,7 +38,7 @@
             State = UIState.Hidden;
         }
 
-        public abstract void Draw(GraphicsEventArgs e);
+        public abstract void Draw(Rage.Graphics g);
         public abstract void Process();
 
         protected virtual void OnHovered()

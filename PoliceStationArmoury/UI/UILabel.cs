@@ -43,20 +43,20 @@
         private float _comingIntoViewAmount = 0f;
         private float _hidingAmount = 0f;
 
-        public override void Draw(GraphicsEventArgs e)
+        public override void Draw(Rage.Graphics g)
         {
             switch (State)
             {
                 case UIState.Hidden:
                     break;
                 case UIState.ComingIntoView:
-                    e.Graphics.DrawText(Text, FontName, Size, new PointF(CurrentPosition.X, CurrentPosition.Y), Color);
+                    g.DrawText(Text, FontName, Size, new PointF(CurrentPosition.X, CurrentPosition.Y), Color);
                     break;
                 case UIState.Showing:
-                    e.Graphics.DrawText(Text, FontName, Size, Position, Color);
+                    g.DrawText(Text, FontName, Size, Position, Color);
                     break;
                 case UIState.Hiding:
-                    e.Graphics.DrawText(Text, FontName, Size, new PointF(CurrentPosition.X, CurrentPosition.Y), Color);
+                    g.DrawText(Text, FontName, Size, new PointF(CurrentPosition.X, CurrentPosition.Y), Color);
                     break;
                 default:
                     break;

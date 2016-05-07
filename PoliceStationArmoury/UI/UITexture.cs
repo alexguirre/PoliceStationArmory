@@ -23,20 +23,20 @@
         private float _hidingAmount = 0f;
 
 
-        public override void Draw(GraphicsEventArgs e)
+        public override void Draw(Rage.Graphics g)
         {
             switch (State)
             {
                 case UIState.Hidden:
                     break;
                 case UIState.ComingIntoView:
-                    e.Graphics.DrawTexture(Texture, new RectangleF(CurrentPosition.X, CurrentPosition.Y, RectangleF.Width, RectangleF.Height));
+                    g.DrawTexture(Texture, new RectangleF(CurrentPosition.X, CurrentPosition.Y, RectangleF.Width, RectangleF.Height));
                     break;
                 case UIState.Showing:
-                    e.Graphics.DrawTexture(Texture, RectangleF);
+                    g.DrawTexture(Texture, RectangleF);
                     break;
                 case UIState.Hiding:
-                    e.Graphics.DrawTexture(Texture, new RectangleF(CurrentPosition.X, CurrentPosition.Y, RectangleF.Width, RectangleF.Height));
+                    g.DrawTexture(Texture, new RectangleF(CurrentPosition.X, CurrentPosition.Y, RectangleF.Width, RectangleF.Height));
                     break;
                 default:
                     break;

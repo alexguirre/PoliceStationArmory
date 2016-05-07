@@ -442,10 +442,10 @@
 
         public void UIRawFrameRender(object sender, GraphicsEventArgs e)
         {
-            userInterface.Draw(e);
+            userInterface.Draw(e.Graphics);
 
             if (IsPlayerUsingTheArmoury)
-                UICommon.DrawCursor(e);
+                UICommon.DrawCursor(e.Graphics);
         }
 
         public void CleanUp()
@@ -934,46 +934,46 @@
                 }
             }
 
-            public void Draw(GraphicsEventArgs e)
+            public void Draw(Rage.Graphics g)
             {
                 if (!Visible)
                     return;
 
-                HandgunsItem.Draw(e);
-                RifleItem.Draw(e);
-                ThrowableItem.Draw(e);
-                MiscItem.Draw(e);
-                PredefinedLoadoutItem.Draw(e);
+                HandgunsItem.Draw(g);
+                RifleItem.Draw(g);
+                ThrowableItem.Draw(g);
+                MiscItem.Draw(g);
+                PredefinedLoadoutItem.Draw(g);
 
                 foreach (WeaponItem item in HandgunWeaponItems)
                 {
-                    item.Draw(e);
+                    item.Draw(g);
                 }
                 foreach (WeaponItem item in LongGunsWeaponItems)
                 {
-                    item.Draw(e);
+                    item.Draw(g);
                 }
                 foreach (WeaponItem item in ThrowableWeaponItems)
                 {
-                    item.Draw(e);
+                    item.Draw(g);
                 }
                 foreach (WeaponItem item in MiscWeaponItems)
                 {
-                    item.Draw(e);
+                    item.Draw(g);
                 }
                 foreach (LoadoutItem item in PredefinedLoadoutItems)
                 {
-                    item.Draw(e);
+                    item.Draw(g);
                 }
                 foreach (LoadoutItem item in PredefinedLoadoutItems)
                 {
-                    item.DrawHelpText(e);
+                    item.DrawHelpText(g);
                 }
 
                 if (ShouldDrawScrollBar)
                 {
-                    ScrollBarBackgroundRectangle.Draw(e);
-                    ScrollBarRectangle.Draw(e);
+                    ScrollBarBackgroundRectangle.Draw(g);
+                    ScrollBarRectangle.Draw(g);
                 }
             }
 
@@ -1207,6 +1207,7 @@
                 PredefinedLoadoutsMenu,
             }
             
+
             public class MenuItem
             {
                 public UITexture Texture { get; }
@@ -1250,11 +1251,11 @@
                     Texture.Process();
                 }
 
-                public void Draw(GraphicsEventArgs e)
+                public void Draw(Rage.Graphics g)
                 {
-                    BackgroundRectangle.Draw(e);
-                    Label.Draw(e);
-                    Texture.Draw(e);
+                    BackgroundRectangle.Draw(g);
+                    Label.Draw(g);
+                    Texture.Draw(g);
                 }
                 
                 private void backRectHoveredEvent(UIElementBase sender)
@@ -1325,11 +1326,11 @@
                     Texture.Process();
                 }
 
-                public void Draw(GraphicsEventArgs e)
+                public void Draw(Rage.Graphics g)
                 {
-                    BackgroundRectangle.Draw(e);
-                    Label.Draw(e);
-                    Texture.Draw(e);
+                    BackgroundRectangle.Draw(g);
+                    Label.Draw(g);
+                    Texture.Draw(g);
                 }
 
 
@@ -1541,17 +1542,17 @@
                     HelpText.Process();
                 }
 
-                public void Draw(GraphicsEventArgs e)
+                public void Draw(Rage.Graphics g)
                 {
-                    BackgroundRectangle.Draw(e);
-                    Label.Draw(e);
-                    Texture.Draw(e);
+                    BackgroundRectangle.Draw(g);
+                    Label.Draw(g);
+                    Texture.Draw(g);
                 }
 
-                public void DrawHelpText(GraphicsEventArgs e)
+                public void DrawHelpText(Rage.Graphics g)
                 {
-                    HelpRectangle.Draw(e);
-                    HelpText.Draw(e);
+                    HelpRectangle.Draw(g);
+                    HelpText.Draw(g);
                 }
 
 

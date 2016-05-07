@@ -59,9 +59,9 @@
 
         public static readonly Texture CursorTexture = Game.CreateTextureFromFile("cursor_32_2.png");
         private static Vector2 CursorPosition = new Vector2();
-        public static void DrawCursor(GraphicsEventArgs e)
+        public static void DrawCursor(Rage.Graphics g)
         {
-            e.Graphics.DrawTexture(CursorTexture, CursorPosition.X, CursorPosition.Y, 32, 32);
+            g.DrawTexture(CursorTexture, CursorPosition.X, CursorPosition.Y, 32, 32);
         }
 
         public static void ProcessCursor()
