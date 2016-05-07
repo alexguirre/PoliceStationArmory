@@ -12,7 +12,7 @@
     /// </summary>
     internal static class Logger
     {
-        public const string PluginName = "Police Station Armoury";
+        public const string PluginName = "Police Station Armory";
 
         public static void LogTrivial(object o)
         {

@@ -47,3 +47,4 @@ C:\Users\PcCom1\Documents\Visual Studio 2015\Projects\PoliceStationArmoury\Polic
 E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Bulletproof_Vest.png
 E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Loadouts_Icon.png
 E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Misc_Icon.png
+E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Special_Carbine.png

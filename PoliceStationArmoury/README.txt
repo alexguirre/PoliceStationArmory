@@ -1,9 +1,9 @@
-Police Station Armory v1.1 by alexguirre
+Police Station Armory v1.2 by alexguirre
 
 
  Installation
 --------------
-Drop all the content inside Police Station Armory 1.1.zip\Plugins into your GTA V Plugins folder, so you will end up with the Police Station Armory.dll and the Police Station Resources folder in your Plugins folder. 
+Drop all the content inside Police Station Armory 1.2.zip\Plugins into your GTA V Plugins folder, so you will end up with the Police Station Armory.dll and the Police Station Resources folder in your Plugins folder. 
 
  How to use it
 ---------------
