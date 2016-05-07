@@ -37,11 +37,11 @@
             if (UICommon.IsCursorInBounds(new RectangleF(CurrentPosition.X, CurrentPosition.Y, RectangleF.Width, RectangleF.Height)))
             {
                 MouseState = UIMouseState.ElementHovered;
-                OnHovered();
+                RaiseHovered();
 
                 if (IsMouseLeftButtonJustPressed())
                 {
-                    OnClicked();
+                    RaiseClicked();
                 }
             }
             else

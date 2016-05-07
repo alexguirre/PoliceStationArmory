@@ -22,7 +22,7 @@
                 if (value == state)
                     return;
                 state = value;
-                OnStateChanged();
+                RaiseStateChanged();
             }
         }
 
@@ -41,19 +41,19 @@
         public abstract void Draw(Rage.Graphics g);
         public abstract void Process();
 
-        protected virtual void OnHovered()
+        public virtual void RaiseHovered()
         {
             if (Hovered != null)
                 Hovered(this);
         }
 
-        protected virtual void OnClicked()
+        public virtual void RaiseClicked()
         {
             if (Clicked != null)
                 Clicked(this);
         }
 
-        protected virtual void OnStateChanged()
+        public virtual void RaiseStateChanged()
         {
             if (StateChanged != null)
                 StateChanged(this);

@@ -68,7 +68,7 @@
         }
 
         public static readonly Color BackgroundRectangleColor           = Color.FromArgb(140, Color.DarkGray),
-                                     HoveredBackgroundRectangleColor    = Color.FromArgb(160, Color.WhiteSmoke),
+                                     HoveredBackgroundRectangleColor    = Color.FromArgb(160, 224, 224, 224),
                                      SelectedBackgroundRectangleColor   = Color.FromArgb(160, Color.WhiteSmoke),
                                      BorderRectangleColor               = Color.FromArgb(180, Color.Black),
 
@@ -504,6 +504,7 @@
             public MenuItem ThrowableItem { get; }
             public MenuItem MiscItem { get; }
             public MenuItem PredefinedLoadoutItem { get; }
+            public List<MenuItem> MainMenuItems { get; }
 
             public List<WeaponItem> HandgunWeaponItems { get; }
             public List<WeaponItem> LongGunsWeaponItems { get; }
@@ -511,6 +512,7 @@
             public List<WeaponItem> MiscWeaponItems { get; }
             public List<LoadoutItem> PredefinedLoadoutItems { get; }
 
+            public List<Item> AllItems { get; }
             
             public UIRectangle ScrollBarBackgroundRectangle { get; }
             public UIRectangle ScrollBarRectangle { get; }
@@ -535,7 +537,30 @@
 
             public bool Visible { get; set; }
 
-            public event EventHandler MenuChanged = delegate { };
+            private Item _selectedItem;
+            public Item SelectedItem
+            {
+                get
+                {
+                    return _selectedItem;
+                }
+                set
+                {
+                    if (value == null)
+                        return;
+
+                    if(_selectedItem != null)
+                        _selectedItem.Selected = false;
+
+                    _selectedItem = value;
+                    _selectedItem.Selected = true;
+                    SelectedItemChanged?.Invoke(this, EventArgs.Empty);
+                }
+            }
+
+            public event EventHandler SelectedItemChanged;
+
+            public event EventHandler MenuChanged;
 
             private ECurrentMenu _currentMenu = ECurrentMenu.MainMenu;
             public ECurrentMenu CurrentMenu
@@ -820,8 +845,8 @@
                     ScrollBarRectangle.RectangleF = new RectangleF(ScrollBarRectangle.RectangleF.X, 0.0f, ScrollBarRectangle.RectangleF.Width, ScrollBarRectangle.RectangleF.Height);
                     ScrollBarValue = 0.0f;
                     calculateItemsPosition();
-                    if (MenuChanged != null)
-                        MenuChanged.Invoke(this, EventArgs.Empty);
+
+                    MenuChanged?.Invoke(this, EventArgs.Empty);
                 }
             }
 
@@ -837,6 +862,8 @@
                 MiscItem.BackgroundRectangle.Clicked += (s) => { CurrentMenu = ECurrentMenu.MiscMenu; };
                 PredefinedLoadoutItem = new MenuItem("Loadouts", Game.CreateTextureFromFile(UI_FOLDER + "Loadouts_Icon.png")); 
                 PredefinedLoadoutItem.BackgroundRectangle.Clicked += (s) => { CurrentMenu = ECurrentMenu.PredefinedLoadoutsMenu; };
+
+                MainMenuItems = new List<MenuItem> { HandgunsItem, RifleItem, ThrowableItem, MiscItem, PredefinedLoadoutItem };
 
                 HandgunWeaponItems = new List<WeaponItem>();
                 LongGunsWeaponItems = new List<WeaponItem>();
@@ -884,9 +911,23 @@
                 ScrollBarRectangle = new UIRectangle(new RectangleF(Game.Resolution.Width - 15f, 0, 20f, 50f), ScrollBarColor, UIRectangleType.Filled, UIScreenBorder.Right, 0.0225f, 0.04725f);
                 ScrollBarRectangle.Clicked += scrollBarClicked;
 
+                AllItems = new List<Item>();
+                AllItems.AddRange(MainMenuItems);
+                AllItems.AddRange(HandgunWeaponItems);
+                AllItems.AddRange(LongGunsWeaponItems);
+                AllItems.AddRange(ThrowableWeaponItems);
+                AllItems.AddRange(MiscWeaponItems);
+                AllItems.AddRange(PredefinedLoadoutItems);
+                foreach (Item item in AllItems)
+                {
+                    Item thisItem = item;
+                    thisItem.BackgroundRectangle.Clicked += (s) => { SelectedItem = thisItem; };
+                }
+
                 isFirstPositionCalculation = true;
                 calculateItemsPosition();
                 CurrentMenu = ECurrentMenu.MainMenu;
+                SelectedItem = HandgunsItem;
                 hideAll();
             }
 
@@ -926,6 +967,21 @@
                 {
                     item.Process();
                 }
+
+
+                if (Common.IsDisabledControlJustPressed(0, GameControl.FrontendUp))
+                {
+                    InputGoUp();
+                }
+                else if (Common.IsDisabledControlJustPressed(0, GameControl.FrontendDown))
+                {
+                    InputGoDown();
+                }
+                else if(Common.IsDisabledControlJustPressed(0, GameControl.FrontendSelect))
+                {
+                    InputSelect();
+                }
+
 
                 if (ShouldDrawScrollBar)
                 {
@@ -976,6 +1032,185 @@
                     ScrollBarBackgroundRectangle.Draw(g);
                     ScrollBarRectangle.Draw(g);
                 }
+            }
+
+            private void InputGoDown()
+            {
+                int currentIndex, newIndex;
+
+                switch (CurrentMenu)
+                {
+                    case ECurrentMenu.MainMenu:
+                        if(!MainMenuItems.Contains(SelectedItem))
+                        {
+                            SelectedItem = MainMenuItems[0];
+                            return;
+                        }
+
+                        currentIndex = MainMenuItems.IndexOf((MenuItem)SelectedItem);
+                        newIndex = currentIndex + 1;
+                        if (newIndex >= MainMenuItems.Count)
+                            newIndex = 0;
+                        SelectedItem = MainMenuItems[newIndex];
+                        break;
+                    case ECurrentMenu.HandgunsMenu:
+                        if (!HandgunWeaponItems.Contains(SelectedItem))
+                        {
+                            SelectedItem = HandgunWeaponItems[0];
+                            return;
+                        }
+
+                        currentIndex = HandgunWeaponItems.IndexOf((WeaponItem)SelectedItem);
+                        newIndex = currentIndex + 1;
+                        if (newIndex >= HandgunWeaponItems.Count)
+                            newIndex = 0;
+                        SelectedItem = HandgunWeaponItems[newIndex];
+                        break;
+                    case ECurrentMenu.LongGunsMenu:
+                        if (!LongGunsWeaponItems.Contains(SelectedItem))
+                        {
+                            SelectedItem = LongGunsWeaponItems[0];
+                            return;
+                        }
+
+                        currentIndex = LongGunsWeaponItems.IndexOf((WeaponItem)SelectedItem);
+                        newIndex = currentIndex + 1;
+                        if (newIndex >= LongGunsWeaponItems.Count)
+                            newIndex = 0;
+                        SelectedItem = LongGunsWeaponItems[newIndex];
+                        break;
+                    case ECurrentMenu.ThrowablesMenu:
+                        if (!ThrowableWeaponItems.Contains(SelectedItem))
+                        {
+                            SelectedItem = ThrowableWeaponItems[0];
+                            return;
+                        }
+
+                        currentIndex = ThrowableWeaponItems.IndexOf((WeaponItem)SelectedItem);
+                        newIndex = currentIndex + 1;
+                        if (newIndex >= ThrowableWeaponItems.Count)
+                            newIndex = 0;
+                        SelectedItem = ThrowableWeaponItems[newIndex];
+                        break;
+                    case ECurrentMenu.MiscMenu:
+                        if (!MiscWeaponItems.Contains(SelectedItem))
+                        {
+                            SelectedItem = MiscWeaponItems[0];
+                            return;
+                        }
+
+                        currentIndex = MiscWeaponItems.IndexOf((WeaponItem)SelectedItem);
+                        newIndex = currentIndex + 1;
+                        if (newIndex >= MiscWeaponItems.Count)
+                            newIndex = 0;
+                        SelectedItem = MiscWeaponItems[newIndex];
+                        break;
+                    case ECurrentMenu.PredefinedLoadoutsMenu:
+                        if (!PredefinedLoadoutItems.Contains(SelectedItem))
+                        {
+                            SelectedItem = PredefinedLoadoutItems[0];
+                            return;
+                        }
+
+                        currentIndex = PredefinedLoadoutItems.IndexOf((LoadoutItem)SelectedItem);
+                        newIndex = currentIndex + 1;
+                        if (newIndex >= PredefinedLoadoutItems.Count)
+                            newIndex = 0;
+                        SelectedItem = PredefinedLoadoutItems[newIndex];
+                        break;
+                }
+            }
+
+            private void InputGoUp()
+            {
+                int currentIndex, newIndex;
+
+                switch (CurrentMenu)
+                {
+                    case ECurrentMenu.MainMenu:
+                        if (!MainMenuItems.Contains(SelectedItem))
+                        {
+                            SelectedItem = MainMenuItems[0];
+                            return;
+                        }
+
+                        currentIndex = MainMenuItems.IndexOf((MenuItem)SelectedItem);
+                        newIndex = currentIndex - 1;
+                        if (newIndex <= 0)
+                            newIndex = 0;
+                        SelectedItem = MainMenuItems[newIndex];
+                        break;
+                    case ECurrentMenu.HandgunsMenu:
+                        if (!HandgunWeaponItems.Contains(SelectedItem))
+                        {
+                            SelectedItem = HandgunWeaponItems[0];
+                            return;
+                        }
+
+                        currentIndex = HandgunWeaponItems.IndexOf((WeaponItem)SelectedItem);
+                        newIndex = currentIndex - 1;
+                        if (newIndex <= 0)
+                            newIndex = 0;
+                        SelectedItem = HandgunWeaponItems[newIndex];
+                        break;
+                    case ECurrentMenu.LongGunsMenu:
+                        if (!LongGunsWeaponItems.Contains(SelectedItem))
+                        {
+                            SelectedItem = LongGunsWeaponItems[0];
+                            return;
+                        }
+
+                        currentIndex = LongGunsWeaponItems.IndexOf((WeaponItem)SelectedItem);
+                        newIndex = currentIndex - 1;
+                        if (newIndex <= 0)
+                            newIndex = 0;
+                        SelectedItem = LongGunsWeaponItems[newIndex];
+                        break;
+                    case ECurrentMenu.ThrowablesMenu:
+                        if (!ThrowableWeaponItems.Contains(SelectedItem))
+                        {
+                            SelectedItem = ThrowableWeaponItems[0];
+                            return;
+                        }
+
+                        currentIndex = ThrowableWeaponItems.IndexOf((WeaponItem)SelectedItem);
+                        newIndex = currentIndex - 1;
+                        if (newIndex <= 0)
+                            newIndex = 0;
+                        SelectedItem = ThrowableWeaponItems[newIndex];
+                        break;
+                    case ECurrentMenu.MiscMenu:
+                        if (!MiscWeaponItems.Contains(SelectedItem))
+                        {
+                            SelectedItem = MiscWeaponItems[0];
+                            return;
+                        }
+
+                        currentIndex = MiscWeaponItems.IndexOf((WeaponItem)SelectedItem);
+                        newIndex = currentIndex - 1;
+                        if (newIndex <= 0)
+                            newIndex = 0;
+                        SelectedItem = MiscWeaponItems[newIndex];
+                        break;
+                    case ECurrentMenu.PredefinedLoadoutsMenu:
+                        if (!PredefinedLoadoutItems.Contains(SelectedItem))
+                        {
+                            SelectedItem = PredefinedLoadoutItems[0];
+                            return;
+                        }
+
+                        currentIndex = PredefinedLoadoutItems.IndexOf((LoadoutItem)SelectedItem);
+                        newIndex = currentIndex - 1;
+                        if (newIndex <= 0)
+                            newIndex = 0;
+                        SelectedItem = PredefinedLoadoutItems[newIndex];
+                        break;
+                }
+            }
+
+            private void InputSelect()
+            {
+                SelectedItem?.BackgroundRectangle.RaiseClicked();
             }
 
             private void invokeLoadoutItemSelected(LoadoutItem item)
@@ -1214,13 +1449,14 @@
                 public abstract bool Hovered { get; }
                 public abstract void Process();
                 public abstract void Draw(Rage.Graphics g);
+                public abstract UIRectangle BackgroundRectangle { get; }
             }
 
             public class MenuItem : Item
             {
                 public UITexture Texture { get; }
                 public UILabel Label { get; }
-                public UIRectangle BackgroundRectangle { get; }
+                public override UIRectangle BackgroundRectangle { get; }
 
                 private UIState _state;
                 public UIState State
@@ -1289,7 +1525,7 @@
                 public MiscItems MiscItem { get; }
                 public UITexture Texture { get; }
                 public UILabel Label { get; }
-                public UIRectangle BackgroundRectangle { get; }
+                public override UIRectangle BackgroundRectangle { get; }
 
                 private UIState _state;
                 public UIState State
@@ -1525,7 +1761,7 @@
             {
                 public UITexture Texture { get; }
                 public UILabel Label { get; }
-                public UIRectangle BackgroundRectangle { get; }
+                public override UIRectangle BackgroundRectangle { get; }
                 public Loadout Loadout { get; }
 
                 private UIState _state;

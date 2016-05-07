@@ -71,11 +71,11 @@
             if (UICommon.IsCursorInBounds(RectangleF))
             {
                 MouseState = UIMouseState.ElementHovered;
-                OnHovered();
+                RaiseHovered();
 
                 if (IsMouseLeftButtonJustPressed())
                 {
-                    OnClicked();
+                    RaiseClicked();
                 }
             }
             else
