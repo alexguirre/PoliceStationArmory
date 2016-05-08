@@ -43,8 +43,8 @@ E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\
 E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Marksman_Rifle.png
 E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Refill_Ammo.png
 E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Missing_Texture.png
-C:\Users\PcCom1\Documents\Visual Studio 2015\Projects\PoliceStationArmoury\PoliceStationArmoury\obj\x64\Release\Police Station Armory.csprojResolveAssemblyReference.cache
 E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Bulletproof_Vest.png
 E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Loadouts_Icon.png
 E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Misc_Icon.png
 E:\Rockstar Games\Grand Theft Auto V\Plugins\Police Station Armory Resources\UI\Special_Carbine.png
+C:\Users\PcCom1\Documents\Visual Studio 2015\Projects\PoliceStationArmoury\PoliceStationArmoury\obj\x64\Release\Police Station Armory.csprojResolveAssemblyReference.cache

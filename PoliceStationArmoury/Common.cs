@@ -57,10 +57,10 @@
             NativeFunction.Natives.ENABLE_ALL_CONTROL_ACTIONS((int)controlGroup);
         }
 
-        //public static bool IsDisabledControlPressed(int index, GameControl control)
-        //{
-        //    return NativeFunction.CallByName<bool>("IS_DISABLED_CONTROL_PRESSED", index, (int)control);
-        //}
+        public static bool IsDisabledControlPressed(int index, GameControl control)
+        {
+            return NativeFunction.CallByName<bool>("IS_DISABLED_CONTROL_PRESSED", index, (int)control);
+        }
 
         public static bool IsDisabledControlJustPressed(int index, GameControl control)
         {

@@ -27,19 +27,22 @@
 
     internal class Armory
     {
+
         public const string MAIN_FOLDER     = @"Plugins\Police Station Armory Resources\";
         public const string UI_FOLDER       = MAIN_FOLDER + @"UI\";
         public const string LOADOUTS_FOLDER = MAIN_FOLDER + @"Loadouts\";
 
         public const string AUDIO_LIBRARY = "HUD_FRONTEND_DEFAULT_SOUNDSET";
 
-        //public const string AUDIO_UPDOWN = "NAV_UP_DOWN";
+        public const string AUDIO_UPDOWN = "NAV_UP_DOWN";
         //public const string AUDIO_LEFTRIGHT = "NAV_LEFT_RIGHT";
         public const string AUDIO_SELECT = "SELECT";
         public const string AUDIO_BACK = "BACK";
         public const string AUDIO_ERROR = "ERROR";
 
         public const int TEXTURE_WIDTH = 128, TEXTURE_HEIGHT = 64;
+
+        public static Sound SoundInstance { get; private set; } = new Sound(-1);
 
         //public const float HANDGUNS_TEXTURES_MULTIPLIER     = 1.0f,
         //                   LONG_GUNS_TEXTURES_MULTIPLIER    = 1.0f,
@@ -85,21 +88,12 @@
         public Camera Cam { get; private set; }
         public bool IsPlayerUsingTheArmoury { get; private set; }
         public bool IsCopGivingAWeapon { get; private set; }
-        public Sound SoundInstance { get; private set; }
 
         public Armory()
         {
             userInterface = new UserInterface();
             userInterface.WeaponItemSelected += OnWeaponItemSelected;
             userInterface.LoadoutItemSelected += OnLoadoutItemSelected;
-            SoundInstance = new Sound(-1);
-            userInterface.MenuChanged += (s, e) =>
-            {
-                if (userInterface.CurrentMenu == UserInterface.ECurrentMenu.MainMenu)
-                    SoundInstance.PlayFrontend(AUDIO_BACK, AUDIO_LIBRARY);
-                else
-                    SoundInstance.PlayFrontend(AUDIO_SELECT, AUDIO_LIBRARY);
-            };
 
             Game.FrameRender += UIFrameRender;
             Game.RawFrameRender += UIRawFrameRender;
@@ -514,26 +508,7 @@
 
             public List<Item> AllItems { get; }
             
-            public UIRectangle ScrollBarBackgroundRectangle { get; }
-            public UIRectangle ScrollBarRectangle { get; }
-            public float ScrollBarValue { get; set; } = 1.0f;
-            public float MaxScrollBarValue { get; } = Game.Resolution.Height - 50.0f;
-            public float MinScrollBarValue { get; } = 0.0f;
-            private bool _shouldDrawScrollBar;
-            public bool ShouldDrawScrollBar
-            {
-                get
-                {
-                    return _shouldDrawScrollBar;
-                }
-                private set
-                {
-                    _shouldDrawScrollBar = value;
-                    isScrollBarClicked = false;
-                    ScrollBarBackgroundRectangle.State = _shouldDrawScrollBar ? UIState.ComingIntoView : UIState.Hiding;
-                    ScrollBarRectangle.State = _shouldDrawScrollBar ? UIState.ComingIntoView : UIState.Hiding; 
-                }
-            }
+            public ScrollBar ScrollBarInstance { get; }
 
             public bool Visible { get; set; }
 
@@ -554,6 +529,7 @@
 
                     _selectedItem = value;
                     _selectedItem.Selected = true;
+
                     SelectedItemChanged?.Invoke(this, EventArgs.Empty);
                 }
             }
@@ -617,7 +593,8 @@
 
                             if (PredefinedLoadoutItem.State != UIState.ComingIntoView || PredefinedLoadoutItem.State != UIState.Showing)
                                 PredefinedLoadoutItem.State = UIState.ComingIntoView;
-                            ShouldDrawScrollBar = false;
+                            ScrollBarInstance.Visible = false;
+                            SelectedItem = MainMenuItems[0];
                             break;
                         case ECurrentMenu.HandgunsMenu:
                             foreach (WeaponItem item in LongGunsWeaponItems)
@@ -661,7 +638,8 @@
                                 if (item.State != UIState.ComingIntoView || item.State != UIState.Showing)
                                     item.State = UIState.ComingIntoView;
                             }
-                            ShouldDrawScrollBar = true;
+                            ScrollBarInstance.Visible = true;
+                            SelectedItem = HandgunWeaponItems[0];
                             break;
                         case ECurrentMenu.LongGunsMenu:
                             foreach (WeaponItem item in HandgunWeaponItems)
@@ -705,7 +683,8 @@
                                 if (item.State != UIState.ComingIntoView || item.State != UIState.Showing)
                                     item.State = UIState.ComingIntoView;
                             }
-                            ShouldDrawScrollBar = true;
+                            ScrollBarInstance.Visible = true;
+                            SelectedItem = LongGunsWeaponItems[0];
                             break;
                         case ECurrentMenu.ThrowablesMenu:
                             foreach (WeaponItem item in HandgunWeaponItems)
@@ -749,7 +728,8 @@
                                 if (item.State != UIState.ComingIntoView || item.State != UIState.Showing)
                                     item.State = UIState.ComingIntoView;
                             }
-                            ShouldDrawScrollBar = true;
+                            ScrollBarInstance.Visible = true;
+                            SelectedItem = ThrowableWeaponItems[0];
                             break;
                         case ECurrentMenu.MiscMenu:
                             foreach (WeaponItem item in HandgunWeaponItems)
@@ -793,7 +773,8 @@
                                 if (item.State != UIState.ComingIntoView || item.State != UIState.Showing)
                                     item.State = UIState.ComingIntoView;
                             }
-                            ShouldDrawScrollBar = true;
+                            ScrollBarInstance.Visible = true;
+                            SelectedItem = MiscWeaponItems[0];
                             break;
                         case ECurrentMenu.PredefinedLoadoutsMenu:
                             foreach (WeaponItem item in HandgunWeaponItems)
@@ -838,12 +819,12 @@
                                 if (item.State != UIState.ComingIntoView || item.State != UIState.Showing)
                                     item.State = UIState.ComingIntoView;
                             }
-                            ShouldDrawScrollBar = true;
+                            ScrollBarInstance.Visible = true;
+                            SelectedItem = PredefinedLoadoutItems[0];
                             break;
                     }
                     _currentMenu = value;
-                    ScrollBarRectangle.RectangleF = new RectangleF(ScrollBarRectangle.RectangleF.X, 0.0f, ScrollBarRectangle.RectangleF.Width, ScrollBarRectangle.RectangleF.Height);
-                    ScrollBarValue = 0.0f;
+                    ScrollBarInstance.SetValue(0.0f);
                     calculateItemsPosition();
 
                     MenuChanged?.Invoke(this, EventArgs.Empty);
@@ -907,9 +888,8 @@
                     PredefinedLoadoutItems.Add(item);
                 }
 
-                ScrollBarBackgroundRectangle = new UIRectangle(new RectangleF(Game.Resolution.Width - 15f, 0, 20f, Game.Resolution.Height), ScrollBarBackgroundColor, UIRectangleType.Filled, UIScreenBorder.Right, 0.0225f, 0.04725f);
-                ScrollBarRectangle = new UIRectangle(new RectangleF(Game.Resolution.Width - 15f, 0, 20f, 50f), ScrollBarColor, UIRectangleType.Filled, UIScreenBorder.Right, 0.0225f, 0.04725f);
-                ScrollBarRectangle.Clicked += scrollBarClicked;
+                ScrollBarInstance = new ScrollBar();
+                ScrollBarInstance.ValueChanged += (s, e) => { calculateItemsPosition(); };
 
                 AllItems = new List<Item>();
                 AllItems.AddRange(MainMenuItems);
@@ -918,16 +898,10 @@
                 AllItems.AddRange(ThrowableWeaponItems);
                 AllItems.AddRange(MiscWeaponItems);
                 AllItems.AddRange(PredefinedLoadoutItems);
-                foreach (Item item in AllItems)
-                {
-                    Item thisItem = item;
-                    thisItem.BackgroundRectangle.Clicked += (s) => { SelectedItem = thisItem; };
-                }
+                
 
-                isFirstPositionCalculation = true;
                 calculateItemsPosition();
                 CurrentMenu = ECurrentMenu.MainMenu;
-                SelectedItem = HandgunsItem;
                 hideAll();
             }
 
@@ -936,8 +910,9 @@
                 if (!Visible)
                     return;
 
-                if(CurrentMenu != ECurrentMenu.MainMenu && Game.GetMouseState().IsRightButtonDown)
+                if (CurrentMenu != ECurrentMenu.MainMenu && (Game.GetMouseState().IsRightButtonDown || Common.IsDisabledControlJustPressed(0, GameControl.FrontendCancel)))
                 {
+                    SoundInstance.PlayFrontend(AUDIO_BACK, AUDIO_LIBRARY);
                     CurrentMenu = ECurrentMenu.MainMenu;
                 }
 
@@ -969,27 +944,57 @@
                 }
 
 
-                if (Common.IsDisabledControlJustPressed(0, GameControl.FrontendUp))
+                if (Common.IsDisabledControlPressed(0, GameControl.FrontendUp))
                 {
-                    InputGoUp();
+                    if (!inputUpPressed)
+                    {
+                        inputCounter = 0;
+                        inputUpPressed = true;
+                        InputGoUp();
+                    }
+                    else
+                    {
+                        inputCounter++;
+                        if(inputCounter >= 80)
+                        {
+                            InputGoUp();
+                            inputCounter -= 10;
+                        }
+                    }
                 }
-                else if (Common.IsDisabledControlJustPressed(0, GameControl.FrontendDown))
+                else if (Common.IsDisabledControlPressed(0, GameControl.FrontendDown))
                 {
-                    InputGoDown();
+                    if (!inputDownPressed)
+                    {
+                        inputCounter = 0;
+                        inputDownPressed = true;
+                        InputGoDown();
+                    }
+                    else
+                    {
+                        inputCounter++;
+                        if (inputCounter >= 80)
+                        {
+                            InputGoDown();
+                            inputCounter -= 10;
+                        }
+                    }
                 }
-                else if(Common.IsDisabledControlJustPressed(0, GameControl.FrontendSelect))
+                else if (Common.IsDisabledControlJustPressed(0, GameControl.FrontendAccept))
                 {
                     InputSelect();
                 }
-
-
-                if (ShouldDrawScrollBar)
+                else
                 {
-                    ScrollBarBackgroundRectangle.Process();
-                    ScrollBarRectangle.Process();
-                    scrollBarUpdate();
+                    inputUpPressed = false;
+                    inputDownPressed = false;
                 }
+                // TODO: improve scroll bar movement with keyboard and controller input
+
+                ScrollBarInstance.Process();
             }
+            int inputCounter = 0;
+            bool inputUpPressed = false, inputDownPressed = false;
 
             public void Draw(Rage.Graphics g)
             {
@@ -1027,24 +1032,22 @@
                     item.DrawHelpText(g);
                 }
 
-                if (ShouldDrawScrollBar)
-                {
-                    ScrollBarBackgroundRectangle.Draw(g);
-                    ScrollBarRectangle.Draw(g);
-                }
+
+                ScrollBarInstance.Draw(g);
             }
 
             private void InputGoDown()
             {
                 int currentIndex, newIndex;
 
+                SoundInstance.PlayFrontend(AUDIO_UPDOWN, AUDIO_LIBRARY);
                 switch (CurrentMenu)
                 {
                     case ECurrentMenu.MainMenu:
                         if(!MainMenuItems.Contains(SelectedItem))
                         {
                             SelectedItem = MainMenuItems[0];
-                            return;
+                            break;
                         }
 
                         currentIndex = MainMenuItems.IndexOf((MenuItem)SelectedItem);
@@ -1057,7 +1060,7 @@
                         if (!HandgunWeaponItems.Contains(SelectedItem))
                         {
                             SelectedItem = HandgunWeaponItems[0];
-                            return;
+                            break;
                         }
 
                         currentIndex = HandgunWeaponItems.IndexOf((WeaponItem)SelectedItem);
@@ -1070,7 +1073,7 @@
                         if (!LongGunsWeaponItems.Contains(SelectedItem))
                         {
                             SelectedItem = LongGunsWeaponItems[0];
-                            return;
+                            break;
                         }
 
                         currentIndex = LongGunsWeaponItems.IndexOf((WeaponItem)SelectedItem);
@@ -1083,7 +1086,7 @@
                         if (!ThrowableWeaponItems.Contains(SelectedItem))
                         {
                             SelectedItem = ThrowableWeaponItems[0];
-                            return;
+                            break;
                         }
 
                         currentIndex = ThrowableWeaponItems.IndexOf((WeaponItem)SelectedItem);
@@ -1096,7 +1099,7 @@
                         if (!MiscWeaponItems.Contains(SelectedItem))
                         {
                             SelectedItem = MiscWeaponItems[0];
-                            return;
+                            break;
                         }
 
                         currentIndex = MiscWeaponItems.IndexOf((WeaponItem)SelectedItem);
@@ -1109,7 +1112,7 @@
                         if (!PredefinedLoadoutItems.Contains(SelectedItem))
                         {
                             SelectedItem = PredefinedLoadoutItems[0];
-                            return;
+                            break;
                         }
 
                         currentIndex = PredefinedLoadoutItems.IndexOf((LoadoutItem)SelectedItem);
@@ -1119,103 +1122,127 @@
                         SelectedItem = PredefinedLoadoutItems[newIndex];
                         break;
                 }
+
+                //ScrollBarInstance.Scroll(SelectedItem.BackgroundRectangle.RectangleF.Y - ScrollBarInstance.Value);
+                if (SelectedItem.BackgroundRectangle.RectangleF.Y + TEXTURE_HEIGHT > Game.Resolution.Height)
+                {
+                    ScrollBarInstance.Scroll((SelectedItem.BackgroundRectangle.RectangleF.Y + TEXTURE_HEIGHT) * 0.75f);
+                }
+                else if (SelectedItem.BackgroundRectangle.RectangleF.Y < 0.0f)
+                {
+                    ScrollBarInstance.Scroll((SelectedItem.BackgroundRectangle.RectangleF.Y) * 1.25f);
+                }
             }
 
             private void InputGoUp()
             {
                 int currentIndex, newIndex;
 
+                SoundInstance.PlayFrontend(AUDIO_UPDOWN, AUDIO_LIBRARY);
                 switch (CurrentMenu)
                 {
                     case ECurrentMenu.MainMenu:
                         if (!MainMenuItems.Contains(SelectedItem))
                         {
                             SelectedItem = MainMenuItems[0];
-                            return;
+                            break;
                         }
 
                         currentIndex = MainMenuItems.IndexOf((MenuItem)SelectedItem);
                         newIndex = currentIndex - 1;
-                        if (newIndex <= 0)
-                            newIndex = 0;
+                        if (newIndex < 0)
+                            newIndex = MainMenuItems.Count - 1;
                         SelectedItem = MainMenuItems[newIndex];
                         break;
                     case ECurrentMenu.HandgunsMenu:
                         if (!HandgunWeaponItems.Contains(SelectedItem))
                         {
                             SelectedItem = HandgunWeaponItems[0];
-                            return;
+                            break;
                         }
 
                         currentIndex = HandgunWeaponItems.IndexOf((WeaponItem)SelectedItem);
                         newIndex = currentIndex - 1;
-                        if (newIndex <= 0)
-                            newIndex = 0;
+                        
+                        if (newIndex < 0)
+                            newIndex = HandgunWeaponItems.Count - 1;
+
                         SelectedItem = HandgunWeaponItems[newIndex];
                         break;
                     case ECurrentMenu.LongGunsMenu:
                         if (!LongGunsWeaponItems.Contains(SelectedItem))
                         {
                             SelectedItem = LongGunsWeaponItems[0];
-                            return;
+                            break;
                         }
 
                         currentIndex = LongGunsWeaponItems.IndexOf((WeaponItem)SelectedItem);
                         newIndex = currentIndex - 1;
-                        if (newIndex <= 0)
-                            newIndex = 0;
+                        if (newIndex < 0)
+                            newIndex = LongGunsWeaponItems.Count - 1;
                         SelectedItem = LongGunsWeaponItems[newIndex];
                         break;
                     case ECurrentMenu.ThrowablesMenu:
                         if (!ThrowableWeaponItems.Contains(SelectedItem))
                         {
                             SelectedItem = ThrowableWeaponItems[0];
-                            return;
+                            break;
                         }
 
                         currentIndex = ThrowableWeaponItems.IndexOf((WeaponItem)SelectedItem);
                         newIndex = currentIndex - 1;
-                        if (newIndex <= 0)
-                            newIndex = 0;
+                        if (newIndex < 0)
+                            newIndex = ThrowableWeaponItems.Count - 1;
                         SelectedItem = ThrowableWeaponItems[newIndex];
                         break;
                     case ECurrentMenu.MiscMenu:
                         if (!MiscWeaponItems.Contains(SelectedItem))
                         {
                             SelectedItem = MiscWeaponItems[0];
-                            return;
+                            break;
                         }
 
                         currentIndex = MiscWeaponItems.IndexOf((WeaponItem)SelectedItem);
                         newIndex = currentIndex - 1;
-                        if (newIndex <= 0)
-                            newIndex = 0;
+                        if (newIndex < 0)
+                            newIndex = MiscWeaponItems.Count - 1;
                         SelectedItem = MiscWeaponItems[newIndex];
                         break;
                     case ECurrentMenu.PredefinedLoadoutsMenu:
                         if (!PredefinedLoadoutItems.Contains(SelectedItem))
                         {
                             SelectedItem = PredefinedLoadoutItems[0];
-                            return;
+                            break;
                         }
 
                         currentIndex = PredefinedLoadoutItems.IndexOf((LoadoutItem)SelectedItem);
                         newIndex = currentIndex - 1;
-                        if (newIndex <= 0)
-                            newIndex = 0;
+                        if (newIndex < 0)
+                            newIndex = PredefinedLoadoutItems.Count - 1;
                         SelectedItem = PredefinedLoadoutItems[newIndex];
                         break;
+                }
+
+                //ScrollBarInstance.Scroll(SelectedItem.BackgroundRectangle.RectangleF.Y - ScrollBarInstance.Value);
+                if (SelectedItem.BackgroundRectangle.RectangleF.Y + TEXTURE_HEIGHT > Game.Resolution.Height)
+                {
+                    ScrollBarInstance.Scroll((SelectedItem.BackgroundRectangle.RectangleF.Y + TEXTURE_HEIGHT) * 0.75f);
+                }
+                else if (SelectedItem.BackgroundRectangle.RectangleF.Y < 0.0f)
+                {
+                    ScrollBarInstance.Scroll((SelectedItem.BackgroundRectangle.RectangleF.Y) * 1.25f);
                 }
             }
 
             private void InputSelect()
             {
+                SoundInstance.PlayFrontend(AUDIO_SELECT, AUDIO_LIBRARY);
                 SelectedItem?.BackgroundRectangle.RaiseClicked();
             }
 
             private void invokeLoadoutItemSelected(LoadoutItem item)
             {
-                if (isScrollBarClicked)
+                if (ScrollBarInstance.IsClicked)
                     return;
 
                 if (LoadoutItemSelected != null)
@@ -1224,7 +1251,7 @@
 
             private void invokeWeaponItemSelected(WeaponItem item)
             {
-                if (isScrollBarClicked)
+                if (ScrollBarInstance.IsClicked)
                     return;
 
                 if (WeaponItemSelected != null)
@@ -1232,63 +1259,6 @@
             }
 
 
-            bool isScrollBarClicked = false;
-            private void scrollBarClicked(UIElementBase sender)
-            {
-                isScrollBarClicked = true;
-                float yRect = ScrollBarRectangle.RectangleF.Y;
-                //float yMouse = Game.GetMouseState().Y;
-                float yMouse = UICommon.GetCursorPosition().Y;
-                yOffset = yRect - yMouse;
-            }
-
-            float previousScrollBarValue = 0.0f;
-            float yOffset = 0.0f;
-            private void scrollBarUpdate()
-            {
-                if (isScrollBarClicked)
-                {
-                    MouseState mouseState = Game.GetMouseState();
-
-                    previousScrollBarValue = ScrollBarValue;
-
-                    float newYValue = mouseState.Y + yOffset > MaxScrollBarValue ? MaxScrollBarValue :
-                                      mouseState.Y + yOffset < MinScrollBarValue ? MinScrollBarValue :
-                                      mouseState.Y + yOffset;
-
-                    ScrollBarRectangle.RectangleF = new RectangleF(ScrollBarRectangle.RectangleF.X, newYValue, ScrollBarRectangle.RectangleF.Width, ScrollBarRectangle.RectangleF.Height);
-                    ScrollBarValue = newYValue;
-
-                    if(ScrollBarValue != previousScrollBarValue)
-                        calculateItemsPosition();
-
-                    if (!mouseState.IsLeftButtonDown)
-                    {
-                        yOffset = 0.0f;
-                        isScrollBarClicked = false;
-                    }
-                }
-                else
-                {
-                    MouseState mouseState = Game.GetMouseState();
-                    float delta = -mouseState.MouseWheelDelta;
-                    const float multiplier = 9.225f;
-
-                    previousScrollBarValue = ScrollBarValue;
-
-                    float newYValue = ScrollBarRectangle.RectangleF.Y + delta * multiplier > MaxScrollBarValue ? MaxScrollBarValue :
-                                      ScrollBarRectangle.RectangleF.Y + delta * multiplier < MinScrollBarValue ? MinScrollBarValue :
-                                      ScrollBarRectangle.RectangleF.Y + delta * multiplier;
-
-                    ScrollBarRectangle.RectangleF = new RectangleF(ScrollBarRectangle.RectangleF.X, newYValue, ScrollBarRectangle.RectangleF.Width, ScrollBarRectangle.RectangleF.Height);
-                    ScrollBarValue = newYValue;
-
-                    if (ScrollBarValue != previousScrollBarValue)
-                        calculateItemsPosition();
-                }
-            }
-
-            private bool isFirstPositionCalculation;
             private void calculateItemsPosition()   
             {
                 float resWidth = Game.Resolution.Width;
@@ -1302,8 +1272,8 @@
                 const float MAIN_MENU_RECT_WIDTH = RECTANGLE_WIDTH + 27.0f;
 
 
-                ScrollBarBackgroundRectangle.RectangleF = new RectangleF(resWidth - 15f, 0, 20f, resHeight);
-                ScrollBarRectangle.RectangleF = new RectangleF(resWidth - 15f, ScrollBarValue, 20f, 50f);
+                ScrollBarInstance.BackgroundRectangle.RectangleF = new RectangleF(resWidth - 15f, 0, 20f, resHeight);
+                ScrollBarInstance.Rectangle.RectangleF = new RectangleF(resWidth - 15f, ScrollBarInstance.Value, 20f, 50f);
 
 
                 float mainMenuYAddition = (resHeight / 6) - TEXTURE_HEIGHT;
@@ -1332,7 +1302,7 @@
 
 
                 x = resWidth - 600f;
-                y = -ScrollBarValue;
+                y = -ScrollBarInstance.Value;
 
                 foreach (WeaponItem item in HandgunWeaponItems)
                 {
@@ -1344,7 +1314,7 @@
 
 
                 x = resWidth - 600f;
-                y = -ScrollBarValue;
+                y = -ScrollBarInstance.Value;
 
                 foreach (WeaponItem item in LongGunsWeaponItems)
                 {
@@ -1356,7 +1326,7 @@
 
 
                 x = resWidth - 600f;
-                y = -ScrollBarValue;
+                y = -ScrollBarInstance.Value;
 
                 foreach (WeaponItem item in ThrowableWeaponItems)
                 {
@@ -1368,7 +1338,7 @@
 
 
                 x = resWidth - 600f;
-                y = -ScrollBarValue;
+                y = -ScrollBarInstance.Value;
 
                 foreach (WeaponItem item in MiscWeaponItems)
                 {
@@ -1380,7 +1350,7 @@
 
 
                 x = resWidth - 600f;
-                y = -ScrollBarValue;
+                y = -ScrollBarInstance.Value;
 
                 foreach (LoadoutItem item in PredefinedLoadoutItems)
                 {
@@ -1442,6 +1412,149 @@
                 MiscMenu,                   
                 PredefinedLoadoutsMenu,
             }
+
+            public sealed class ScrollBar
+            {
+                public float MaxScrollBarValue { get { return Game.Resolution.Height - 50.0f; } } 
+                public float MinScrollBarValue { get { return 0.0f; } }
+
+                public float Value { get; private set; }
+
+                public UIRectangle BackgroundRectangle { get; }
+                public UIRectangle Rectangle { get; }
+
+                bool _isClicked = false;
+                public bool IsClicked { get { return _isClicked; } }
+
+                public event EventHandler ValueChanged;
+
+                private bool _visible;
+                public bool Visible
+                {
+                    get
+                    {
+                        return _visible;
+                    }
+                    set
+                    {
+                        _visible = value;
+                        BackgroundRectangle.State = _visible ? UIState.ComingIntoView : UIState.Hiding;
+                        Rectangle.State = _visible ? UIState.ComingIntoView : UIState.Hiding;
+                    }
+                }
+
+                public ScrollBar()
+                {
+                    Value = 0.0f;
+                    BackgroundRectangle = new UIRectangle(new RectangleF(Game.Resolution.Width - 15f, 0, 20f, Game.Resolution.Height), ScrollBarBackgroundColor, UIRectangleType.Filled, UIScreenBorder.Right, 0.0225f, 0.04725f);
+                    Rectangle = new UIRectangle(new RectangleF(Game.Resolution.Width - 15f, 0, 20f, 50f), ScrollBarColor, UIRectangleType.Filled, UIScreenBorder.Right, 0.0225f, 0.04725f);
+                    Rectangle.Clicked += rectClicked;
+                }
+
+
+                private void rectClicked(UIElementBase sender)
+                {
+                    _isClicked = true;
+                    float yRect = Rectangle.RectangleF.Y;
+                    float yMouse = UICommon.GetCursorPosition().Y;
+                    yOffset = yRect - yMouse;
+                }
+
+                float previousScrollBarValue = 0.0f;
+                float yOffset = 0.0f;
+                public void Process()
+                {
+                    if (_isClicked)
+                    {
+                        MouseState mouseState = Game.GetMouseState();
+
+
+                        float newYValue = mouseState.Y + yOffset > MaxScrollBarValue ? MaxScrollBarValue :
+                                          mouseState.Y + yOffset < MinScrollBarValue ? MinScrollBarValue :
+                                          mouseState.Y + yOffset;
+
+                        SetValue(newYValue);
+
+                        if (!mouseState.IsLeftButtonDown)
+                        {
+                            yOffset = 0.0f;
+                            _isClicked = false;
+                        }
+                    }
+                    else
+                    {
+                        MouseState mouseState = Game.GetMouseState();
+                        float delta = -mouseState.MouseWheelDelta;
+                        const float multiplier = 9.225f;
+
+                        float newYValue = Rectangle.RectangleF.Y + delta * multiplier > MaxScrollBarValue ? MaxScrollBarValue :
+                                          Rectangle.RectangleF.Y + delta * multiplier < MinScrollBarValue ? MinScrollBarValue :
+                                          Rectangle.RectangleF.Y + delta * multiplier;
+
+                        SetValue(newYValue);
+                    }
+
+                    if (lerping)
+                    {
+                        float newLerpValue = MathHelper.Lerp(initScrollValue, toScroll, lerpPercent);
+                        lerpPercent += 0.05f;
+
+                        float newYValue = newLerpValue > MaxScrollBarValue ? MaxScrollBarValue :
+                                          newLerpValue < MinScrollBarValue ? MinScrollBarValue :
+                                          newLerpValue;
+
+                        SetValue(newYValue);
+
+                        if (lerpPercent >= 1.0f)
+                        {
+                            initScrollValue = 0.0f;
+                            toScroll = 0.0f;
+                            lerpPercent = 0.0f;
+                            lerping = false;
+                        }
+                    }
+
+                    BackgroundRectangle.Process();
+                    Rectangle.Process();
+                }
+
+                public void Draw(Rage.Graphics g)
+                {
+                    if (!Visible)
+                        return;
+
+                    BackgroundRectangle.Draw(g);
+                    Rectangle.Draw(g);
+                }
+
+                bool lerping = false;
+
+                float lerpPercent = 0.0f;
+                float initScrollValue = 0.0f;
+                float toScroll = 0.0f;
+                public void Scroll(float valueToScroll)
+                {
+                    if (valueToScroll == 0.0f)
+                        return;
+
+                    initScrollValue = Value;
+                    toScroll = Value + valueToScroll;
+                    lerpPercent = 0.0f;
+                    lerping = true;
+                }
+
+                public void SetValue(float value)
+                {
+                    previousScrollBarValue = Value;
+
+                    Rectangle.RectangleF = new RectangleF(Rectangle.RectangleF.X, value, Rectangle.RectangleF.Width, Rectangle.RectangleF.Height);
+                    Value = value;
+
+                    if (Value != previousScrollBarValue)
+                        ValueChanged?.Invoke(this, EventArgs.Empty);
+                }
+            }
+            
 
             public abstract class Item
             {
