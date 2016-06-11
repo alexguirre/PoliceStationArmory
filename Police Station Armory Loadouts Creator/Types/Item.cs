@@ -86,19 +86,18 @@
 
     internal static class ItemTypeExtensions
     {
-        private static SortedDictionary<ItemType, WeaponComponent[]> weaponComponentsDictionary;
+        private static readonly SortedDictionary<ItemType, WeaponComponent[]> weaponComponentsDictionary;
 
         static ItemTypeExtensions()
         {
             #region WeaponComponentsDictionary Initialization
             weaponComponentsDictionary = new SortedDictionary<ItemType, WeaponComponent[]>();
-            //weaponComponentsDictionary.Add(ItemType.Bulletproof_Vest, new WeaponComponent[0]);
-            //weaponComponentsDictionary.Add(ItemType.Nightstick, new WeaponComponent[0]);
-            //weaponComponentsDictionary.Add(ItemType.Fire_Extinguisher, new WeaponComponent[0]);
+
             weaponComponentsDictionary.Add(ItemType.SMG, new WeaponComponent[]
             {
    WeaponComponent.COMPONENT_SMG_CLIP_01,
    WeaponComponent.COMPONENT_SMG_CLIP_02,
+   WeaponComponent.COMPONENT_SMG_CLIP_03,
    WeaponComponent.COMPONENT_AT_AR_FLSH,
    WeaponComponent.COMPONENT_AT_SCOPE_MACRO_02,
    WeaponComponent.COMPONENT_AT_PI_SUPP,
@@ -117,6 +116,7 @@
             {
    WeaponComponent.COMPONENT_ASSAULTRIFLE_CLIP_01,
    WeaponComponent.COMPONENT_ASSAULTRIFLE_CLIP_02,
+   WeaponComponent.COMPONENT_ASSAULTRIFLE_CLIP_03,
    WeaponComponent.COMPONENT_AT_AR_FLSH,
    WeaponComponent.COMPONENT_AT_SCOPE_MACRO,
    WeaponComponent.COMPONENT_AT_AR_SUPP_02,
@@ -127,6 +127,7 @@
             {
    WeaponComponent.COMPONENT_CARBINERIFLE_CLIP_01,
    WeaponComponent.COMPONENT_CARBINERIFLE_CLIP_02,
+   WeaponComponent.COMPONENT_CARBINERIFLE_CLIP_03,
    WeaponComponent.COMPONENT_AT_AR_FLSH,
    WeaponComponent.COMPONENT_AT_RAILCOVER_01,
    WeaponComponent.COMPONENT_AT_SCOPE_MEDIUM,
@@ -283,6 +284,7 @@
             {
    WeaponComponent.COMPONENT_COMBATPDW_CLIP_01,
    WeaponComponent.COMPONENT_COMBATPDW_CLIP_02,
+   WeaponComponent.COMPONENT_COMBATPDW_CLIP_03,
    WeaponComponent.COMPONENT_AT_AR_FLSH,
    WeaponComponent.COMPONENT_AT_AR_AFGRIP,
    WeaponComponent.COMPONENT_AT_SCOPE_SMALL,
@@ -306,6 +308,7 @@
             {
    WeaponComponent.COMPONENT_HEAVYSHOTGUN_CLIP_01,
    WeaponComponent.COMPONENT_HEAVYSHOTGUN_CLIP_02,
+   WeaponComponent.COMPONENT_HEAVYSHOTGUN_CLIP_03,
    WeaponComponent.COMPONENT_AT_AR_FLSH,
    WeaponComponent.COMPONENT_AT_AR_SUPP_02,
    WeaponComponent.COMPONENT_AT_AR_AFGRIP,
@@ -327,6 +330,7 @@
             {
    WeaponComponent.COMPONENT_MACHINEPISTOL_CLIP_01,
    WeaponComponent.COMPONENT_MACHINEPISTOL_CLIP_02,
+   WeaponComponent.COMPONENT_MACHINEPISTOL_CLIP_03,
    WeaponComponent.COMPONENT_AT_PI_SUPP,
             });
             weaponComponentsDictionary.Add(ItemType.Marksman_Pistol, new WeaponComponent[]
@@ -380,6 +384,7 @@
             {
    WeaponComponent.COMPONENT_SPECIALCARBINE_CLIP_01,
    WeaponComponent.COMPONENT_SPECIALCARBINE_CLIP_02,
+   WeaponComponent.COMPONENT_SPECIALCARBINE_CLIP_03,
    WeaponComponent.COMPONENT_AT_AR_FLSH,
    WeaponComponent.COMPONENT_AT_SCOPE_MEDIUM,
    WeaponComponent.COMPONENT_AT_AR_SUPP_02,
