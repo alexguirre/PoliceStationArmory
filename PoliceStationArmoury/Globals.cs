@@ -12,7 +12,7 @@
 
         public static Random Random { get; } = new Random();
 
-        public static StaticFinalizer Finalizer = new StaticFinalizer(delegate { GlobalCleanUp(); });
+        public static StaticFinalizer Finalizer = new StaticFinalizer(GlobalCleanUp);
 
         public static void GlobalCleanUp()
         {
