@@ -7,6 +7,9 @@
     {
         public static void Main()
         {
+            while (Game.IsLoading)
+                GameFiber.Yield();
+
             Logger.LogWelcome();
 
             Globals.MainArmouryInstance = new Armory();
