@@ -88,6 +88,8 @@
         public Camera Cam { get; private set; }
         public bool IsPlayerUsingTheArmoury { get; private set; }
         public bool IsCopGivingAWeapon { get; private set; }
+        public bool IsOnArmory { get; private set; }
+
 
         public Armory()
         {
@@ -140,11 +142,13 @@
                             Game.LocalPlayer.Character.PlayAmbientSpeech(new string[] { Speech.GENERIC_HI }.GetRandomElement(), false);
                             userInterface.CurrentMenu = UserInterface.ECurrentMenu.MainMenu;
                             Logger.LogTrivial("Player using the armory");
+                            IsOnArmory = true;
                             IsPlayerUsingTheArmoury = true;
                         }
                         else
                         {
                             IsPlayerUsingTheArmoury = false;
+                            IsOnArmory = false;
                             Logger.LogTrivial("Player exiting the armory");
                             Cop.PlayAmbientSpeech(Speech.GENERIC_BYE, false);
                             Game.LocalPlayer.Character.PlayAmbientSpeech(new string[] { Speech.GENERIC_BYE, Speech.GENERIC_THANKS }.GetRandomElement(), false);
@@ -181,6 +185,24 @@
                     Logger.LogDebug("Cop playing scenario " + scenario);
                 }
             }
+
+            if (!IsOnArmory)
+            {
+                if (Game.IsKeyDown(Keys.F7))
+                {
+                    if (!IsPlayerUsingTheArmoury)
+                    {
+                        userInterface.CurrentMenu = UserInterface.ECurrentMenu.MainMenu;
+                        IsOnArmory = false;
+                        IsPlayerUsingTheArmoury = true;
+                    }
+                    else
+                    {
+                        IsOnArmory = false;
+                        IsPlayerUsingTheArmoury = false;
+                    }
+                }
+            }
         }
 
         public Ped GetOrCreateCop()
@@ -190,7 +212,7 @@
             {
                 Ped ped = new Ped("s_m_y_cop_01", copSpawnPos.Position, copSpawnPos.Heading);
                 ped.IsPersistent = true;
-                ped.Invincible = true;
+                ped.IsInvincible = true;
                 ped.BlockPermanentEvents = true;
                 ped.Position = copSpawnPos.Position;
                 ped.Heading = copSpawnPos.Heading;
@@ -201,7 +223,7 @@
             else
             {
                 copAlreadyCreated.IsPersistent = true;
-                copAlreadyCreated.Invincible = true;
+                copAlreadyCreated.IsInvincible = true;
                 copAlreadyCreated.BlockPermanentEvents = true;
                 copAlreadyCreated.Position = copSpawnPos.Position;
                 copAlreadyCreated.Heading = copSpawnPos.Heading;
@@ -233,6 +255,39 @@
 
         private void OnWeaponItemSelected(UserInterface.WeaponItem selectedItem)
         {
+            if (!IsOnArmory)
+            {
+                GameFiber.StartNew(delegate
+                {
+                    SoundInstance.PlayFrontend(AUDIO_SELECT, AUDIO_LIBRARY);
+
+                    ItemType type = selectedItem.Type;
+                    if (type != ItemType.Misc)
+                    {
+                        Game.LocalPlayer.Character.Inventory.GiveNewWeapon((WeaponHash)selectedItem.WeaponHash, 999, true);
+                    }
+                    else
+                    {
+                        if (selectedItem.MiscItem == MiscItems.Fire_Extinguisher || selectedItem.MiscItem == MiscItems.Nightstick || selectedItem.MiscItem == MiscItems.Flashlight)
+                        {
+                            Game.LocalPlayer.Character.Inventory.GiveNewWeapon((WeaponHash)selectedItem.MiscItem, 999, true);
+                        }
+                        else if (selectedItem.MiscItem == MiscItems.Bulletproof_Vest)
+                        {
+                            Game.LocalPlayer.Character.Armor = 250;
+                        }
+                        else if (selectedItem.MiscItem == MiscItems.Refill_Ammo)
+                        {
+                            foreach (WeaponDescriptor w in Game.LocalPlayer.Character.Inventory.Weapons)
+                            {
+                                w.Ammo += 500;
+                            }
+                        }
+                    }
+                });
+                return;
+            }
+
             if (IsCopGivingAWeapon)
             {
                 SoundInstance.PlayFrontend(AUDIO_ERROR, AUDIO_LIBRARY);
@@ -358,6 +413,19 @@
 
         private void OnLoadoutItemSelected(UserInterface.LoadoutItem selectedItem)
         {
+            if (!IsOnArmory)
+            {
+                GameFiber.StartNew(delegate
+                {
+                    SoundInstance.PlayFrontend(AUDIO_SELECT, AUDIO_LIBRARY);
+
+                    NativeFunction.CallByName<uint>("SET_CURRENT_PED_WEAPON", Game.LocalPlayer.Character, (uint)EWeaponHash.Unarmed, true);
+
+                    selectedItem.Loadout.GiveToPed(Game.LocalPlayer.Character);
+                });
+                return;
+            }
+
             if (IsCopGivingAWeapon)
             {
                 SoundInstance.PlayFrontend(AUDIO_ERROR, AUDIO_LIBRARY);
@@ -449,7 +517,7 @@
             Game.RawFrameRender -= UIRawFrameRender;
             if (Cop.Exists())
             {
-                Cop.Invincible = true;
+                Cop.IsInvincible = true;
                 Cop.Dismiss();
             }
             if (Cam.Exists())
