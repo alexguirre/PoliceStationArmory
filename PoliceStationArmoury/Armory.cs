@@ -50,15 +50,6 @@
         //                   MISC_ITEMS_TEXTURES_MULTIPLIER   = 1.0f,
         //                   LOADOUTS_TEXTURES_MULTIPLIER     = 1.0f;
 
-        //public static readonly Color BackgroundRectangleColor           = Color.FromArgb(150, System.Drawing.Color.DarkGray),
-        //                             HoveredBackgroundRectangleColor    = ControlPaint.Light(BackgroundRectangleColor, 1.0f),
-        //                             BorderRectangleColor               = Color.Black,
-
-        //                             LabelTextColor                     = Color.White,
-
-        //                             HelpTextBackgroundRectangleColor   = Color.FromArgb(195, Color.Black),
-        //                             HelpTextLabelTextColor             = Color.White;
-
         private static Rage.Texture _missingTexture;
         public static Rage.Texture MissingTexture
         {
@@ -109,7 +100,7 @@
                 if (!Cop.Position.IsInRangeOf(copSpawnPos.Position, 0.25f))
                     Cop.Position = copSpawnPos.Position;
 
-                if(canPlayerEnterTheArmory()/*Game.LocalPlayer.Character.IsInRangeOf2D(playerGetStuffPos.Position, 4.85f)*/)
+                if(canPlayerEnterTheArmory())
                 {
                     if(!IsPlayerUsingTheArmoury)
                         Game.DisplayHelp("Press ~INPUT_CONTEXT~ to enter the armory", 10);
@@ -186,20 +177,23 @@
                 }
             }
 
-            if (!IsOnArmory)
+            if (Settings.OnTheFlyModeEnabled)
             {
-                if (Game.IsKeyDown(Keys.F7))
+                if (!IsOnArmory)
                 {
-                    if (!IsPlayerUsingTheArmoury)
+                    if (Game.IsKeyDown(Settings.OpenCloseOnTheFlyMenuKey))
                     {
-                        userInterface.CurrentMenu = UserInterface.ECurrentMenu.MainMenu;
-                        IsOnArmory = false;
-                        IsPlayerUsingTheArmoury = true;
-                    }
-                    else
-                    {
-                        IsOnArmory = false;
-                        IsPlayerUsingTheArmoury = false;
+                        if (!IsPlayerUsingTheArmoury)
+                        {
+                            userInterface.CurrentMenu = UserInterface.ECurrentMenu.MainMenu;
+                            IsOnArmory = false;
+                            IsPlayerUsingTheArmoury = true;
+                        }
+                        else
+                        {
+                            IsOnArmory = false;
+                            IsPlayerUsingTheArmoury = false;
+                        }
                     }
                 }
             }
